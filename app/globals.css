@@ -1778,7 +1778,9 @@ footer {
   }
 
   .is-classroom-poster-layout .lesson-board {
+    break-inside: avoid;
     padding: 0.06in;
+    page-break-inside: avoid;
   }
 
   .is-classroom-poster-layout .standard-poster-masthead {
@@ -1801,26 +1803,26 @@ footer {
   }
 
   .is-classroom-poster-layout .circle-stage {
-    width: 6.35in;
+    width: 6.1in;
   }
 
   .is-classroom-poster-layout .key-card.core-node {
-    --radius: 1.35in;
-    width: 0.7in;
-    min-height: 0.58in;
+    --radius: 1.31in;
+    width: 0.68in;
+    min-height: 0.56in;
   }
 
   .is-classroom-poster-layout .notation-node {
-    --radius: 1.92in;
+    --radius: 1.86in;
   }
 
   .is-classroom-poster-layout .keyboard-node {
-    --radius: 2.67in;
+    --radius: 2.57in;
   }
 
   .is-classroom-poster-layout .mini-keyboard {
-    width: 0.9in;
-    height: 0.37in;
+    width: 0.87in;
+    height: 0.35in;
     margin-top: 0;
   }
 
@@ -1834,8 +1836,8 @@ footer {
   }
 
   .is-classroom-poster-layout .standard-poster-footer {
-    margin: 0.03in 0.08in 0;
-    padding-top: 0.04in;
+    margin: 0.01in 0.08in 0;
+    padding-top: 0.025in;
     font-size: 0.42rem;
   }
 
