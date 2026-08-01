@@ -8,11 +8,15 @@ function first(value: string | string[] | undefined) {
 
 export default async function Home({ searchParams }: { searchParams: SearchParams }) {
   const params = await searchParams;
-  const layerParam = first(params.layers) ?? "signatures";
+  const layerParam = first(params.layers) ?? "signatures,numbers";
   const layers = layerParam
     .split(",")
     .filter((layer): layer is CircleBoardState["layers"][number] =>
-      layer === "signatures" || layer === "minors",
+      layer === "signatures" ||
+      layer === "numbers" ||
+      layer === "keyboards" ||
+      layer === "minors" ||
+      layer === "accidental-order",
     );
   const revealed = (first(params.revealed) ?? "c").split(",").filter(Boolean);
   const initialState: CircleBoardState = {

@@ -10,7 +10,9 @@ An interactive, projector-first classroom board for building and exploring key r
 - key-signature and relative-minor layers
 - visual staff signatures with separate numerical accidental counts
 - selected-key detail panel
-- two-octave practice-marimba scale preview
+- toggleable one-octave scale keyboards around all twelve circle positions
+- two-octave selected-scale practice-marimba detail view
+- toggleable BEADGCF flat order with its reverse sharp order
 - URL-persisted lesson state
 - copy-link, reset, and print actions
 - deterministic musical model with automated tests

@@ -137,6 +137,11 @@ h1 {
   text-transform: uppercase;
 }
 
+.layer-controls {
+  flex: 1 1 34rem;
+  flex-wrap: wrap;
+}
+
 .toolbar button[aria-pressed="true"] {
   border-color: var(--teal);
   background: var(--teal);
@@ -163,6 +168,14 @@ h1 {
   width: min(74vh, 76vw, 760px);
   aspect-ratio: 1;
   margin: 0 auto;
+}
+
+.circle-stage.has-keyboards {
+  width: min(82vh, 82vw, 860px);
+}
+
+.circle-stage.has-keyboards .key-card {
+  --radius: clamp(14rem, 33vw, 22.5rem);
 }
 
 .circle-ring {
@@ -211,6 +224,12 @@ h1 {
   transform: translate(-50%, -50%) rotate(var(--angle)) translateY(calc(var(--radius) * -1)) rotate(calc(var(--angle) * -1));
   transition: border-color 160ms ease, box-shadow 160ms ease, opacity 160ms ease, background 160ms ease;
   cursor: pointer;
+}
+
+.key-card.shows-keyboard {
+  width: clamp(6.8rem, 13vw, 8.8rem);
+  min-height: clamp(6.2rem, 10vw, 7.3rem);
+  padding: 0.45rem;
 }
 
 .key-card.is-visible {
@@ -298,6 +317,64 @@ h1 {
   margin-top: 0.18rem;
 }
 
+.mini-keyboard {
+  position: relative;
+  display: block;
+  width: min(6.8rem, 100%);
+  height: 2.1rem;
+  margin-top: 0.35rem;
+  border: 1px solid #65442f;
+  border-radius: 0.32rem;
+  background: linear-gradient(180deg, #694631, #3d281d);
+  padding: 0.14rem;
+}
+
+.mini-natural-bars {
+  display: grid;
+  height: 100%;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 1px;
+}
+
+.mini-bar {
+  display: block;
+  border-radius: 1px;
+}
+
+.mini-bar.natural {
+  border: 1px solid rgba(74, 38, 22, 0.72);
+  background: linear-gradient(90deg, #a96b43, #c78354 46%, #9a5d3a);
+}
+
+.mini-accidental-bars {
+  position: absolute;
+  inset: 0.14rem;
+  pointer-events: none;
+}
+
+.mini-bar.accidental {
+  position: absolute;
+  top: 0;
+  left: var(--bar-left);
+  width: 8.2%;
+  height: 56%;
+  transform: translateX(-50%);
+  border: 1px solid rgba(26, 15, 10, 0.82);
+  background: linear-gradient(90deg, #3d271e, #674332 48%, #352219);
+}
+
+.mini-bar.is-scale-tone {
+  border-color: #8b6822;
+  background: linear-gradient(90deg, #b98726, #e0b956 46%, #a97922);
+  box-shadow: inset 0 0 0 1px rgba(255, 245, 186, 0.35);
+}
+
+.mini-bar.is-tonic {
+  border-color: #7e2e23;
+  background: linear-gradient(90deg, #a84235, #d46d59 46%, #96392e);
+  box-shadow: inset 0 0 0 1px rgba(255, 221, 210, 0.45);
+}
+
 .accidental-count {
   display: inline-flex;
   min-width: 1.75rem;
@@ -366,6 +443,26 @@ h1 {
 .circle-center small {
   color: var(--muted);
   font-weight: 700;
+}
+
+.circle-center.shows-order {
+  width: 35%;
+  padding: 1rem;
+}
+
+.circle-center .accidental-order {
+  margin: 0.5rem 0;
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  font-size: clamp(1.05rem, 2.3vw, 1.65rem);
+  font-weight: 850;
+  letter-spacing: 0.13em;
+  line-height: 1.35;
+}
+
+.circle-center.shows-order small {
+  max-width: 11rem;
+  font-size: clamp(0.52rem, 1vw, 0.7rem);
+  line-height: 1.35;
 }
 
 .detail-panel {
@@ -560,6 +657,10 @@ footer {
     width: min(78vh, 96vw, 690px);
   }
 
+  .circle-stage.has-keyboards {
+    width: min(84vh, 98vw, 790px);
+  }
+
   .detail-panel {
     width: min(720px, 100%);
     margin-inline: auto;
@@ -585,6 +686,10 @@ footer {
     padding: 0;
   }
 
+  .layer-controls {
+    flex: 1 1 100%;
+  }
+
   .control-label {
     width: 4.8rem;
   }
@@ -598,6 +703,12 @@ footer {
     margin-left: -13vw;
   }
 
+
+  .circle-stage.has-keyboards {
+    width: 142vw;
+    margin-left: -25vw;
+  }
+
   .key-card {
     --radius: 43vw;
     width: 20vw;
@@ -609,6 +720,22 @@ footer {
   .key-card.is-covered {
     width: 10vw;
     min-height: 10vw;
+  }
+
+  .key-card.shows-keyboard {
+    --radius: 58vw;
+    width: 24vw;
+    min-height: 22vw;
+  }
+
+  .mini-keyboard {
+    height: 1.5rem;
+    margin-top: 0.2rem;
+  }
+
+  .circle-center.shows-order {
+    width: 39%;
+    padding: 0.55rem;
   }
 
   .signature,
@@ -687,6 +814,12 @@ footer {
     width: 0.9in;
     min-height: 0.62in;
     box-shadow: none !important;
+  }
+
+
+  .key-card.shows-keyboard {
+    width: 1.05in;
+    min-height: 0.9in;
   }
 
   .key-name {

@@ -5,7 +5,7 @@ import { getTraversal } from "@/lib/music-model.mjs";
 
 type Orientation = "fourths" | "fifths";
 type BoardMode = "build" | "poster";
-type Layer = "signatures" | "minors";
+type Layer = "signatures" | "numbers" | "keyboards" | "minors" | "accidental-order";
 
 const DEFAULT_REVEALED = ["c"];
 
@@ -24,6 +24,14 @@ const ACCIDENTAL_BARS = [
   ["C♯4 / D♭4", 1, 1], ["D♯4 / E♭4", 3, 2], ["F♯4 / G♭4", 6, 4], ["G♯4 / A♭4", 8, 5],
   ["A♯4 / B♭4", 10, 6], ["C♯5 / D♭5", 1, 8], ["D♯5 / E♭5", 3, 9], ["F♯5 / G♭5", 6, 11],
   ["G♯5 / A♭5", 8, 12], ["A♯5 / B♭5", 10, 13],
+] as const;
+
+const MINI_NATURAL_BARS = [
+  ["C", 0], ["D", 2], ["E", 4], ["F", 5], ["G", 7], ["A", 9], ["B", 11], ["C", 0],
+] as const;
+
+const MINI_ACCIDENTAL_BARS = [
+  [1, 1], [3, 2], [6, 4], [8, 5], [10, 6],
 ] as const;
 
 function KeySignature({ type, count, compact = false }: { type: string; count: number; compact?: boolean }) {
@@ -57,6 +65,30 @@ function AccidentalCount({ type, count }: { type: string; count: number }) {
     <span className="accidental-count" aria-label={`${count} ${type === "none" ? "accidentals" : type + (count === 1 ? "" : "s")}`}>
       <strong>{count}</strong>
       <span aria-hidden="true">{type === "flat" ? "♭" : type === "sharp" ? "♯" : "—"}</span>
+    </span>
+  );
+}
+
+function MiniScaleKeyboard({ label, tonic, scale }: { label: string; tonic: number; scale: number[] }) {
+  return (
+    <span className="mini-keyboard" role="img" aria-label={`${label} major scale on a one-octave mallet keyboard`}>
+      <span className="mini-natural-bars" aria-hidden="true">
+        {MINI_NATURAL_BARS.map(([name, pitchClass], index) => (
+          <span
+            key={`${name}-${index}`}
+            className={`mini-bar natural ${scale.includes(pitchClass) ? "is-scale-tone" : ""} ${pitchClass === tonic ? "is-tonic" : ""}`}
+          />
+        ))}
+      </span>
+      <span className="mini-accidental-bars" aria-hidden="true">
+        {MINI_ACCIDENTAL_BARS.map(([pitchClass, afterNatural]) => (
+          <span
+            key={pitchClass}
+            className={`mini-bar accidental ${scale.includes(pitchClass) ? "is-scale-tone" : ""} ${pitchClass === tonic ? "is-tonic" : ""}`}
+            style={{ "--bar-left": `${(afterNatural / MINI_NATURAL_BARS.length) * 100}%` } as React.CSSProperties}
+          />
+        ))}
+      </span>
     </span>
   );
 }
@@ -154,7 +186,7 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
   function resetBoard() {
     setOrientation("fourths");
     setMode("build");
-    setLayers(["signatures"]);
+    setLayers(["signatures", "numbers"]);
     setRevealed(DEFAULT_REVEALED);
     setSelectedId("c");
   }
@@ -214,14 +246,28 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
             Poster
           </button>
         </div>
-        <div className="control-group" aria-label="Visible layers">
-          <span className="control-label">Layers</span>
+        <div className="control-group layer-controls" aria-label="Visible layers">
+          <span className="control-label">Circle layers</span>
           <button
             type="button"
             aria-pressed={layers.includes("signatures")}
             onClick={() => toggleLayer("signatures")}
           >
-            Signatures
+            Key signatures
+          </button>
+          <button
+            type="button"
+            aria-pressed={layers.includes("numbers")}
+            onClick={() => toggleLayer("numbers")}
+          >
+            Accidental numbers
+          </button>
+          <button
+            type="button"
+            aria-pressed={layers.includes("keyboards")}
+            onClick={() => toggleLayer("keyboards")}
+          >
+            Keyboards
           </button>
           <button
             type="button"
@@ -230,6 +276,13 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
           >
             Relative minors
           </button>
+          <button
+            type="button"
+            aria-pressed={layers.includes("accidental-order")}
+            onClick={() => toggleLayer("accidental-order")}
+          >
+            BEADGCF order
+          </button>
         </div>
         <button type="button" className="reset-button" onClick={resetBoard}>
           Start fresh
@@ -237,7 +290,7 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
       </section>
 
       <section className="board-layout">
-        <div className="circle-stage" aria-label={`Circle of ${orientation}`}>
+        <div className={`circle-stage ${layers.includes("keyboards") ? "has-keyboards" : ""}`} aria-label={`Circle of ${orientation}`}>
           <div className="direction-note" aria-live="polite">
             <span>Ascending {orientation}</span>
             <strong>{orientation === "fourths" ? "↻" : "↺"}</strong>
@@ -252,7 +305,7 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
                 key={key.id}
                 className={`key-card ${visible ? "is-visible" : "is-covered"} ${
                   selectedId === key.id ? "is-selected" : ""
-                }`}
+                } ${layers.includes("keyboards") ? "shows-keyboard" : ""}`}
                 style={{ "--angle": `${angle}deg` } as React.CSSProperties}
                 aria-label={
                   visible
@@ -270,14 +323,16 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
                         <KeySignature type={key.type} count={key.count} compact />
                       )}
                     </span>
-                    {layers.includes("signatures") && (
+                    {layers.includes("numbers") && (
                       <span className="signature-summary">
                         <AccidentalCount type={key.type} count={key.count} />
-                        <span className="signature">{key.signatureLabel}</span>
                       </span>
                     )}
                     {layers.includes("minors") && (
                       <span className="minor-name">{key.relativeMinor}</span>
+                    )}
+                    {layers.includes("keyboards") && (
+                      <MiniScaleKeyboard label={key.label} tonic={key.pitchClass} scale={key.scalePitchClasses} />
                     )}
                   </>
                 ) : (
@@ -286,10 +341,20 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
               </button>
             );
           })}
-          <div className="circle-center">
-            <span>{mode === "build" ? "Build mode" : "Poster mode"}</span>
-            <strong>{selected.label}</strong>
-            <small>{selected.signatureLabel}</small>
+          <div className={`circle-center ${layers.includes("accidental-order") ? "shows-order" : ""}`}>
+            {layers.includes("accidental-order") ? (
+              <>
+                <span>Order of flats</span>
+                <strong className="accidental-order">B E A D G C F</strong>
+                <small>Sharps reverse: F C G D A E B</small>
+              </>
+            ) : (
+              <>
+                <span>{mode === "build" ? "Build mode" : "Poster mode"}</span>
+                <strong>{selected.label}</strong>
+                <small>{selected.signatureLabel}</small>
+              </>
+            )}
           </div>
         </div>
 
@@ -297,9 +362,9 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
           <p className="eyebrow">Selected key</p>
           <div className="detail-key-heading">
             <h2>{selected.label} major</h2>
-            <AccidentalCount type={selected.type} count={selected.count} />
+            {layers.includes("numbers") && <AccidentalCount type={selected.type} count={selected.count} />}
           </div>
-          <KeySignature type={selected.type} count={selected.count} />
+          {layers.includes("signatures") && <KeySignature type={selected.type} count={selected.count} />}
           <dl>
             <div>
               <dt>Signature</dt>
@@ -314,11 +379,13 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
               <dd>{selected.relativeMinor}</dd>
             </div>
           </dl>
-          <PracticeMarimba
-            label={selected.label}
-            tonic={selected.pitchClass}
-            scale={selected.scalePitchClasses}
-          />
+          {layers.includes("keyboards") && (
+            <PracticeMarimba
+              label={selected.label}
+              tonic={selected.pitchClass}
+              scale={selected.scalePitchClasses}
+            />
+          )}
           <p className="teacher-tip">
             {mode === "build"
               ? "Select a covered position to reveal it as the lesson grows."
