@@ -29,6 +29,7 @@ test("server-renders the classroom board", async () => {
   assert.match(html, /Teaching board/);
   assert.match(html, />Present</);
   assert.match(html, /style="--angle:0deg"/);
+  assert.doesNotMatch(html, /Ascending fourths/);
   assert.doesNotMatch(html, /codex-preview|react-loading-skeleton|Your site is taking shape/);
 });
 

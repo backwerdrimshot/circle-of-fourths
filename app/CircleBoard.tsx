@@ -390,10 +390,6 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
               <span>{mode === "build" ? "Progressive build" : mode === "focus" ? "Relationship focus" : "Complete poster"}{layers.includes("keyboards") ? ` · ${instrument}` : ""}</span>
           </header>
           <div className={`circle-stage ${layers.includes("keyboards") ? "has-keyboards" : ""}`} aria-label={`Circle of ${orientation}`}>
-          <div className="direction-note" aria-live="polite">
-            <span>Ascending {orientation}</span>
-            <strong>{orientation === "fourths" ? "↻" : "↺"}</strong>
-          </div>
           <div className="circle-ring" aria-hidden="true" />
           {traversal.map((key, index) => {
             const angle = index * 30;

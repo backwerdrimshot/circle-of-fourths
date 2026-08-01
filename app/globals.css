@@ -362,27 +362,6 @@ h1 {
   box-shadow: inset 0 0 0 1px rgba(86, 125, 70, 0.16), 0 0 0 1px rgba(86, 125, 70, 0.1);
 }
 
-.direction-note {
-  position: absolute;
-  top: 7%;
-  left: 50%;
-  z-index: 4;
-  display: flex;
-  align-items: center;
-  gap: 0.45rem;
-  transform: translateX(-50%);
-  color: var(--teal-dark);
-  font-size: 0.73rem;
-  font-weight: 800;
-  letter-spacing: 0.07em;
-  text-transform: uppercase;
-  white-space: nowrap;
-}
-
-.direction-note strong {
-  font-size: 1.25rem;
-}
-
 .key-card {
   --radius: clamp(13.2rem, 29vw, 20rem);
   position: absolute;
