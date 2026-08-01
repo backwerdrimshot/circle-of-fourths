@@ -13,7 +13,7 @@ type QuizScope = "full" | "flats" | "sharps";
 type QuizField = "keyName" | "numbers" | "signatures";
 type FieldRole = "given" | "answer" | "omitted";
 type QuizPreview = "student" | "answer";
-type PosterSize = "letter" | "a4" | "tabloid";
+export type PosterSize = "letter" | "a4" | "tabloid";
 type QuizRoles = Record<QuizField, FieldRole>;
 
 const DEFAULT_REVEALED = ["c"];
@@ -270,6 +270,12 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
   }
 
   useEffect(() => {
+    if (mode === "poster") {
+      const posterPath = posterSize === "letter" ? "/poster" : posterSize === "a4" ? "/poster/a4" : "/poster/11x17";
+      window.history.replaceState(null, "", posterPath);
+      return;
+    }
+
     const params = new URLSearchParams();
     params.set("direction", orientation);
     params.set("mode", mode);
@@ -284,7 +290,6 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
       params.set("roles", QUIZ_FIELDS.map(({ id }) => `${id}:${quizRoles[id]}`).join(","));
       params.set("preview", quizPreview);
     }
-    if (mode === "poster") params.set("paper", posterSize);
     window.history.replaceState(null, "", `${window.location.pathname}?${params}`);
   }, [instrument, layers, markedDegrees, mode, orientation, posterSize, presenting, quizPreset, quizPreview, quizRoles, quizScope, revealed]);
 

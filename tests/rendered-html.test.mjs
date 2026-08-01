@@ -188,6 +188,31 @@ test("poster paper size defaults to US Letter and is shareable", async () => {
   assert.match(html, /Fourth-first for band classrooms/);
 });
 
+test("clean poster routes server-render each supported paper size", async () => {
+  const [letterResponse, a4Response, tabloidResponse] = await Promise.all([
+    render("/poster"),
+    render("/poster/a4"),
+    render("/poster/11x17"),
+  ]);
+
+  assert.equal(letterResponse.status, 200);
+  assert.equal(a4Response.status, 200);
+  assert.equal(tabloidResponse.status, 200);
+
+  const [letterHtml, a4Html, tabloidHtml] = await Promise.all([
+    letterResponse.text(),
+    a4Response.text(),
+    tabloidResponse.text(),
+  ]);
+
+  assert.match(letterHtml, /poster-size-letter/);
+  assert.match(letterHtml, /size: 11in 8.5in/);
+  assert.match(a4Html, /poster-size-a4/);
+  assert.match(a4Html, /size: 297mm 210mm/);
+  assert.match(tabloidHtml, /poster-size-tabloid/);
+  assert.match(tabloidHtml, /size: 17in 11in/);
+});
+
 test("custom teaching combinations remain editable outside poster mode", async () => {
   const response = await render("/?mode=focus&layers=signatures,numbers,minors,keyboards,accidental-order&degrees=1");
   assert.equal(response.status, 200);
