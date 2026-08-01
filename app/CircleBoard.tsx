@@ -245,9 +245,7 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
     traversal[(selectedIndex + traversal.length - 1) % traversal.length].id,
     traversal[(selectedIndex + 1) % traversal.length].id,
   ]);
-  const isClassroomPoster = mode === "poster"
-    && CLASSROOM_POSTER_LAYERS.every((layer) => layers.includes(layer))
-    && markedDegrees.length === 0;
+  const isClassroomPoster = mode === "poster";
   const activeQuiz = quizPreset === "custom"
     ? { title: "Custom circle activity", directions: "Complete every blank using the musical information provided." }
     : QUIZ_PRESETS[quizPreset];
@@ -320,6 +318,7 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
   }
 
   function loadClassroomPoster() {
+    setOrientation("fourths");
     setMode("poster");
     setLayers([...CLASSROOM_POSTER_LAYERS]);
     setInstrument("xylophone");
@@ -384,18 +383,18 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
         </div>
         <div className="header-actions no-print">
           <button type="button" className="quiet-button poster-preset-button" onClick={loadClassroomPoster}>
-            Classroom poster
+            Standard poster
           </button>
           <button type="button" className="quiet-button" onClick={copyLink}>
             {shareStatus}
           </button>
           <button type="button" className="quiet-button" onClick={() => window.print()}>
-            Print
+            Print current board
           </button>
         </div>
       </header>
 
-      <section className="toolbar no-print hide-when-presenting" aria-label="Board controls">
+      {!isClassroomPoster && <section className="toolbar no-print hide-when-presenting" aria-label="Board controls">
         <div className="control-group compact-group" aria-label="Direction">
           <span className="control-label">Direction</span>
           <button
@@ -418,8 +417,8 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
           <button type="button" aria-pressed={mode === "build"} onClick={() => setMode("build")}>
             Build
           </button>
-          <button type="button" aria-pressed={mode === "poster"} onClick={() => setMode("poster")}>
-            Poster
+          <button type="button" aria-pressed="false" onClick={loadClassroomPoster}>
+            Standard poster
           </button>
           <button
             type="button"
@@ -455,13 +454,13 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
           <button type="button" onClick={resetToOpenedLink}>Reset link</button>
           <button type="button" className="reset-button" onClick={resetBoard}>Start fresh</button>
         </div>
-      </section>
+      </section>}
 
       {isClassroomPoster && !presenting && (
         <section className="poster-ready-panel no-print" aria-label="Classroom poster ready">
           <div>
-            <strong>Classroom poster ready</strong>
-            <span>All stable reference layers are visible. Temporary note-role markings are cleared for readability.</span>
+            <strong>Standard classroom poster</strong>
+            <span>This is the complete fourths-first reference. Build mode owns custom teaching boards and future Praxis assignments.</span>
           </div>
           <button type="button" onClick={() => window.print()}>Print poster / Save PDF</button>
           <button type="button" className="poster-return" onClick={resetToOpenedLink}>Return to opened board</button>
@@ -552,13 +551,25 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
 
       <section className={`board-layout ${mode === "quiz" ? "is-quiz-layout" : ""} ${isClassroomPoster ? "is-classroom-poster-layout" : ""}`}>
         <section className="lesson-board" aria-label="Framed circle teaching board">
-          <header className="board-frame-header">
+          {isClassroomPoster ? (
+            <header className="standard-poster-masthead">
+              <div>
+                <span>Backwerd Rhythm Shop · Classroom Reference</span>
+                <h2>Circle of Fourths</h2>
+                <p>Major keys · accidental counts · key signatures · relative minors · xylophone scales</p>
+              </div>
+              <aside>
+                <strong>C starts at twelve o’clock.</strong>
+                <span>Move clockwise through the flat keys—the fourths-first path used in many band rooms.</span>
+              </aside>
+            </header>
+          ) : <header className="board-frame-header">
             <div>
               <span className="board-kicker">{mode === "quiz" ? "Circle activity" : isClassroomPoster ? "Classroom reference poster" : "Teaching board"}</span>
               <strong>{mode === "quiz" ? activeQuiz.title : `Circle of ${orientation === "fourths" ? "Fourths" : "Fifths"}`}</strong>
             </div>
               <span>{mode === "build" ? "Progressive build" : mode === "focus" ? "Relationship focus" : mode === "quiz" ? (quizPreview === "student" ? "Student worksheet" : "Teacher answer key") : "Complete poster"}{mode !== "quiz" && layers.includes("keyboards") ? ` · ${instrument}` : ""}</span>
-          </header>
+          </header>}
           {mode === "quiz" && (
             <section className="worksheet-meta" aria-label="Worksheet information">
               <div>
@@ -663,12 +674,19 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
           </div>
           </div>
           {isClassroomPoster && (
-            <div className="poster-reference-legend" aria-label="Poster legend">
-              <span><strong>Core</strong> Major key · accidental count</span>
-              <span><strong>Middle</strong> Key signature · relative minor</span>
-              <span><strong>Outer</strong> Major scale on xylophone</span>
-              <span><strong>Center</strong> Flat and sharp order</span>
-            </div>
+            <>
+              <div className="poster-reference-legend" aria-label="Poster legend">
+                <span><strong>Core</strong> Major key · accidental count</span>
+                <span><strong>Middle</strong> Key signature · relative minor</span>
+                <span><strong>Outer</strong> Major scale on xylophone</span>
+                <span><strong>Center</strong> Flat and sharp order</span>
+              </div>
+              <footer className="standard-poster-footer">
+                <span>Fourth-first for band classrooms.</span>
+                <strong>BACKWERD RHYTHM SHOP</strong>
+                <span>Flip the relationship—not the facts—to study fifths.</span>
+              </footer>
+            </>
           )}
         </section>
 

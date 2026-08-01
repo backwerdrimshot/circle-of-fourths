@@ -8,8 +8,16 @@ function first(value: string | string[] | undefined) {
 
 export default async function Home({ searchParams }: { searchParams: SearchParams }) {
   const params = await searchParams;
+  const mode: CircleBoardState["mode"] = first(params.mode) === "poster"
+    ? "poster"
+    : first(params.mode) === "focus"
+      ? "focus"
+      : first(params.mode) === "quiz"
+        ? "quiz"
+        : "build";
+  const isStandardPoster = mode === "poster";
   const layerParam = first(params.layers) ?? "signatures,numbers";
-  const layers = layerParam
+  const requestedLayers = layerParam
     .split(",")
     .filter((layer): layer is CircleBoardState["layers"][number] =>
       layer === "signatures" ||
@@ -18,6 +26,9 @@ export default async function Home({ searchParams }: { searchParams: SearchParam
       layer === "minors" ||
       layer === "accidental-order",
     );
+  const layers: CircleBoardState["layers"] = isStandardPoster
+    ? ["signatures", "numbers", "minors", "keyboards", "accidental-order"]
+    : requestedLayers;
   const revealed = (first(params.revealed) ?? "c").split(",").filter(Boolean);
   const degreeParam = first(params.degrees) ?? (first(params.tonic) === "1" ? "1" : "");
   const markedDegrees = degreeParam
@@ -43,12 +54,12 @@ export default async function Home({ searchParams }: { searchParams: SearchParam
     ? scopeParam
     : quizPreset === "flat-side" ? "flats" : "full";
   const initialState: CircleBoardState = {
-    orientation: first(params.direction) === "fifths" ? "fifths" : "fourths",
-    mode: first(params.mode) === "poster" ? "poster" : first(params.mode) === "focus" ? "focus" : first(params.mode) === "quiz" ? "quiz" : "build",
+    orientation: isStandardPoster ? "fourths" : first(params.direction) === "fifths" ? "fifths" : "fourths",
+    mode,
     layers,
     revealed,
-    instrument: first(params.instrument) === "piano" ? "piano" : "xylophone",
-    markedDegrees,
+    instrument: isStandardPoster ? "xylophone" : first(params.instrument) === "piano" ? "piano" : "xylophone",
+    markedDegrees: isStandardPoster ? [] : markedDegrees,
     quizPreset,
     quizScope,
     quizRoles,

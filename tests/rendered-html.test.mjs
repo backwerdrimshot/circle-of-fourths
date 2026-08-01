@@ -24,7 +24,7 @@ test("server-renders the classroom board", async () => {
   assert.match(html, /aria-label="Board controls"/);
   assert.match(html, />Focus</);
   assert.match(html, />Quiz</);
-  assert.match(html, />Classroom poster</);
+  assert.match(html, />Standard poster</);
   assert.match(html, /Layers <span>2<\/span>/);
   assert.match(html, />Reveal all</);
   assert.match(html, />Reset link</);
@@ -36,14 +36,14 @@ test("server-renders the classroom board", async () => {
 });
 
 test("server-renders shared lesson state before hydration", async () => {
-  const response = await render("/?direction=fifths&mode=poster&layers=minors,keyboards,accidental-order&instrument=piano");
+  const response = await render("/?direction=fifths&mode=focus&layers=minors,keyboards,accidental-order&instrument=piano");
   assert.equal(response.status, 200);
   const html = await response.text();
 
   assert.match(html, /Circle of fifths/i);
   assert.match(html, /F♯/);
   assert.match(html, /A minor/);
-  assert.match(html, /Poster mode/);
+  assert.match(html, /Relationship focus/);
   assert.match(html, /B E A D G C F/);
   assert.match(html, /C major scale on a one-octave piano/);
   assert.equal((html.match(/major scale on a one-octave piano/g) ?? []).length, 12);
@@ -51,7 +51,7 @@ test("server-renders shared lesson state before hydration", async () => {
 });
 
 test("circle layers can be shown independently", async () => {
-  const response = await render("/?mode=poster&layers=numbers");
+  const response = await render("/?mode=focus&layers=numbers");
   assert.equal(response.status, 200);
   const html = await response.text();
 
@@ -62,7 +62,7 @@ test("circle layers can be shown independently", async () => {
 });
 
 test("xylophone is the default circle instrument", async () => {
-  const response = await render("/?mode=poster&layers=keyboards");
+  const response = await render("/?mode=focus&layers=keyboards");
   assert.equal(response.status, 200);
   const html = await response.text();
 
@@ -73,7 +73,7 @@ test("xylophone is the default circle instrument", async () => {
 });
 
 test("scale-degree roles are optional and shareable", async () => {
-  const response = await render("/?mode=poster&layers=keyboards&degrees=1,4,7");
+  const response = await render("/?mode=focus&layers=keyboards&degrees=1,4,7");
   assert.equal(response.status, 200);
   const html = await response.text();
 
@@ -83,7 +83,7 @@ test("scale-degree roles are optional and shareable", async () => {
 });
 
 test("legacy tonic links map to the tonic role", async () => {
-  const response = await render("/?mode=poster&layers=keyboards&tonic=1");
+  const response = await render("/?mode=focus&layers=keyboards&tonic=1");
   assert.equal(response.status, 200);
   const html = await response.text();
 
@@ -151,24 +151,29 @@ test("quiz scope and custom field roles are restored from the URL", async () => 
   assert.doesNotMatch(html, /class="key-signature/);
 });
 
-test("complete classroom poster state renders every stable reference layer", async () => {
-  const response = await render("/?mode=poster&layers=signatures,numbers,minors,keyboards,accidental-order&instrument=xylophone");
+test("poster mode always renders the canonical classroom reference", async () => {
+  const response = await render("/?direction=fifths&mode=poster&layers=numbers&instrument=piano&degrees=1,4,7");
   assert.equal(response.status, 200);
   const html = await response.text();
 
-  assert.match(html, /Classroom reference poster/);
-  assert.match(html, /Classroom poster ready/);
+  assert.match(html, /Circle of Fourths/);
+  assert.match(html, /Standard classroom poster/);
+  assert.match(html, /Backwerd Rhythm Shop · Classroom Reference/);
+  assert.match(html, /C starts at twelve o’clock/);
   assert.match(html, /Print poster \/ Save PDF/);
   assert.match(html, /Major key · accidental count/);
   assert.match(html, /Key signature · relative minor/);
   assert.match(html, /B E A D G C F/);
   assert.match(html, /Sharps reverse: F C G D A E B/);
   assert.equal((html.match(/major scale on a one-octave xylophone/g) ?? []).length, 12);
+  assert.doesNotMatch(html, /major scale on a one-octave piano/);
+  assert.doesNotMatch(html, /is-role-marked/);
+  assert.doesNotMatch(html, /aria-label="Board controls"/);
   assert.doesNotMatch(html, /class="detail-panel/);
 });
 
-test("temporary note-role markings keep a poster in editable teaching mode", async () => {
-  const response = await render("/?mode=poster&layers=signatures,numbers,minors,keyboards,accidental-order&degrees=1");
+test("custom teaching combinations remain editable outside poster mode", async () => {
+  const response = await render("/?mode=focus&layers=signatures,numbers,minors,keyboards,accidental-order&degrees=1");
   assert.equal(response.status, 200);
   const html = await response.text();
 

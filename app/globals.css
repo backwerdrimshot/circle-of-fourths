@@ -472,6 +472,77 @@ h1 {
   text-transform: uppercase;
 }
 
+.standard-poster-masthead {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(15rem, 0.42fr);
+  align-items: end;
+  gap: 1.5rem;
+  border-bottom: 1px solid var(--line);
+  padding: 1.15rem 1.3rem 0.9rem;
+}
+
+.standard-poster-masthead span {
+  color: var(--teal-dark);
+  font-size: 0.68rem;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.standard-poster-masthead h2 {
+  margin: 0.12rem 0 0.18rem;
+  color: var(--brick-deep);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(2.1rem, 4vw, 3.8rem);
+  font-weight: 500;
+  letter-spacing: -0.045em;
+  line-height: 0.95;
+}
+
+.standard-poster-masthead p,
+.standard-poster-masthead aside span {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.74rem;
+  line-height: 1.4;
+}
+
+.standard-poster-masthead aside {
+  display: grid;
+  gap: 0.2rem;
+  border-left: 3px solid var(--gold);
+  padding-left: 0.85rem;
+}
+
+.standard-poster-masthead aside strong {
+  color: var(--ink);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 0.95rem;
+}
+
+.standard-poster-footer {
+  display: grid;
+  width: auto;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 0.8rem;
+  margin: 0.45rem 0.8rem 0.2rem;
+  border-top: 1px solid var(--tan-soft);
+  padding-top: 0.5rem;
+  color: var(--muted);
+  font-size: 0.58rem;
+}
+
+.standard-poster-footer strong {
+  color: var(--brick-deep);
+  font-size: 0.62rem;
+  letter-spacing: 0.12em;
+}
+
+.standard-poster-footer span:last-child {
+  text-align: right;
+}
+
 .worksheet-meta {
   position: relative;
   display: grid;
@@ -1656,6 +1727,25 @@ footer {
     padding: 0.06in;
   }
 
+  .is-classroom-poster-layout .standard-poster-masthead {
+    grid-template-columns: 1fr 2.6in;
+    gap: 0.18in;
+    padding: 0.08in 0.12in;
+  }
+
+  .is-classroom-poster-layout .standard-poster-masthead h2 {
+    font-size: 1.7rem;
+  }
+
+  .is-classroom-poster-layout .standard-poster-masthead p,
+  .is-classroom-poster-layout .standard-poster-masthead aside span {
+    font-size: 0.5rem;
+  }
+
+  .is-classroom-poster-layout .standard-poster-masthead aside strong {
+    font-size: 0.66rem;
+  }
+
   .is-classroom-poster-layout .circle-stage {
     width: 6.35in;
   }
@@ -1687,6 +1777,16 @@ footer {
 
   .is-classroom-poster-layout .poster-reference-legend span {
     font-size: 0.48rem;
+  }
+
+  .is-classroom-poster-layout .standard-poster-footer {
+    margin: 0.03in 0.08in 0;
+    padding-top: 0.04in;
+    font-size: 0.42rem;
+  }
+
+  .is-classroom-poster-layout .standard-poster-footer strong {
+    font-size: 0.46rem;
   }
 
   .circle-stage {
