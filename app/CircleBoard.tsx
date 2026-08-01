@@ -4,12 +4,47 @@ import { useEffect, useMemo, useState } from "react";
 import { getTraversal } from "@/lib/music-model.mjs";
 
 type Orientation = "fourths" | "fifths";
-type BoardMode = "build" | "poster" | "focus";
+type BoardMode = "build" | "poster" | "focus" | "quiz";
 type Layer = "signatures" | "numbers" | "keyboards" | "minors" | "accidental-order";
 type Instrument = "xylophone" | "piano";
 type ScaleDegree = 1 | 2 | 3 | 4 | 5 | 6 | 7;
+type QuizPreset = "accidentals" | "key-names" | "flat-side" | "custom";
+type QuizScope = "full" | "flats" | "sharps";
+type QuizField = "keyName" | "numbers" | "signatures";
+type FieldRole = "given" | "answer" | "omitted";
+type QuizPreview = "student" | "answer";
+type QuizRoles = Record<QuizField, FieldRole>;
 
 const DEFAULT_REVEALED = ["c"];
+
+const QUIZ_FIELDS: { id: QuizField; label: string }[] = [
+  { id: "keyName", label: "Key name" },
+  { id: "numbers", label: "Accidental count" },
+  { id: "signatures", label: "Key signature" },
+];
+
+const QUIZ_PRESETS: Record<Exclude<QuizPreset, "custom">, { title: string; directions: string; scope: QuizScope; roles: QuizRoles }> = {
+  accidentals: {
+    title: "How many accidentals?",
+    directions: "Write the number and type of accidentals for each named major key.",
+    scope: "full",
+    roles: { keyName: "given", numbers: "answer", signatures: "omitted" },
+  },
+  "key-names": {
+    title: "Name that key",
+    directions: "Identify each major key from its written key signature.",
+    scope: "full",
+    roles: { keyName: "answer", numbers: "omitted", signatures: "given" },
+  },
+  "flat-side": {
+    title: "Build the flat side",
+    directions: "Begin with C and complete the major-key sequence moving by ascending fourths.",
+    scope: "flats",
+    roles: { keyName: "answer", numbers: "given", signatures: "omitted" },
+  },
+};
+
+const DEFAULT_QUIZ = QUIZ_PRESETS.accidentals;
 
 const DEGREE_NAMES: Record<ScaleDegree, string> = {
   1: "Tonic",
@@ -178,6 +213,10 @@ export type CircleBoardState = {
   revealed: string[];
   instrument: Instrument;
   markedDegrees: ScaleDegree[];
+  quizPreset: QuizPreset;
+  quizScope: QuizScope;
+  quizRoles: QuizRoles;
+  quizPreview: QuizPreview;
   presenting: boolean;
 };
 
@@ -188,6 +227,10 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
   const [revealed, setRevealed] = useState<string[]>(initialState.revealed);
   const [instrument, setInstrument] = useState<Instrument>(initialState.instrument);
   const [markedDegrees, setMarkedDegrees] = useState<ScaleDegree[]>(initialState.markedDegrees);
+  const [quizPreset, setQuizPreset] = useState<QuizPreset>(initialState.quizPreset);
+  const [quizScope, setQuizScope] = useState<QuizScope>(initialState.quizScope);
+  const [quizRoles, setQuizRoles] = useState<QuizRoles>(initialState.quizRoles);
+  const [quizPreview, setQuizPreview] = useState<QuizPreview>(initialState.quizPreview);
   const [presenting, setPresenting] = useState(initialState.presenting);
   const [showLayerPanel, setShowLayerPanel] = useState(false);
   const [selectedId, setSelectedId] = useState("c");
@@ -201,6 +244,19 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
     traversal[(selectedIndex + traversal.length - 1) % traversal.length].id,
     traversal[(selectedIndex + 1) % traversal.length].id,
   ]);
+  const activeQuiz = quizPreset === "custom"
+    ? { title: "Custom circle activity", directions: "Complete every blank using the musical information provided." }
+    : QUIZ_PRESETS[quizPreset];
+
+  function isInQuizScope(key: { id: string; type: string }) {
+    if (quizScope === "full" || key.id === "c") return true;
+    return quizScope === "flats" ? key.type === "flat" : key.type === "sharp";
+  }
+
+  function effectiveQuizRole(field: QuizField, keyId: string): FieldRole {
+    if (quizPreset === "flat-side" && field === "keyName" && keyId === "c") return "given";
+    return quizRoles[field];
+  }
 
   useEffect(() => {
     const params = new URLSearchParams();
@@ -211,8 +267,14 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
     if (markedDegrees.length) params.set("degrees", markedDegrees.join(","));
     if (presenting) params.set("present", "1");
     if (mode === "build") params.set("revealed", revealed.join(","));
+    if (mode === "quiz") {
+      params.set("quiz", quizPreset);
+      params.set("scope", quizScope);
+      params.set("roles", QUIZ_FIELDS.map(({ id }) => `${id}:${quizRoles[id]}`).join(","));
+      params.set("preview", quizPreview);
+    }
     window.history.replaceState(null, "", `${window.location.pathname}?${params}`);
-  }, [instrument, layers, markedDegrees, mode, orientation, presenting, revealed]);
+  }, [instrument, layers, markedDegrees, mode, orientation, presenting, quizPreset, quizPreview, quizRoles, quizScope, revealed]);
 
   function toggleLayer(layer: Layer) {
     setLayers((current) =>
@@ -235,6 +297,24 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
     );
   }
 
+  function applyQuizPreset(presetId: Exclude<QuizPreset, "custom">) {
+    const preset = QUIZ_PRESETS[presetId];
+    setQuizPreset(presetId);
+    setQuizScope(preset.scope);
+    setQuizRoles({ ...preset.roles });
+    setMode("quiz");
+  }
+
+  function setQuizFieldRole(field: QuizField, role: FieldRole) {
+    setQuizPreset("custom");
+    setQuizRoles((current) => ({ ...current, [field]: role }));
+  }
+
+  function setCustomQuizScope(scope: QuizScope) {
+    setQuizPreset("custom");
+    setQuizScope(scope);
+  }
+
   function resetBoard() {
     setOrientation("fourths");
     setMode("build");
@@ -242,6 +322,10 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
     setRevealed(DEFAULT_REVEALED);
     setInstrument("xylophone");
     setMarkedDegrees([]);
+    setQuizPreset("accidentals");
+    setQuizScope(DEFAULT_QUIZ.scope);
+    setQuizRoles({ ...DEFAULT_QUIZ.roles });
+    setQuizPreview("student");
     setPresenting(false);
     setSelectedId("c");
   }
@@ -253,6 +337,10 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
     setRevealed(initialState.revealed);
     setInstrument(initialState.instrument);
     setMarkedDegrees(initialState.markedDegrees);
+    setQuizPreset(initialState.quizPreset);
+    setQuizScope(initialState.quizScope);
+    setQuizRoles(initialState.quizRoles);
+    setQuizPreview(initialState.quizPreview);
     setPresenting(initialState.presenting);
     setSelectedId("c");
   }
@@ -323,6 +411,9 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
           >
             Focus
           </button>
+          <button type="button" aria-pressed={mode === "quiz"} onClick={() => setMode("quiz")}>
+            Quiz
+          </button>
         </div>
         <div className="control-group compact-group board-tools" aria-label="Board actions">
           {mode === "build" && (
@@ -331,14 +422,16 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
               <button type="button" onClick={() => setRevealed([])}>Hide all</button>
             </>
           )}
-          <button
-            type="button"
-            className="layers-button"
-            aria-expanded={showLayerPanel}
-            onClick={() => setShowLayerPanel((current) => !current)}
-          >
-            Layers <span>{layers.length}</span>
-          </button>
+          {mode !== "quiz" && (
+            <button
+              type="button"
+              className="layers-button"
+              aria-expanded={showLayerPanel}
+              onClick={() => setShowLayerPanel((current) => !current)}
+            >
+              Layers <span>{layers.length}</span>
+            </button>
+          )}
           <button type="button" className="present-button" onClick={() => setPresenting(true)}>Present</button>
         </div>
         <div className="control-group compact-group reset-actions">
@@ -347,7 +440,7 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
         </div>
       </section>
 
-      {showLayerPanel && !presenting && (
+      {showLayerPanel && mode !== "quiz" && !presenting && (
         <section className="layer-panel no-print" aria-label="Layer and display options">
           <div>
             <span className="control-label">Information bands</span>
@@ -380,48 +473,138 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
         </section>
       )}
 
-      <section className="board-layout">
+      {mode === "quiz" && !presenting && (
+        <section className="quiz-builder no-print" aria-label="Quiz Builder controls">
+          <div className="quiz-builder-heading">
+            <div>
+              <span className="control-label">Quiz Builder v0.1</span>
+              <strong>{activeQuiz.title}</strong>
+            </div>
+            <p>Start from a ready-made activity, then change its scope or field roles.</p>
+          </div>
+          <div className="quiz-builder-grid">
+            <fieldset>
+              <legend>Ready-made activity</legend>
+              {(Object.keys(QUIZ_PRESETS) as Exclude<QuizPreset, "custom">[]).map((presetId) => (
+                <button key={presetId} type="button" aria-pressed={quizPreset === presetId} onClick={() => applyQuizPreset(presetId)}>
+                  {QUIZ_PRESETS[presetId].title}
+                </button>
+              ))}
+            </fieldset>
+            <fieldset>
+              <legend>Scope</legend>
+              {(["full", "flats", "sharps"] as QuizScope[]).map((scope) => (
+                <button key={scope} type="button" aria-pressed={quizScope === scope} onClick={() => setCustomQuizScope(scope)}>
+                  {scope === "full" ? "Full circle" : scope === "flats" ? "Flat side" : "Sharp side"}
+                </button>
+              ))}
+            </fieldset>
+            <fieldset className="field-role-editor">
+              <legend>What students see and supply</legend>
+              {QUIZ_FIELDS.map((field) => (
+                <div className="field-role-row" key={field.id}>
+                  <span>{field.label}</span>
+                  {(["given", "answer", "omitted"] as FieldRole[]).map((role) => (
+                    <button key={role} type="button" aria-pressed={quizRoles[field.id] === role} onClick={() => setQuizFieldRole(field.id, role)}>
+                      {role[0].toUpperCase() + role.slice(1)}
+                    </button>
+                  ))}
+                </div>
+              ))}
+            </fieldset>
+            <fieldset>
+              <legend>Preview</legend>
+              <button type="button" aria-pressed={quizPreview === "student"} onClick={() => setQuizPreview("student")}>Student</button>
+              <button type="button" aria-pressed={quizPreview === "answer"} onClick={() => setQuizPreview("answer")}>Answer key</button>
+              <button type="button" className="print-quiz" onClick={() => window.print()}>Print / Save PDF</button>
+            </fieldset>
+          </div>
+        </section>
+      )}
+
+      <section className={`board-layout ${mode === "quiz" ? "is-quiz-layout" : ""}`}>
         <section className="lesson-board" aria-label="Framed circle teaching board">
           <header className="board-frame-header">
             <div>
-              <span className="board-kicker">Teaching board</span>
-              <strong>Circle of {orientation === "fourths" ? "Fourths" : "Fifths"}</strong>
+              <span className="board-kicker">{mode === "quiz" ? "Circle activity" : "Teaching board"}</span>
+              <strong>{mode === "quiz" ? activeQuiz.title : `Circle of ${orientation === "fourths" ? "Fourths" : "Fifths"}`}</strong>
             </div>
-              <span>{mode === "build" ? "Progressive build" : mode === "focus" ? "Relationship focus" : "Complete poster"}{layers.includes("keyboards") ? ` · ${instrument}` : ""}</span>
+              <span>{mode === "build" ? "Progressive build" : mode === "focus" ? "Relationship focus" : mode === "quiz" ? (quizPreview === "student" ? "Student worksheet" : "Teacher answer key") : "Complete poster"}{mode !== "quiz" && layers.includes("keyboards") ? ` · ${instrument}` : ""}</span>
           </header>
-          <div className={`circle-stage ${layers.includes("keyboards") ? "has-keyboards" : ""}`} aria-label={`Circle of ${orientation}`}>
+          {mode === "quiz" && (
+            <section className="worksheet-meta" aria-label="Worksheet information">
+              <div>
+                <h2>{activeQuiz.title}</h2>
+                <p>{activeQuiz.directions}</p>
+              </div>
+              <div className="student-lines">
+                <span>Name <i /></span>
+                <span>Date <i /></span>
+                <span>Class <i /></span>
+              </div>
+              {quizPreview === "answer" && <strong className="answer-key-stamp">Answer key</strong>}
+            </section>
+          )}
+          <div className={`circle-stage ${mode !== "quiz" && layers.includes("keyboards") ? "has-keyboards" : ""}`} aria-label={`Circle of ${orientation}`}>
           <div className="circle-ring" aria-hidden="true" />
           {traversal.map((key, index) => {
             const angle = index * 30;
-            const visible = mode === "poster" || mode === "focus" || revealed.includes(key.id);
-            const dimmed = mode === "focus" && !focusIds.has(key.id);
+            const quizActive = mode === "quiz";
+            const inQuizScope = !quizActive || isInQuizScope(key);
+            const visible = quizActive || mode === "poster" || mode === "focus" || revealed.includes(key.id);
+            const dimmed = (mode === "focus" && !focusIds.has(key.id)) || (quizActive && !inQuizScope);
+            const keyNameRole = effectiveQuizRole("keyName", key.id);
+            const numberRole = effectiveQuizRole("numbers", key.id);
+            const signatureRole = effectiveQuizRole("signatures", key.id);
+            const showQuizAnswers = quizPreview === "answer";
             return (
               <div
                 key={key.id}
-                className={`key-orbit-group ${dimmed ? "is-dimmed" : ""}`}
+                className={`key-orbit-group ${dimmed ? "is-dimmed" : ""} ${quizActive && !inQuizScope ? "is-out-of-scope" : ""}`}
                 style={{ "--angle": `${angle}deg` } as React.CSSProperties}
               >
                 <button
                   type="button"
-                  className={`key-card core-node ${visible ? "is-visible" : "is-covered"} ${selectedId === key.id ? "is-selected" : ""}`}
-                  aria-label={visible ? `${key.label} major, ${key.signatureLabel}, ${key.relativeMinor}` : `Reveal key at position ${index + 1}`}
+                  className={`key-card core-node ${visible ? "is-visible" : "is-covered"} ${!quizActive && selectedId === key.id ? "is-selected" : ""} ${quizActive ? "is-quiz-card" : ""}`}
+                  aria-label={quizActive ? `Quiz position ${index + 1}` : visible ? `${key.label} major, ${key.signatureLabel}, ${key.relativeMinor}` : `Reveal key at position ${index + 1}`}
                   aria-pressed={visible}
                   onClick={() => selectKey(key.id)}
                 >
                   {visible ? (
                     <>
-                      <span className="key-name">{key.label}</span>
-                      {layers.includes("numbers") && <AccidentalCount type={key.type} count={key.count} />}
+                      {quizActive ? (
+                        <>
+                          {keyNameRole === "answer" && !showQuizAnswers
+                            ? <span className="quiz-blank quiz-key-name-blank" aria-label="Blank for major key name" />
+                            : keyNameRole !== "omitted" && <span className={`key-name ${keyNameRole === "answer" ? "quiz-answer" : ""}`}>{key.label}</span>}
+                          {numberRole === "answer" && !showQuizAnswers
+                            ? <span className="quiz-count-blank" aria-label="Blank for accidental count" />
+                            : numberRole !== "omitted" && <span className={numberRole === "answer" ? "quiz-answer" : ""}><AccidentalCount type={key.type} count={key.count} /></span>}
+                        </>
+                      ) : (
+                        <>
+                          <span className="key-name">{key.label}</span>
+                          {layers.includes("numbers") && <AccidentalCount type={key.type} count={key.count} />}
+                        </>
+                      )}
                     </>
                   ) : <span className="covered-mark">+</span>}
                 </button>
-                {visible && (layers.includes("signatures") || layers.includes("minors")) && (
+                {visible && (quizActive ? signatureRole !== "omitted" : layers.includes("signatures") || layers.includes("minors")) && (
                   <span className="orbit-layer notation-node" aria-hidden="true">
-                    {layers.includes("signatures") && <KeySignature type={key.type} count={key.count} compact />}
-                    {layers.includes("minors") && <span className="minor-name">{key.relativeMinor}</span>}
+                    {quizActive ? (
+                      signatureRole === "answer" && !showQuizAnswers
+                        ? <span className="quiz-signature-blank"><span className="staff-lines" /></span>
+                        : <span className={signatureRole === "answer" ? "quiz-answer" : ""}><KeySignature type={key.type} count={key.count} compact /></span>
+                    ) : (
+                      <>
+                        {layers.includes("signatures") && <KeySignature type={key.type} count={key.count} compact />}
+                        {layers.includes("minors") && <span className="minor-name">{key.relativeMinor}</span>}
+                      </>
+                    )}
                   </span>
                 )}
-                {visible && layers.includes("keyboards") && (
+                {visible && !quizActive && layers.includes("keyboards") && (
                   <span className="orbit-layer keyboard-node">
                     <MiniScaleKeyboard label={key.label} scale={key.scalePitchClasses} instrument={instrument} markedDegrees={markedDegrees} />
                   </span>
@@ -430,7 +613,13 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
             );
           })}
           <div className={`circle-center ${layers.includes("accidental-order") ? "shows-order" : ""}`}>
-            {layers.includes("accidental-order") ? (
+            {mode === "quiz" ? (
+              <>
+                <span>{quizPreview === "student" ? "Student worksheet" : "Answer key"}</span>
+                <strong>{quizScope === "full" ? "12 keys" : quizScope === "flats" ? "Flat side" : "Sharp side"}</strong>
+                <small>Circle of {orientation}</small>
+              </>
+            ) : layers.includes("accidental-order") ? (
               <>
                 <span>Order of flats</span>
                 <strong className="accidental-order">B E A D G C F</strong>
@@ -447,7 +636,7 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
           </div>
         </section>
 
-        <aside className="detail-panel hide-when-presenting" aria-live="polite">
+        {mode !== "quiz" && <aside className="detail-panel hide-when-presenting" aria-live="polite">
           <p className="eyebrow">Selected key</p>
           <div className="detail-key-heading">
             <h2>{selected.label} major</h2>
@@ -483,7 +672,7 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
                 ? "Select a key to emphasize its immediate fourths and fifths relationships."
                 : "Poster mode keeps the complete reference visible."}
           </p>
-        </aside>
+        </aside>}
       </section>
 
       <footer className="hide-when-presenting no-print">

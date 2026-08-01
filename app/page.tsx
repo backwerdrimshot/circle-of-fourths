@@ -24,13 +24,35 @@ export default async function Home({ searchParams }: { searchParams: SearchParam
     .split(",")
     .map(Number)
     .filter((degree): degree is CircleBoardState["markedDegrees"][number] => Number.isInteger(degree) && degree >= 1 && degree <= 7);
+  const quizParam = first(params.quiz);
+  const quizPreset: CircleBoardState["quizPreset"] = quizParam === "key-names" || quizParam === "flat-side" || quizParam === "custom" ? quizParam : "accidentals";
+  const presetRoles: CircleBoardState["quizRoles"] = quizPreset === "key-names"
+    ? { keyName: "answer", numbers: "omitted", signatures: "given" }
+    : quizPreset === "flat-side"
+      ? { keyName: "answer", numbers: "given", signatures: "omitted" }
+      : { keyName: "given", numbers: "answer", signatures: "omitted" };
+  const quizRoles = { ...presetRoles };
+  for (const entry of (first(params.roles) ?? "").split(",")) {
+    const [field, role] = entry.split(":");
+    if ((field === "keyName" || field === "numbers" || field === "signatures") && (role === "given" || role === "answer" || role === "omitted")) {
+      quizRoles[field] = role;
+    }
+  }
+  const scopeParam = first(params.scope);
+  const quizScope: CircleBoardState["quizScope"] = scopeParam === "flats" || scopeParam === "sharps"
+    ? scopeParam
+    : quizPreset === "flat-side" ? "flats" : "full";
   const initialState: CircleBoardState = {
     orientation: first(params.direction) === "fifths" ? "fifths" : "fourths",
-    mode: first(params.mode) === "poster" ? "poster" : first(params.mode) === "focus" ? "focus" : "build",
+    mode: first(params.mode) === "poster" ? "poster" : first(params.mode) === "focus" ? "focus" : first(params.mode) === "quiz" ? "quiz" : "build",
     layers,
     revealed,
     instrument: first(params.instrument) === "piano" ? "piano" : "xylophone",
     markedDegrees,
+    quizPreset,
+    quizScope,
+    quizRoles,
+    quizPreview: first(params.preview) === "answer" ? "answer" : "student",
     presenting: first(params.present) === "1",
   };
 

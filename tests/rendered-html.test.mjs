@@ -23,6 +23,7 @@ test("server-renders the classroom board", async () => {
   assert.match(html, /Fourth-first for band classrooms\./);
   assert.match(html, /aria-label="Board controls"/);
   assert.match(html, />Focus</);
+  assert.match(html, />Quiz</);
   assert.match(html, /Layers <span>2<\/span>/);
   assert.match(html, />Reveal all</);
   assert.match(html, />Reset link</);
@@ -109,4 +110,42 @@ test("focus mode emphasizes the selected key and its two neighbors", async () =>
   assert.match(html, /immediate fourths and fifths relationships/);
   assert.equal((html.match(/key-orbit-group is-dimmed/g) ?? []).length, 9);
   assert.match(html, /style="--angle:0deg"/);
+});
+
+test("quiz mode renders the accidental-count worksheet preset", async () => {
+  const response = await render("/?mode=quiz");
+  assert.equal(response.status, 200);
+  const html = await response.text();
+
+  assert.match(html, /Quiz Builder v0\.1/);
+  assert.match(html, /How many accidentals\?/);
+  assert.match(html, /Student worksheet/);
+  assert.match(html, /Write the number and type of accidentals/);
+  assert.equal((html.match(/quiz-count-blank/g) ?? []).length, 12);
+  assert.match(html, /Name <i><\/i>/);
+});
+
+test("quiz answer preview reveals answers from the same configuration", async () => {
+  const response = await render("/?mode=quiz&quiz=key-names&preview=answer");
+  assert.equal(response.status, 200);
+  const html = await response.text();
+
+  assert.match(html, /Name that key/);
+  assert.match(html, /Teacher answer key/);
+  assert.match(html, /answer-key-stamp/);
+  assert.match(html, /quiz-answer/);
+  assert.match(html, /class="key-signature is-compact"/);
+});
+
+test("quiz scope and custom field roles are restored from the URL", async () => {
+  const response = await render("/?mode=quiz&quiz=custom&scope=flats&roles=keyName:answer,numbers:given,signatures:omitted");
+  assert.equal(response.status, 200);
+  const html = await response.text();
+
+  assert.match(html, /Custom circle activity/);
+  assert.match(html, /Flat side/);
+  assert.equal((html.match(/is-out-of-scope/g) ?? []).length, 5);
+  assert.match(html, /quiz-key-name-blank/);
+  assert.match(html, /class="accidental-count"/);
+  assert.doesNotMatch(html, /class="key-signature/);
 });

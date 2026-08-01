@@ -16,6 +16,9 @@ An interactive, projector-first classroom board for building and exploring key r
 - binary lit/unlit scale highlighting with an optional tonic marker
 - independently toggleable scale-degree roles with functional names and shareable state
 - one-tap fourth/flat-lesson and seventh/sharp-lesson role presets
+- Quiz Builder v0.1 with editable presets, scope controls, and Given/Answer/Omitted field roles
+- student worksheet and teacher answer-key previews with shareable URL state
+- print-ready worksheet directions and student identification lines
 - toggleable BEADGCF flat order with its reverse sharp order
 - URL-persisted lesson state
 - compact teaching toolbar with a separate layer/display drawer
