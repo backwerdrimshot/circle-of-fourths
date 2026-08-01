@@ -25,6 +25,7 @@ export default async function Home({ searchParams }: { searchParams: SearchParam
     layers,
     revealed,
     instrument: first(params.instrument) === "piano" ? "piano" : "xylophone",
+    markTonic: first(params.tonic) === "1",
     presenting: first(params.present) === "1",
   };
 

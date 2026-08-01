@@ -13,6 +13,7 @@ An interactive, projector-first classroom board for building and exploring key r
 - selected-key detail panel
 - toggleable one-octave xylophone or piano scale diagrams around all twelve circle positions
 - two-octave selected-scale xylophone/piano detail view
+- binary lit/unlit scale highlighting with an optional tonic marker
 - toggleable BEADGCF flat order with its reverse sharp order
 - URL-persisted lesson state
 - compact teaching toolbar with a separate layer/display drawer

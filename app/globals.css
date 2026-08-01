@@ -837,10 +837,13 @@ h1 {
   width: 0.55rem;
   height: 0.55rem;
   border-radius: 2px;
+}
+
+.marimba-legend .tonic-swatch {
   background: var(--coral);
 }
 
-.marimba-legend i:last-of-type {
+.marimba-legend .scale-swatch {
   background: var(--teal);
 }
 
