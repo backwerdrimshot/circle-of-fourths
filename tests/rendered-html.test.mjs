@@ -96,7 +96,7 @@ test("presentation state is server-rendered and shareable", async () => {
   assert.equal(response.status, 200);
   const html = await response.text();
 
-  assert.match(html, /class="app-shell is-presenting"/);
+  assert.match(html, /class="app-shell is-presenting /);
   assert.match(html, /Exit presentation/);
   assert.match(html, /Progressive build/);
 });
@@ -152,7 +152,7 @@ test("quiz scope and custom field roles are restored from the URL", async () => 
 });
 
 test("poster mode always renders the canonical classroom reference", async () => {
-  const response = await render("/?direction=fifths&mode=poster&layers=numbers&instrument=piano&degrees=1,4,7");
+  const response = await render("/?direction=fifths&mode=poster&layers=numbers&instrument=piano&degrees=1,4,7&paper=tabloid");
   assert.equal(response.status, 200);
   const html = await response.text();
 
@@ -161,6 +161,12 @@ test("poster mode always renders the canonical classroom reference", async () =>
   assert.match(html, /Backwerd Rhythm Shop · Classroom Reference/);
   assert.match(html, /C starts at twelve o’clock/);
   assert.match(html, /Print poster \/ Save PDF/);
+  assert.match(html, /Poster paper size/);
+  assert.match(html, /US Letter/);
+  assert.match(html, /297 × 210 mm/);
+  assert.match(html, /Classroom wall/);
+  assert.match(html, /poster-size-tabloid/);
+  assert.match(html, /size: 17in 11in/);
   assert.match(html, /Major key · accidental count/);
   assert.match(html, /Key signature · relative minor/);
   assert.match(html, /B E A D G C F/);
@@ -170,6 +176,16 @@ test("poster mode always renders the canonical classroom reference", async () =>
   assert.doesNotMatch(html, /is-role-marked/);
   assert.doesNotMatch(html, /aria-label="Board controls"/);
   assert.doesNotMatch(html, /class="detail-panel/);
+});
+
+test("poster paper size defaults to US Letter and is shareable", async () => {
+  const response = await render("/?mode=poster&paper=a4");
+  assert.equal(response.status, 200);
+  const html = await response.text();
+
+  assert.match(html, /poster-size-a4/);
+  assert.match(html, /size: 297mm 210mm/);
+  assert.match(html, /Fourth-first for band classrooms/);
 });
 
 test("custom teaching combinations remain editable outside poster mode", async () => {

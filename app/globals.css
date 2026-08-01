@@ -248,6 +248,51 @@ h1 {
   color: var(--muted);
 }
 
+.poster-size-picker {
+  display: flex;
+  gap: 0.35rem;
+  margin: 0;
+  border: 0;
+  padding: 0;
+}
+
+.poster-size-picker legend {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.poster-ready-panel .poster-size-picker button {
+  display: grid;
+  min-width: 5.6rem;
+  gap: 0.05rem;
+  border-color: var(--line);
+  background: var(--paper);
+  color: var(--ink);
+  padding: 0.38rem 0.55rem;
+}
+
+.poster-ready-panel .poster-size-picker button[aria-pressed="true"] {
+  border-color: var(--teal-dark);
+  background: var(--teal-dark);
+  color: white;
+}
+
+.poster-size-picker button strong {
+  color: inherit;
+  font-family: inherit;
+  font-size: 0.7rem;
+}
+
+.poster-ready-panel .poster-size-picker button span {
+  color: inherit;
+  font-size: 0.55rem;
+  opacity: 0.82;
+}
+
 .layer-panel {
   display: flex;
   width: min(1440px, 100%);
@@ -1549,6 +1594,15 @@ footer {
     flex-direction: column;
   }
 
+  .poster-size-picker {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .poster-ready-panel .poster-size-picker button {
+    min-width: 0;
+  }
+
   .poster-reference-legend {
     grid-template-columns: 1fr 1fr;
   }
@@ -1787,6 +1841,46 @@ footer {
 
   .is-classroom-poster-layout .standard-poster-footer strong {
     font-size: 0.46rem;
+  }
+
+  .poster-size-tabloid .is-classroom-poster-layout .standard-poster-masthead {
+    grid-template-columns: 1fr 3.5in;
+    padding: 0.12in 0.18in;
+  }
+
+  .poster-size-tabloid .is-classroom-poster-layout .standard-poster-masthead h2 {
+    font-size: 2.35rem;
+  }
+
+  .poster-size-tabloid .is-classroom-poster-layout .circle-stage {
+    width: 8.3in;
+  }
+
+  .poster-size-tabloid .is-classroom-poster-layout .key-card.core-node {
+    --radius: 1.78in;
+    width: 0.92in;
+    min-height: 0.72in;
+  }
+
+  .poster-size-tabloid .is-classroom-poster-layout .notation-node {
+    --radius: 2.5in;
+  }
+
+  .poster-size-tabloid .is-classroom-poster-layout .keyboard-node {
+    --radius: 3.48in;
+  }
+
+  .poster-size-tabloid .is-classroom-poster-layout .mini-keyboard {
+    width: 1.2in;
+    height: 0.48in;
+  }
+
+  .poster-size-tabloid .is-classroom-poster-layout .poster-reference-legend span {
+    font-size: 0.62rem;
+  }
+
+  .poster-size-tabloid .is-classroom-poster-layout .standard-poster-footer {
+    font-size: 0.55rem;
   }
 
   .circle-stage {

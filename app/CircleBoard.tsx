@@ -13,10 +13,17 @@ type QuizScope = "full" | "flats" | "sharps";
 type QuizField = "keyName" | "numbers" | "signatures";
 type FieldRole = "given" | "answer" | "omitted";
 type QuizPreview = "student" | "answer";
+type PosterSize = "letter" | "a4" | "tabloid";
 type QuizRoles = Record<QuizField, FieldRole>;
 
 const DEFAULT_REVEALED = ["c"];
 const CLASSROOM_POSTER_LAYERS: Layer[] = ["signatures", "numbers", "minors", "keyboards", "accidental-order"];
+
+const POSTER_SIZES: Record<PosterSize, { label: string; detail: string; pageSize: string }> = {
+  letter: { label: "US Letter", detail: "11 × 8.5 in", pageSize: "11in 8.5in" },
+  a4: { label: "A4", detail: "297 × 210 mm", pageSize: "297mm 210mm" },
+  tabloid: { label: "11 × 17", detail: "Classroom wall", pageSize: "17in 11in" },
+};
 
 const QUIZ_FIELDS: { id: QuizField; label: string }[] = [
   { id: "keyName", label: "Key name" },
@@ -218,6 +225,7 @@ export type CircleBoardState = {
   quizScope: QuizScope;
   quizRoles: QuizRoles;
   quizPreview: QuizPreview;
+  posterSize: PosterSize;
   presenting: boolean;
 };
 
@@ -232,6 +240,7 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
   const [quizScope, setQuizScope] = useState<QuizScope>(initialState.quizScope);
   const [quizRoles, setQuizRoles] = useState<QuizRoles>(initialState.quizRoles);
   const [quizPreview, setQuizPreview] = useState<QuizPreview>(initialState.quizPreview);
+  const [posterSize, setPosterSize] = useState<PosterSize>(initialState.posterSize);
   const [presenting, setPresenting] = useState(initialState.presenting);
   const [showLayerPanel, setShowLayerPanel] = useState(false);
   const [selectedId, setSelectedId] = useState("c");
@@ -275,8 +284,9 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
       params.set("roles", QUIZ_FIELDS.map(({ id }) => `${id}:${quizRoles[id]}`).join(","));
       params.set("preview", quizPreview);
     }
+    if (mode === "poster") params.set("paper", posterSize);
     window.history.replaceState(null, "", `${window.location.pathname}?${params}`);
-  }, [instrument, layers, markedDegrees, mode, orientation, presenting, quizPreset, quizPreview, quizRoles, quizScope, revealed]);
+  }, [instrument, layers, markedDegrees, mode, orientation, posterSize, presenting, quizPreset, quizPreview, quizRoles, quizScope, revealed]);
 
   function toggleLayer(layer: Layer) {
     setLayers((current) =>
@@ -339,6 +349,7 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
     setQuizScope(DEFAULT_QUIZ.scope);
     setQuizRoles({ ...DEFAULT_QUIZ.roles });
     setQuizPreview("student");
+    setPosterSize("letter");
     setPresenting(false);
     setSelectedId("c");
   }
@@ -354,6 +365,7 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
     setQuizScope(initialState.quizScope);
     setQuizRoles(initialState.quizRoles);
     setQuizPreview(initialState.quizPreview);
+    setPosterSize(initialState.posterSize);
     setPresenting(initialState.presenting);
     setSelectedId("c");
   }
@@ -369,7 +381,10 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
   }
 
   return (
-    <main className={`app-shell ${presenting ? "is-presenting" : ""}`}>
+    <main className={`app-shell ${presenting ? "is-presenting" : ""} ${isClassroomPoster ? `poster-size-${posterSize}` : ""}`}>
+      {isClassroomPoster && (
+        <style>{`@media print { @page { size: ${POSTER_SIZES[posterSize].pageSize}; margin: 0.35in; } }`}</style>
+      )}
       {presenting && (
         <button type="button" className="exit-presentation no-print" onClick={() => setPresenting(false)}>
           Exit presentation
@@ -460,8 +475,17 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
         <section className="poster-ready-panel no-print" aria-label="Classroom poster ready">
           <div>
             <strong>Standard classroom poster</strong>
-            <span>This is the complete fourths-first reference. Build mode owns custom teaching boards and future Praxis assignments.</span>
+            <span>Choose a paper size, then select the same size in your browser’s print dialog.</span>
           </div>
+          <fieldset className="poster-size-picker" aria-label="Poster paper size">
+            <legend>Poster size</legend>
+            {(Object.keys(POSTER_SIZES) as PosterSize[]).map((size) => (
+              <button key={size} type="button" aria-pressed={posterSize === size} onClick={() => setPosterSize(size)}>
+                <strong>{POSTER_SIZES[size].label}</strong>
+                <span>{POSTER_SIZES[size].detail}</span>
+              </button>
+            ))}
+          </fieldset>
           <button type="button" onClick={() => window.print()}>Print poster / Save PDF</button>
           <button type="button" className="poster-return" onClick={resetToOpenedLink}>Return to opened board</button>
         </section>
@@ -682,7 +706,7 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
                 <span><strong>Center</strong> Flat and sharp order</span>
               </div>
               <footer className="standard-poster-footer">
-                <span>Fourth-first for band classrooms.</span>
+                <span>Fourth-first for band classrooms · {POSTER_SIZES[posterSize].label}</span>
                 <strong>BACKWERD RHYTHM SHOP</strong>
                 <span>Flip the relationship—not the facts—to study fifths.</span>
               </footer>

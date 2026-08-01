@@ -64,6 +64,7 @@ export default async function Home({ searchParams }: { searchParams: SearchParam
     quizScope,
     quizRoles,
     quizPreview: first(params.preview) === "answer" ? "answer" : "student",
+    posterSize: first(params.paper) === "a4" ? "a4" : first(params.paper) === "tabloid" ? "tabloid" : "letter",
     presenting: first(params.present) === "1",
   };
 

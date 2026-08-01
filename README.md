@@ -20,6 +20,7 @@ An interactive, projector-first classroom board for building and exploring key r
 - student worksheet and teacher answer-key previews with shareable URL state
 - print-ready worksheet directions and student identification lines
 - canonical, fourths-first Classroom Poster with every stable reference layer, dedicated masthead, legend, and print layout
+- shareable US Letter, A4, and 11×17 poster-size presets with matching print/PDF page dimensions
 - custom teaching-board printing remains separate from the standard poster and future Praxis assignment authoring
 - toggleable BEADGCF flat order with its reverse sharp order
 - URL-persisted lesson state
