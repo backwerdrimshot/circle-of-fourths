@@ -24,6 +24,7 @@ test("server-renders the classroom board", async () => {
   assert.match(html, /aria-label="Board controls"/);
   assert.match(html, />Focus</);
   assert.match(html, />Quiz</);
+  assert.match(html, />Classroom poster</);
   assert.match(html, /Layers <span>2<\/span>/);
   assert.match(html, />Reveal all</);
   assert.match(html, />Reset link</);
@@ -148,4 +149,30 @@ test("quiz scope and custom field roles are restored from the URL", async () => 
   assert.match(html, /quiz-key-name-blank/);
   assert.match(html, /class="accidental-count"/);
   assert.doesNotMatch(html, /class="key-signature/);
+});
+
+test("complete classroom poster state renders every stable reference layer", async () => {
+  const response = await render("/?mode=poster&layers=signatures,numbers,minors,keyboards,accidental-order&instrument=xylophone");
+  assert.equal(response.status, 200);
+  const html = await response.text();
+
+  assert.match(html, /Classroom reference poster/);
+  assert.match(html, /Classroom poster ready/);
+  assert.match(html, /Print poster \/ Save PDF/);
+  assert.match(html, /Major key · accidental count/);
+  assert.match(html, /Key signature · relative minor/);
+  assert.match(html, /B E A D G C F/);
+  assert.match(html, /Sharps reverse: F C G D A E B/);
+  assert.equal((html.match(/major scale on a one-octave xylophone/g) ?? []).length, 12);
+  assert.doesNotMatch(html, /class="detail-panel/);
+});
+
+test("temporary note-role markings keep a poster in editable teaching mode", async () => {
+  const response = await render("/?mode=poster&layers=signatures,numbers,minors,keyboards,accidental-order&degrees=1");
+  assert.equal(response.status, 200);
+  const html = await response.text();
+
+  assert.doesNotMatch(html, /Classroom reference poster/);
+  assert.doesNotMatch(html, /poster-reference-legend/);
+  assert.match(html, /class="detail-panel/);
 });

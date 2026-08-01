@@ -16,6 +16,7 @@ type QuizPreview = "student" | "answer";
 type QuizRoles = Record<QuizField, FieldRole>;
 
 const DEFAULT_REVEALED = ["c"];
+const CLASSROOM_POSTER_LAYERS: Layer[] = ["signatures", "numbers", "minors", "keyboards", "accidental-order"];
 
 const QUIZ_FIELDS: { id: QuizField; label: string }[] = [
   { id: "keyName", label: "Key name" },
@@ -244,6 +245,9 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
     traversal[(selectedIndex + traversal.length - 1) % traversal.length].id,
     traversal[(selectedIndex + 1) % traversal.length].id,
   ]);
+  const isClassroomPoster = mode === "poster"
+    && CLASSROOM_POSTER_LAYERS.every((layer) => layers.includes(layer))
+    && markedDegrees.length === 0;
   const activeQuiz = quizPreset === "custom"
     ? { title: "Custom circle activity", directions: "Complete every blank using the musical information provided." }
     : QUIZ_PRESETS[quizPreset];
@@ -315,6 +319,16 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
     setQuizScope(scope);
   }
 
+  function loadClassroomPoster() {
+    setMode("poster");
+    setLayers([...CLASSROOM_POSTER_LAYERS]);
+    setInstrument("xylophone");
+    setMarkedDegrees([]);
+    setPresenting(false);
+    setSelectedId("c");
+    setShowLayerPanel(false);
+  }
+
   function resetBoard() {
     setOrientation("fourths");
     setMode("build");
@@ -369,6 +383,9 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
           <p className="subtitle">Start with one key. Build the relationship.</p>
         </div>
         <div className="header-actions no-print">
+          <button type="button" className="quiet-button poster-preset-button" onClick={loadClassroomPoster}>
+            Classroom poster
+          </button>
           <button type="button" className="quiet-button" onClick={copyLink}>
             {shareStatus}
           </button>
@@ -439,6 +456,17 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
           <button type="button" className="reset-button" onClick={resetBoard}>Start fresh</button>
         </div>
       </section>
+
+      {isClassroomPoster && !presenting && (
+        <section className="poster-ready-panel no-print" aria-label="Classroom poster ready">
+          <div>
+            <strong>Classroom poster ready</strong>
+            <span>All stable reference layers are visible. Temporary note-role markings are cleared for readability.</span>
+          </div>
+          <button type="button" onClick={() => window.print()}>Print poster / Save PDF</button>
+          <button type="button" className="poster-return" onClick={resetToOpenedLink}>Return to opened board</button>
+        </section>
+      )}
 
       {showLayerPanel && mode !== "quiz" && !presenting && (
         <section className="layer-panel no-print" aria-label="Layer and display options">
@@ -522,11 +550,11 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
         </section>
       )}
 
-      <section className={`board-layout ${mode === "quiz" ? "is-quiz-layout" : ""}`}>
+      <section className={`board-layout ${mode === "quiz" ? "is-quiz-layout" : ""} ${isClassroomPoster ? "is-classroom-poster-layout" : ""}`}>
         <section className="lesson-board" aria-label="Framed circle teaching board">
           <header className="board-frame-header">
             <div>
-              <span className="board-kicker">{mode === "quiz" ? "Circle activity" : "Teaching board"}</span>
+              <span className="board-kicker">{mode === "quiz" ? "Circle activity" : isClassroomPoster ? "Classroom reference poster" : "Teaching board"}</span>
               <strong>{mode === "quiz" ? activeQuiz.title : `Circle of ${orientation === "fourths" ? "Fourths" : "Fifths"}`}</strong>
             </div>
               <span>{mode === "build" ? "Progressive build" : mode === "focus" ? "Relationship focus" : mode === "quiz" ? (quizPreview === "student" ? "Student worksheet" : "Teacher answer key") : "Complete poster"}{mode !== "quiz" && layers.includes("keyboards") ? ` · ${instrument}` : ""}</span>
@@ -634,9 +662,17 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
             )}
           </div>
           </div>
+          {isClassroomPoster && (
+            <div className="poster-reference-legend" aria-label="Poster legend">
+              <span><strong>Core</strong> Major key · accidental count</span>
+              <span><strong>Middle</strong> Key signature · relative minor</span>
+              <span><strong>Outer</strong> Major scale on xylophone</span>
+              <span><strong>Center</strong> Flat and sharp order</span>
+            </div>
+          )}
         </section>
 
-        {mode !== "quiz" && <aside className="detail-panel hide-when-presenting" aria-live="polite">
+        {mode !== "quiz" && !isClassroomPoster && <aside className="detail-panel hide-when-presenting" aria-live="polite">
           <p className="eyebrow">Selected key</p>
           <div className="detail-key-heading">
             <h2>{selected.label} major</h2>

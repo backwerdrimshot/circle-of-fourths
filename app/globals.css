@@ -194,6 +194,60 @@ h1 {
   color: white !important;
 }
 
+.poster-preset-button {
+  border-color: var(--teal-dark) !important;
+  color: var(--teal-dark) !important;
+}
+
+.poster-ready-panel {
+  display: flex;
+  width: min(1440px, 100%);
+  align-items: center;
+  gap: 0.65rem;
+  margin: 0.7rem auto 0;
+  border: 1px solid var(--tan-soft);
+  border-left: 5px solid var(--gold);
+  border-radius: 0.8rem;
+  background: #fffdf8;
+  box-shadow: 0 9px 24px rgba(73, 53, 39, 0.07);
+  padding: 0.65rem 0.75rem;
+}
+
+.poster-ready-panel div {
+  display: grid;
+  flex: 1;
+  gap: 0.12rem;
+}
+
+.poster-ready-panel strong {
+  color: var(--brick-deep);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1rem;
+}
+
+.poster-ready-panel span {
+  color: var(--muted);
+  font-size: 0.72rem;
+}
+
+.poster-ready-panel button {
+  min-height: 2.35rem;
+  border: 1px solid var(--brick-deep);
+  border-radius: 0.55rem;
+  background: var(--brick-deep);
+  color: white;
+  cursor: pointer;
+  padding: 0.45rem 0.7rem;
+  font-size: 0.73rem;
+  font-weight: 800;
+}
+
+.poster-ready-panel .poster-return {
+  border-color: var(--line);
+  background: var(--paper);
+  color: var(--muted);
+}
+
 .layer-panel {
   display: flex;
   width: min(1440px, 100%);
@@ -385,6 +439,37 @@ h1 {
   width: min(1120px, 100%);
   margin-right: auto;
   margin-left: auto;
+}
+
+.board-layout.is-classroom-poster-layout {
+  display: block;
+  width: min(1120px, 100%);
+  margin-right: auto;
+  margin-left: auto;
+}
+
+.poster-reference-legend {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.45rem;
+  border-top: 1px solid var(--line);
+  padding: 0.65rem 0.8rem 0.15rem;
+}
+
+.poster-reference-legend span {
+  color: var(--muted);
+  font-size: 0.64rem;
+  line-height: 1.25;
+  text-align: center;
+}
+
+.poster-reference-legend strong {
+  display: block;
+  margin-bottom: 0.08rem;
+  color: var(--brick-deep);
+  font-size: 0.68rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
 }
 
 .worksheet-meta {
@@ -1388,6 +1473,15 @@ footer {
     min-width: 0;
   }
 
+  .poster-ready-panel {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .poster-reference-legend {
+    grid-template-columns: 1fr 1fr;
+  }
+
   .board-frame-header {
     align-items: flex-start;
   }
@@ -1556,6 +1650,43 @@ footer {
 
   .is-quiz-layout .key-card {
     --radius: 2.85in;
+  }
+
+  .is-classroom-poster-layout .lesson-board {
+    padding: 0.06in;
+  }
+
+  .is-classroom-poster-layout .circle-stage {
+    width: 6.35in;
+  }
+
+  .is-classroom-poster-layout .key-card.core-node {
+    --radius: 1.35in;
+    width: 0.7in;
+    min-height: 0.58in;
+  }
+
+  .is-classroom-poster-layout .notation-node {
+    --radius: 1.92in;
+  }
+
+  .is-classroom-poster-layout .keyboard-node {
+    --radius: 2.67in;
+  }
+
+  .is-classroom-poster-layout .mini-keyboard {
+    width: 0.9in;
+    height: 0.37in;
+    margin-top: 0;
+  }
+
+  .is-classroom-poster-layout .poster-reference-legend {
+    gap: 0.12in;
+    padding: 0.08in 0.1in 0.02in;
+  }
+
+  .is-classroom-poster-layout .poster-reference-legend span {
+    font-size: 0.48rem;
   }
 
   .circle-stage {
