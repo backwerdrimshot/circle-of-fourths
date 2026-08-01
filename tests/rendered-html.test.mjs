@@ -25,6 +25,7 @@ test("server-renders the classroom board", async () => {
   assert.match(html, /Accidental numbers/);
   assert.match(html, /Keyboards/);
   assert.match(html, /BEADGCF order/);
+  assert.match(html, /style="--angle:0deg"/);
   assert.doesNotMatch(html, /codex-preview|react-loading-skeleton|Your site is taking shape/);
 });
 

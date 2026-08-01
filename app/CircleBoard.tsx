@@ -297,7 +297,7 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
           </div>
           <div className="circle-ring" aria-hidden="true" />
           {traversal.map((key, index) => {
-            const angle = index * 30 - 90;
+            const angle = index * 30;
             const visible = mode === "poster" || revealed.includes(key.id);
             return (
               <button
