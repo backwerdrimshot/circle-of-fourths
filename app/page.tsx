@@ -24,6 +24,7 @@ export default async function Home({ searchParams }: { searchParams: SearchParam
     mode: first(params.mode) === "poster" ? "poster" : "build",
     layers,
     revealed,
+    instrument: first(params.instrument) === "piano" ? "piano" : "xylophone",
   };
 
   return <CircleBoard initialState={initialState} />;

@@ -6,6 +6,7 @@ import { getTraversal } from "@/lib/music-model.mjs";
 type Orientation = "fourths" | "fifths";
 type BoardMode = "build" | "poster";
 type Layer = "signatures" | "numbers" | "keyboards" | "minors" | "accidental-order";
+type Instrument = "xylophone" | "piano";
 
 const DEFAULT_REVEALED = ["c"];
 
@@ -69,9 +70,9 @@ function AccidentalCount({ type, count }: { type: string; count: number }) {
   );
 }
 
-function MiniScaleKeyboard({ label, tonic, scale }: { label: string; tonic: number; scale: number[] }) {
+function MiniScaleKeyboard({ label, tonic, scale, instrument }: { label: string; tonic: number; scale: number[]; instrument: Instrument }) {
   return (
-    <span className="mini-keyboard" role="img" aria-label={`${label} major scale on a one-octave mallet keyboard`}>
+    <span className={`mini-keyboard is-${instrument}`} role="img" aria-label={`${label} major scale on a one-octave ${instrument}`}>
       <span className="mini-natural-bars" aria-hidden="true">
         {MINI_NATURAL_BARS.map(([name, pitchClass], index) => (
           <span
@@ -93,17 +94,17 @@ function MiniScaleKeyboard({ label, tonic, scale }: { label: string; tonic: numb
   );
 }
 
-function PracticeMarimba({ label, tonic, scale }: { label: string; tonic: number; scale: number[] }) {
+function PracticeKeyboard({ label, tonic, scale, instrument }: { label: string; tonic: number; scale: number[]; instrument: Instrument }) {
   return (
     <section className="marimba-section" aria-labelledby="marimba-heading">
       <div className="marimba-heading-row">
         <div>
-          <p className="eyebrow" id="marimba-heading">Practice marimba</p>
+          <p className="eyebrow" id="marimba-heading">Practice {instrument}</p>
           <h3>{label} major scale</h3>
         </div>
         <span className="marimba-legend"><i /> tonic <i /> scale tone</span>
       </div>
-      <div className="practice-marimba" role="list" aria-label={`Two-octave practice marimba with the ${label} major scale highlighted`}>
+      <div className={`practice-marimba is-${instrument}`} role="list" aria-label={`Two-octave practice ${instrument} with the ${label} major scale highlighted`}>
         <div className="natural-bars">
           {NATURAL_BARS.map(([name, pitchClass]) => {
             const isScaleTone = scale.includes(pitchClass);
@@ -146,6 +147,7 @@ export type CircleBoardState = {
   mode: BoardMode;
   layers: Layer[];
   revealed: string[];
+  instrument: Instrument;
 };
 
 export function CircleBoard({ initialState }: { initialState: CircleBoardState }) {
@@ -153,6 +155,7 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
   const [mode, setMode] = useState<BoardMode>(initialState.mode);
   const [layers, setLayers] = useState<Layer[]>(initialState.layers);
   const [revealed, setRevealed] = useState<string[]>(initialState.revealed);
+  const [instrument, setInstrument] = useState<Instrument>(initialState.instrument);
   const [selectedId, setSelectedId] = useState("c");
   const [shareStatus, setShareStatus] = useState("Copy lesson link");
 
@@ -164,9 +167,10 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
     params.set("direction", orientation);
     params.set("mode", mode);
     if (layers.length) params.set("layers", layers.join(","));
+    params.set("instrument", instrument);
     if (mode === "build") params.set("revealed", revealed.join(","));
     window.history.replaceState(null, "", `${window.location.pathname}?${params}`);
-  }, [layers, mode, orientation, revealed]);
+  }, [instrument, layers, mode, orientation, revealed]);
 
   function toggleLayer(layer: Layer) {
     setLayers((current) =>
@@ -188,6 +192,7 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
     setMode("build");
     setLayers(["signatures", "numbers"]);
     setRevealed(DEFAULT_REVEALED);
+    setInstrument("xylophone");
     setSelectedId("c");
   }
 
@@ -284,6 +289,23 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
             BEADGCF order
           </button>
         </div>
+        <div className="control-group instrument-controls" aria-label="Keyboard style">
+          <span className="control-label">Keyboard style</span>
+          <button
+            type="button"
+            aria-pressed={instrument === "xylophone"}
+            onClick={() => setInstrument("xylophone")}
+          >
+            Xylophone
+          </button>
+          <button
+            type="button"
+            aria-pressed={instrument === "piano"}
+            onClick={() => setInstrument("piano")}
+          >
+            Piano
+          </button>
+        </div>
         <button type="button" className="reset-button" onClick={resetBoard}>
           Start fresh
         </button>
@@ -332,7 +354,7 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
                       <span className="minor-name">{key.relativeMinor}</span>
                     )}
                     {layers.includes("keyboards") && (
-                      <MiniScaleKeyboard label={key.label} tonic={key.pitchClass} scale={key.scalePitchClasses} />
+                      <MiniScaleKeyboard label={key.label} tonic={key.pitchClass} scale={key.scalePitchClasses} instrument={instrument} />
                     )}
                   </>
                 ) : (
@@ -380,10 +402,11 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
             </div>
           </dl>
           {layers.includes("keyboards") && (
-            <PracticeMarimba
+            <PracticeKeyboard
               label={selected.label}
               tonic={selected.pitchClass}
               scale={selected.scalePitchClasses}
+              instrument={instrument}
             />
           )}
           <p className="teacher-tip">

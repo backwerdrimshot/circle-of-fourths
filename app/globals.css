@@ -142,6 +142,10 @@ h1 {
   flex-wrap: wrap;
 }
 
+.instrument-controls {
+  border-right: 0;
+}
+
 .toolbar button[aria-pressed="true"] {
   border-color: var(--teal);
   background: var(--teal);
@@ -171,11 +175,11 @@ h1 {
 }
 
 .circle-stage.has-keyboards {
-  width: min(82vh, 82vw, 860px);
+  width: min(88vh, 90vw, 920px);
 }
 
 .circle-stage.has-keyboards .key-card {
-  --radius: clamp(14rem, 33vw, 22.5rem);
+  --radius: clamp(14rem, 35vw, 23.8rem);
 }
 
 .circle-ring {
@@ -227,8 +231,8 @@ h1 {
 }
 
 .key-card.shows-keyboard {
-  width: clamp(6.8rem, 13vw, 8.8rem);
-  min-height: clamp(6.2rem, 10vw, 7.3rem);
+  width: clamp(7.8rem, 14vw, 9.5rem);
+  min-height: clamp(7rem, 11vw, 8.2rem);
   padding: 0.45rem;
 }
 
@@ -320,13 +324,26 @@ h1 {
 .mini-keyboard {
   position: relative;
   display: block;
-  width: min(6.8rem, 100%);
-  height: 2.1rem;
+  width: min(7.9rem, 100%);
+  height: 3rem;
   margin-top: 0.35rem;
   border: 1px solid #65442f;
   border-radius: 0.32rem;
   background: linear-gradient(180deg, #694631, #3d281d);
   padding: 0.14rem;
+}
+
+.mini-keyboard.is-xylophone {
+  background:
+    linear-gradient(180deg, transparent 20%, rgba(69, 42, 27, 0.9) 20% 28%, transparent 28% 70%, rgba(69, 42, 27, 0.9) 70% 78%, transparent 78%),
+    #d9c6a7;
+}
+
+.mini-keyboard.is-piano {
+  border-color: #242424;
+  border-radius: 0.2rem;
+  background: #202322;
+  padding: 0.12rem;
 }
 
 .mini-natural-bars {
@@ -343,7 +360,19 @@ h1 {
 
 .mini-bar.natural {
   border: 1px solid rgba(74, 38, 22, 0.72);
-  background: linear-gradient(90deg, #a96b43, #c78354 46%, #9a5d3a);
+  background: linear-gradient(90deg, #e8decc, #fff8e9 46%, #d7cab6);
+  box-shadow: 0 1px 2px rgba(52, 31, 18, 0.22);
+}
+
+.is-piano .mini-natural-bars {
+  gap: 0;
+}
+
+.is-piano .mini-bar.natural {
+  border-color: #777;
+  border-radius: 0 0 2px 2px;
+  background: linear-gradient(90deg, #e8e8e6, #fff 55%, #d4d4d1);
+  box-shadow: none;
 }
 
 .mini-accidental-bars {
@@ -361,6 +390,14 @@ h1 {
   transform: translateX(-50%);
   border: 1px solid rgba(26, 15, 10, 0.82);
   background: linear-gradient(90deg, #3d271e, #674332 48%, #352219);
+}
+
+.is-piano .mini-bar.accidental {
+  width: 9%;
+  height: 61%;
+  border-color: #050505;
+  border-radius: 0 0 2px 2px;
+  background: linear-gradient(90deg, #111, #444 48%, #090909);
 }
 
 .mini-bar.is-scale-tone {
@@ -582,6 +619,37 @@ h1 {
   padding: 0.32rem;
 }
 
+.practice-marimba.is-piano {
+  border-color: #242424;
+  border-radius: 0.35rem;
+  background: #202322;
+  box-shadow: inset 0 0 0 0.18rem rgba(0, 0, 0, 0.42);
+  padding: 0.22rem;
+}
+
+.practice-marimba.is-piano .natural-bars {
+  gap: 0;
+}
+
+.practice-marimba.is-piano .mallet-bar.natural {
+  border-color: #777;
+  border-radius: 0 0 0.12rem 0.12rem;
+  background: linear-gradient(90deg, #e8e8e6, #fff 55%, #d4d4d1);
+  color: #333;
+}
+
+.practice-marimba.is-piano .accidental-bars {
+  inset: 0.22rem;
+}
+
+.practice-marimba.is-piano .mallet-bar.accidental {
+  width: 4.8%;
+  height: 62%;
+  border-color: #050505;
+  border-radius: 0 0 0.12rem 0.12rem;
+  background: linear-gradient(90deg, #111, #444 48%, #090909);
+}
+
 .natural-bars {
   display: grid;
   height: 100%;
@@ -658,7 +726,7 @@ footer {
   }
 
   .circle-stage.has-keyboards {
-    width: min(84vh, 98vw, 790px);
+    width: min(88vh, 99vw, 820px);
   }
 
   .detail-panel {
@@ -705,8 +773,8 @@ footer {
 
 
   .circle-stage.has-keyboards {
-    width: 142vw;
-    margin-left: -25vw;
+    width: 155vw;
+    margin-left: -31.5vw;
   }
 
   .key-card {
@@ -723,13 +791,13 @@ footer {
   }
 
   .key-card.shows-keyboard {
-    --radius: 58vw;
-    width: 24vw;
-    min-height: 22vw;
+    --radius: 63vw;
+    width: 27vw;
+    min-height: 25vw;
   }
 
   .mini-keyboard {
-    height: 1.5rem;
+    height: 2rem;
     margin-top: 0.2rem;
   }
 
