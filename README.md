@@ -15,6 +15,7 @@ An interactive, projector-first classroom board for building and exploring key r
 - toggleable BEADGCF flat order with its reverse sharp order
 - URL-persisted lesson state
 - copy-link, reset, and print actions
+- framed teaching-board layout with a shareable Presentation view
 - deterministic musical model with automated tests
 
 ## Local development

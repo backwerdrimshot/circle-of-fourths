@@ -27,6 +27,8 @@ test("server-renders the classroom board", async () => {
   assert.match(html, /BEADGCF order/);
   assert.match(html, /Xylophone/);
   assert.match(html, /Piano/);
+  assert.match(html, /Teaching board/);
+  assert.match(html, />Present</);
   assert.match(html, /style="--angle:0deg"/);
   assert.doesNotMatch(html, /codex-preview|react-loading-skeleton|Your site is taking shape/);
 });
@@ -64,4 +66,14 @@ test("xylophone is the default circle instrument", async () => {
 
   assert.equal((html.match(/major scale on a one-octave xylophone/g) ?? []).length, 12);
   assert.match(html, /Two-octave practice xylophone with the C major scale highlighted/);
+});
+
+test("presentation state is server-rendered and shareable", async () => {
+  const response = await render("/?mode=build&layers=signatures,numbers&present=1&revealed=c,f");
+  assert.equal(response.status, 200);
+  const html = await response.text();
+
+  assert.match(html, /class="app-shell is-presenting"/);
+  assert.match(html, /Exit presentation/);
+  assert.match(html, /Progressive build/);
 });

@@ -162,9 +162,54 @@ h1 {
 .board-layout {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(320px, 410px);
-  align-items: center;
+  align-items: start;
   gap: clamp(1rem, 3vw, 3rem);
   margin-top: clamp(1rem, 2vh, 2rem);
+}
+
+.lesson-board {
+  min-width: 0;
+  border: 1px solid #c8c1b2;
+  border-radius: 1.5rem;
+  background:
+    linear-gradient(rgba(255, 253, 248, 0.94), rgba(255, 253, 248, 0.94)),
+    repeating-linear-gradient(0deg, transparent 0 23px, rgba(31, 112, 102, 0.035) 23px 24px);
+  box-shadow: 0 18px 48px rgba(29, 52, 45, 0.1), inset 0 0 0 0.35rem rgba(31, 112, 102, 0.035);
+  padding: clamp(0.8rem, 1.8vw, 1.5rem);
+}
+
+.board-frame-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.15rem 0.35rem 0.8rem;
+  border-bottom: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: capitalize;
+}
+
+.board-frame-header div {
+  display: flex;
+  align-items: baseline;
+  gap: 0.65rem;
+}
+
+.board-frame-header strong {
+  color: var(--ink);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(1.1rem, 2vw, 1.45rem);
+  font-weight: 500;
+}
+
+.board-kicker {
+  color: var(--teal);
+  font-size: 0.63rem;
+  font-weight: 850;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
 }
 
 .circle-stage {
@@ -233,7 +278,33 @@ h1 {
 .key-card.shows-keyboard {
   width: clamp(7.8rem, 14vw, 9.5rem);
   min-height: clamp(7rem, 11vw, 8.2rem);
-  padding: 0.45rem;
+  justify-content: space-between;
+  overflow: hidden;
+  padding: 0.5rem 0.45rem 0;
+}
+
+.key-information {
+  display: flex;
+  width: 100%;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.instrument-tray {
+  display: flex;
+  width: calc(100% + 0.9rem);
+  align-items: center;
+  justify-content: center;
+  margin-top: 0.35rem;
+  border-top: 1px solid var(--line);
+  background: rgba(31, 112, 102, 0.045);
+  padding: 0.38rem 0.32rem 0.42rem;
+}
+
+.instrument-tray .mini-keyboard {
+  margin-top: 0;
 }
 
 .key-card.is-visible {
@@ -716,6 +787,55 @@ footer {
   font-size: 0.73rem;
 }
 
+.exit-presentation {
+  position: fixed;
+  top: 0.9rem;
+  right: 0.9rem;
+  z-index: 20;
+  min-height: 2.6rem;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: 999px;
+  background: var(--teal-dark);
+  box-shadow: 0 8px 22px rgba(21, 82, 73, 0.28);
+  color: white;
+  cursor: pointer;
+  padding: 0.55rem 0.9rem;
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.is-presenting {
+  display: flex;
+  min-height: 100vh;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem;
+}
+
+.is-presenting .hide-when-presenting {
+  display: none !important;
+}
+
+.is-presenting .board-layout {
+  display: block;
+  width: min(1240px, 100%);
+  margin: 0 auto;
+}
+
+.is-presenting .lesson-board {
+  width: 100%;
+  padding: clamp(0.8rem, 1.5vw, 1.35rem);
+  box-shadow: 0 24px 70px rgba(29, 52, 45, 0.15), inset 0 0 0 0.35rem rgba(31, 112, 102, 0.04);
+}
+
+.is-presenting .circle-stage {
+  width: min(82vh, 86vw, 900px);
+}
+
+.is-presenting .circle-stage.has-keyboards {
+  width: min(90vh, 92vw, 980px);
+}
+
 @media (max-width: 900px) {
   .board-layout {
     grid-template-columns: 1fr;
@@ -732,6 +852,10 @@ footer {
   .detail-panel {
     width: min(720px, 100%);
     margin-inline: auto;
+  }
+
+  .lesson-board {
+    width: 100%;
   }
 }
 
@@ -760,6 +884,15 @@ footer {
 
   .control-label {
     width: 4.8rem;
+  }
+
+  .board-frame-header {
+    align-items: flex-start;
+  }
+
+  .board-frame-header div {
+    display: grid;
+    gap: 0.1rem;
   }
 
   .toolbar .reset-button {
@@ -868,9 +1001,18 @@ footer {
   }
 
   .board-layout {
-    grid-template-columns: 1fr 240px;
-    gap: 0.25in;
+    display: block;
     margin-top: 0;
+  }
+
+  .detail-panel {
+    display: none;
+  }
+
+  .lesson-board {
+    border-radius: 0;
+    box-shadow: none;
+    padding: 0.1in;
   }
 
   .circle-stage {

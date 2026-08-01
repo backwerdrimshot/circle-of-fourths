@@ -148,6 +148,7 @@ export type CircleBoardState = {
   layers: Layer[];
   revealed: string[];
   instrument: Instrument;
+  presenting: boolean;
 };
 
 export function CircleBoard({ initialState }: { initialState: CircleBoardState }) {
@@ -156,6 +157,7 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
   const [layers, setLayers] = useState<Layer[]>(initialState.layers);
   const [revealed, setRevealed] = useState<string[]>(initialState.revealed);
   const [instrument, setInstrument] = useState<Instrument>(initialState.instrument);
+  const [presenting, setPresenting] = useState(initialState.presenting);
   const [selectedId, setSelectedId] = useState("c");
   const [shareStatus, setShareStatus] = useState("Copy lesson link");
 
@@ -168,9 +170,10 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
     params.set("mode", mode);
     if (layers.length) params.set("layers", layers.join(","));
     params.set("instrument", instrument);
+    if (presenting) params.set("present", "1");
     if (mode === "build") params.set("revealed", revealed.join(","));
     window.history.replaceState(null, "", `${window.location.pathname}?${params}`);
-  }, [instrument, layers, mode, orientation, revealed]);
+  }, [instrument, layers, mode, orientation, presenting, revealed]);
 
   function toggleLayer(layer: Layer) {
     setLayers((current) =>
@@ -193,6 +196,7 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
     setLayers(["signatures", "numbers"]);
     setRevealed(DEFAULT_REVEALED);
     setInstrument("xylophone");
+    setPresenting(false);
     setSelectedId("c");
   }
 
@@ -207,8 +211,13 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
   }
 
   return (
-    <main className="app-shell">
-      <header className="topbar">
+    <main className={`app-shell ${presenting ? "is-presenting" : ""}`}>
+      {presenting && (
+        <button type="button" className="exit-presentation no-print" onClick={() => setPresenting(false)}>
+          Exit presentation
+        </button>
+      )}
+      <header className="topbar hide-when-presenting no-print">
         <div>
           <p className="eyebrow">Backwerd Rhythm Shop · classroom prototype</p>
           <h1>Circle of Fourths</h1>
@@ -221,10 +230,13 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
           <button type="button" className="quiet-button" onClick={() => window.print()}>
             Print
           </button>
+          <button type="button" className="quiet-button present-button" onClick={() => setPresenting(true)}>
+            Present
+          </button>
         </div>
       </header>
 
-      <section className="toolbar no-print" aria-label="Board controls">
+      <section className="toolbar no-print hide-when-presenting" aria-label="Board controls">
         <div className="control-group" aria-label="Direction">
           <span className="control-label">Direction</span>
           <button
@@ -312,7 +324,15 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
       </section>
 
       <section className="board-layout">
-        <div className={`circle-stage ${layers.includes("keyboards") ? "has-keyboards" : ""}`} aria-label={`Circle of ${orientation}`}>
+        <section className="lesson-board" aria-label="Framed circle teaching board">
+          <header className="board-frame-header">
+            <div>
+              <span className="board-kicker">Teaching board</span>
+              <strong>Circle of {orientation === "fourths" ? "Fourths" : "Fifths"}</strong>
+            </div>
+            <span>{mode === "build" ? "Progressive build" : "Complete poster"}{layers.includes("keyboards") ? ` · ${instrument}` : ""}</span>
+          </header>
+          <div className={`circle-stage ${layers.includes("keyboards") ? "has-keyboards" : ""}`} aria-label={`Circle of ${orientation}`}>
           <div className="direction-note" aria-live="polite">
             <span>Ascending {orientation}</span>
             <strong>{orientation === "fourths" ? "↻" : "↺"}</strong>
@@ -339,22 +359,26 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
               >
                 {visible ? (
                   <>
-                    <span className="key-card-heading">
-                      <span className="key-name">{key.label}</span>
-                      {layers.includes("signatures") && (
-                        <KeySignature type={key.type} count={key.count} compact />
+                    <span className="key-information">
+                      <span className="key-card-heading">
+                        <span className="key-name">{key.label}</span>
+                        {layers.includes("signatures") && (
+                          <KeySignature type={key.type} count={key.count} compact />
+                        )}
+                      </span>
+                      {layers.includes("numbers") && (
+                        <span className="signature-summary">
+                          <AccidentalCount type={key.type} count={key.count} />
+                        </span>
+                      )}
+                      {layers.includes("minors") && (
+                        <span className="minor-name">{key.relativeMinor}</span>
                       )}
                     </span>
-                    {layers.includes("numbers") && (
-                      <span className="signature-summary">
-                        <AccidentalCount type={key.type} count={key.count} />
-                      </span>
-                    )}
-                    {layers.includes("minors") && (
-                      <span className="minor-name">{key.relativeMinor}</span>
-                    )}
                     {layers.includes("keyboards") && (
-                      <MiniScaleKeyboard label={key.label} tonic={key.pitchClass} scale={key.scalePitchClasses} instrument={instrument} />
+                      <span className="instrument-tray">
+                        <MiniScaleKeyboard label={key.label} tonic={key.pitchClass} scale={key.scalePitchClasses} instrument={instrument} />
+                      </span>
                     )}
                   </>
                 ) : (
@@ -378,9 +402,10 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
               </>
             )}
           </div>
-        </div>
+          </div>
+        </section>
 
-        <aside className="detail-panel" aria-live="polite">
+        <aside className="detail-panel hide-when-presenting" aria-live="polite">
           <p className="eyebrow">Selected key</p>
           <div className="detail-key-heading">
             <h2>{selected.label} major</h2>
@@ -417,7 +442,7 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
         </aside>
       </section>
 
-      <footer>
+      <footer className="hide-when-presenting no-print">
         <span>Fourth-first for band classrooms.</span>
         <span>Flip once to see the same relationships as fifths.</span>
       </footer>
