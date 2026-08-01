@@ -19,13 +19,18 @@ export default async function Home({ searchParams }: { searchParams: SearchParam
       layer === "accidental-order",
     );
   const revealed = (first(params.revealed) ?? "c").split(",").filter(Boolean);
+  const degreeParam = first(params.degrees) ?? (first(params.tonic) === "1" ? "1" : "");
+  const markedDegrees = degreeParam
+    .split(",")
+    .map(Number)
+    .filter((degree): degree is CircleBoardState["markedDegrees"][number] => Number.isInteger(degree) && degree >= 1 && degree <= 7);
   const initialState: CircleBoardState = {
     orientation: first(params.direction) === "fifths" ? "fifths" : "fourths",
     mode: first(params.mode) === "poster" ? "poster" : first(params.mode) === "focus" ? "focus" : "build",
     layers,
     revealed,
     instrument: first(params.instrument) === "piano" ? "piano" : "xylophone",
-    markTonic: first(params.tonic) === "1",
+    markedDegrees,
     presenting: first(params.present) === "1",
   };
 

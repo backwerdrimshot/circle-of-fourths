@@ -7,8 +7,26 @@ type Orientation = "fourths" | "fifths";
 type BoardMode = "build" | "poster" | "focus";
 type Layer = "signatures" | "numbers" | "keyboards" | "minors" | "accidental-order";
 type Instrument = "xylophone" | "piano";
+type ScaleDegree = 1 | 2 | 3 | 4 | 5 | 6 | 7;
 
 const DEFAULT_REVEALED = ["c"];
+
+const DEGREE_NAMES: Record<ScaleDegree, string> = {
+  1: "Tonic",
+  2: "Supertonic",
+  3: "Mediant",
+  4: "Subdominant",
+  5: "Dominant",
+  6: "Submediant",
+  7: "Leading tone",
+};
+
+const SCALE_DEGREES = Object.keys(DEGREE_NAMES).map(Number) as ScaleDegree[];
+
+function getScaleDegree(scale: number[], pitchClass: number) {
+  const index = scale.indexOf(pitchClass);
+  return index === -1 ? null : (index + 1) as ScaleDegree;
+}
 
 const STAFF_POSITIONS = {
   flat: [50, 26, 58, 34, 66, 42, 74],
@@ -70,31 +88,29 @@ function AccidentalCount({ type, count }: { type: string; count: number }) {
   );
 }
 
-function MiniScaleKeyboard({ label, tonic, scale, instrument, markTonic }: { label: string; tonic: number; scale: number[]; instrument: Instrument; markTonic: boolean }) {
+function MiniScaleKeyboard({ label, scale, instrument, markedDegrees }: { label: string; scale: number[]; instrument: Instrument; markedDegrees: ScaleDegree[] }) {
+  const roleSummary = markedDegrees.map((degree) => `${degree} ${DEGREE_NAMES[degree]}`).join(", ");
   return (
-    <span className={`mini-keyboard is-${instrument}`} role="img" aria-label={`${label} major scale on a one-octave ${instrument}`}>
+    <span className={`mini-keyboard is-${instrument}`} role="img" aria-label={`${label} major scale on a one-octave ${instrument}${roleSummary ? `; marked roles: ${roleSummary}` : ""}`}>
       <span className="mini-natural-bars" aria-hidden="true">
-        {MINI_NATURAL_BARS.map(([name, pitchClass], index) => (
-          <span
-            key={`${name}-${index}`}
-            className={`mini-bar natural ${scale.includes(pitchClass) ? "is-scale-tone" : ""} ${markTonic && pitchClass === tonic ? "is-tonic" : ""}`}
-          />
-        ))}
+        {MINI_NATURAL_BARS.map(([name, pitchClass], index) => {
+          const degree = getScaleDegree(scale, pitchClass);
+          const isMarked = degree !== null && markedDegrees.includes(degree);
+          return <span key={`${name}-${index}`} data-degree={isMarked ? degree : undefined} className={`mini-bar natural ${degree ? "is-scale-tone" : ""} ${isMarked ? "is-role-marked" : ""}`} />;
+        })}
       </span>
       <span className="mini-accidental-bars" aria-hidden="true">
-        {MINI_ACCIDENTAL_BARS.map(([pitchClass, afterNatural]) => (
-          <span
-            key={pitchClass}
-            className={`mini-bar accidental ${scale.includes(pitchClass) ? "is-scale-tone" : ""} ${markTonic && pitchClass === tonic ? "is-tonic" : ""}`}
-            style={{ "--bar-left": `${(afterNatural / MINI_NATURAL_BARS.length) * 100}%` } as React.CSSProperties}
-          />
-        ))}
+        {MINI_ACCIDENTAL_BARS.map(([pitchClass, afterNatural]) => {
+          const degree = getScaleDegree(scale, pitchClass);
+          const isMarked = degree !== null && markedDegrees.includes(degree);
+          return <span key={pitchClass} data-degree={isMarked ? degree : undefined} className={`mini-bar accidental ${degree ? "is-scale-tone" : ""} ${isMarked ? "is-role-marked" : ""}`} style={{ "--bar-left": `${(afterNatural / MINI_NATURAL_BARS.length) * 100}%` } as React.CSSProperties} />;
+        })}
       </span>
     </span>
   );
 }
 
-function PracticeKeyboard({ label, tonic, scale, instrument, markTonic }: { label: string; tonic: number; scale: number[]; instrument: Instrument; markTonic: boolean }) {
+function PracticeKeyboard({ label, scale, instrument, markedDegrees }: { label: string; scale: number[]; instrument: Instrument; markedDegrees: ScaleDegree[] }) {
   return (
     <section className="marimba-section" aria-labelledby="marimba-heading">
       <div className="marimba-heading-row">
@@ -102,24 +118,31 @@ function PracticeKeyboard({ label, tonic, scale, instrument, markTonic }: { labe
           <p className="eyebrow" id="marimba-heading">Practice {instrument}</p>
           <h3>{label} major scale</h3>
         </div>
-        <span className={`marimba-legend ${markTonic ? "shows-tonic" : ""}`}>
-          {markTonic && <><i className="tonic-swatch" /> tonic</>}
+        <span className={`marimba-legend ${markedDegrees.length ? "shows-roles" : ""}`}>
+          {markedDegrees.length > 0 && <><i className="role-swatch" /> outlined = selected role</>}
           <i className="scale-swatch" /> lit = scale tone
         </span>
       </div>
+      {markedDegrees.length > 0 && (
+        <div className="role-summary" aria-label="Selected scale-degree roles">
+          {markedDegrees.map((degree) => <span key={degree}><strong>{degree}</strong> {DEGREE_NAMES[degree]}</span>)}
+        </div>
+      )}
       <div className={`practice-marimba is-${instrument}`} role="list" aria-label={`Two-octave practice ${instrument} with the ${label} major scale highlighted`}>
         <div className="natural-bars">
           {NATURAL_BARS.map(([name, pitchClass]) => {
             const isScaleTone = scale.includes(pitchClass);
-            const isTonic = markTonic && pitchClass === tonic;
+            const degree = getScaleDegree(scale, pitchClass);
+            const isMarked = degree !== null && markedDegrees.includes(degree);
             return (
               <span
                 key={name}
                 role="listitem"
-                aria-label={`${name}, ${isTonic ? "tonic" : isScaleTone ? "scale tone" : "not in scale"}`}
-                className={`mallet-bar natural ${isScaleTone ? "is-scale-tone" : ""} ${isTonic ? "is-tonic" : ""}`}
+                aria-label={`${name}, ${isMarked ? `degree ${degree}, ${DEGREE_NAMES[degree]}` : isScaleTone ? "scale tone" : "not in scale"}`}
+                className={`mallet-bar natural ${isScaleTone ? "is-scale-tone" : ""} ${isMarked ? "is-role-marked" : ""}`}
               >
                 <span aria-hidden="true">{name.replace(/\d/, "")}</span>
+                {isMarked && <b className="degree-badge" aria-hidden="true">{degree}</b>}
               </span>
             );
           })}
@@ -127,16 +150,19 @@ function PracticeKeyboard({ label, tonic, scale, instrument, markTonic }: { labe
         <div className="accidental-bars">
           {ACCIDENTAL_BARS.map(([name, pitchClass, afterNatural]) => {
             const isScaleTone = scale.includes(pitchClass);
-            const isTonic = markTonic && pitchClass === tonic;
+            const degree = getScaleDegree(scale, pitchClass);
+            const isMarked = degree !== null && markedDegrees.includes(degree);
             return (
               <span
                 key={name}
                 title={name}
                 role="listitem"
-                aria-label={`${name}, ${isTonic ? "tonic" : isScaleTone ? "scale tone" : "not in scale"}`}
-                className={`mallet-bar accidental ${isScaleTone ? "is-scale-tone" : ""} ${isTonic ? "is-tonic" : ""}`}
+                aria-label={`${name}, ${isMarked ? `degree ${degree}, ${DEGREE_NAMES[degree]}` : isScaleTone ? "scale tone" : "not in scale"}`}
+                className={`mallet-bar accidental ${isScaleTone ? "is-scale-tone" : ""} ${isMarked ? "is-role-marked" : ""}`}
                 style={{ "--bar-left": `${(afterNatural / NATURAL_BARS.length) * 100}%` } as React.CSSProperties}
-              />
+              >
+                {isMarked && <b className="degree-badge" aria-hidden="true">{degree}</b>}
+              </span>
             );
           })}
         </div>
@@ -151,7 +177,7 @@ export type CircleBoardState = {
   layers: Layer[];
   revealed: string[];
   instrument: Instrument;
-  markTonic: boolean;
+  markedDegrees: ScaleDegree[];
   presenting: boolean;
 };
 
@@ -161,7 +187,7 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
   const [layers, setLayers] = useState<Layer[]>(initialState.layers);
   const [revealed, setRevealed] = useState<string[]>(initialState.revealed);
   const [instrument, setInstrument] = useState<Instrument>(initialState.instrument);
-  const [markTonic, setMarkTonic] = useState(initialState.markTonic);
+  const [markedDegrees, setMarkedDegrees] = useState<ScaleDegree[]>(initialState.markedDegrees);
   const [presenting, setPresenting] = useState(initialState.presenting);
   const [showLayerPanel, setShowLayerPanel] = useState(false);
   const [selectedId, setSelectedId] = useState("c");
@@ -182,11 +208,11 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
     params.set("mode", mode);
     if (layers.length) params.set("layers", layers.join(","));
     params.set("instrument", instrument);
-    if (markTonic) params.set("tonic", "1");
+    if (markedDegrees.length) params.set("degrees", markedDegrees.join(","));
     if (presenting) params.set("present", "1");
     if (mode === "build") params.set("revealed", revealed.join(","));
     window.history.replaceState(null, "", `${window.location.pathname}?${params}`);
-  }, [instrument, layers, markTonic, mode, orientation, presenting, revealed]);
+  }, [instrument, layers, markedDegrees, mode, orientation, presenting, revealed]);
 
   function toggleLayer(layer: Layer) {
     setLayers((current) =>
@@ -203,13 +229,19 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
     }
   }
 
+  function toggleDegree(degree: ScaleDegree) {
+    setMarkedDegrees((current) =>
+      current.includes(degree) ? current.filter((item) => item !== degree) : [...current, degree].sort(),
+    );
+  }
+
   function resetBoard() {
     setOrientation("fourths");
     setMode("build");
     setLayers(["signatures", "numbers"]);
     setRevealed(DEFAULT_REVEALED);
     setInstrument("xylophone");
-    setMarkTonic(false);
+    setMarkedDegrees([]);
     setPresenting(false);
     setSelectedId("c");
   }
@@ -220,7 +252,7 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
     setLayers(initialState.layers);
     setRevealed(initialState.revealed);
     setInstrument(initialState.instrument);
-    setMarkTonic(initialState.markTonic);
+    setMarkedDegrees(initialState.markedDegrees);
     setPresenting(initialState.presenting);
     setSelectedId("c");
   }
@@ -329,7 +361,21 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
             <span className="control-label">Keyboard style</span>
             <button type="button" aria-pressed={instrument === "xylophone"} onClick={() => setInstrument("xylophone")}>Xylophone</button>
             <button type="button" aria-pressed={instrument === "piano"} onClick={() => setInstrument("piano")}>Piano</button>
-            <button type="button" aria-pressed={markTonic} onClick={() => setMarkTonic((current) => !current)}>Mark tonic</button>
+          </div>
+          <div className="note-role-controls">
+            <span className="control-label">Note roles</span>
+            <button type="button" className="role-preset" aria-pressed={markedDegrees.length === 1 && markedDegrees[0] === 4} onClick={() => setMarkedDegrees([4])}>
+              Flat lesson · 4th
+            </button>
+            <button type="button" className="role-preset" aria-pressed={markedDegrees.length === 1 && markedDegrees[0] === 7} onClick={() => setMarkedDegrees([7])}>
+              Sharp lesson · 7th
+            </button>
+            {SCALE_DEGREES.map((degree) => (
+              <button key={degree} type="button" aria-pressed={markedDegrees.includes(degree)} onClick={() => toggleDegree(degree)}>
+                <strong>{degree}</strong> {DEGREE_NAMES[degree]}
+              </button>
+            ))}
+            {markedDegrees.length > 0 && <button type="button" className="clear-roles" onClick={() => setMarkedDegrees([])}>Clear roles</button>}
           </div>
         </section>
       )}
@@ -381,7 +427,7 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
                 )}
                 {visible && layers.includes("keyboards") && (
                   <span className="orbit-layer keyboard-node">
-                    <MiniScaleKeyboard label={key.label} tonic={key.pitchClass} scale={key.scalePitchClasses} instrument={instrument} markTonic={markTonic} />
+                    <MiniScaleKeyboard label={key.label} scale={key.scalePitchClasses} instrument={instrument} markedDegrees={markedDegrees} />
                   </span>
                 )}
               </div>
@@ -429,10 +475,9 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
           {layers.includes("keyboards") && (
             <PracticeKeyboard
               label={selected.label}
-              tonic={selected.pitchClass}
               scale={selected.scalePitchClasses}
               instrument={instrument}
-              markTonic={markTonic}
+              markedDegrees={markedDegrees}
             />
           )}
           <p className="teacher-tip">

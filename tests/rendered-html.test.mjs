@@ -65,18 +65,27 @@ test("xylophone is the default circle instrument", async () => {
 
   assert.equal((html.match(/major scale on a one-octave xylophone/g) ?? []).length, 12);
   assert.match(html, /Two-octave practice xylophone with the C major scale highlighted/);
-  assert.doesNotMatch(html, /is-tonic/);
+  assert.doesNotMatch(html, /is-role-marked/);
   assert.match(html, /lit = scale tone/);
 });
 
-test("tonic emphasis is optional and shareable", async () => {
+test("scale-degree roles are optional and shareable", async () => {
+  const response = await render("/?mode=poster&layers=keyboards&degrees=1,4,7");
+  assert.equal(response.status, 200);
+  const html = await response.text();
+
+  assert.match(html, /marimba-legend shows-roles/);
+  assert.match(html, /marked roles: 1 Tonic, 4 Subdominant, 7 Leading tone/);
+  assert.match(html, /is-role-marked/);
+});
+
+test("legacy tonic links map to the tonic role", async () => {
   const response = await render("/?mode=poster&layers=keyboards&tonic=1");
   assert.equal(response.status, 200);
   const html = await response.text();
 
-  assert.match(html, /marimba-legend shows-tonic/);
-  assert.match(html, /tonic-swatch/);
-  assert.match(html, /is-tonic/);
+  assert.match(html, /Tonic/);
+  assert.match(html, /is-role-marked/);
 });
 
 test("presentation state is server-rendered and shareable", async () => {
