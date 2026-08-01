@@ -26,6 +26,21 @@ test("signature counts match accumulated accidentals", () => {
   }
 });
 
+test("each key exposes a seven-tone major scale for the mallet preview", () => {
+  for (const orientation of ["fourths", "fifths"]) {
+    for (const key of getTraversal(orientation)) {
+      assert.equal(key.scalePitchClasses.length, 7, `${orientation}: ${key.label}`);
+      assert.equal(new Set(key.scalePitchClasses).size, 7, `${orientation}: ${key.label}`);
+      assert.ok(key.scalePitchClasses.includes(key.pitchClass), `${orientation}: ${key.label} tonic`);
+    }
+  }
+});
+
+test("C remains at twelve o'clock in either direction", () => {
+  assert.equal(getTraversal("fourths")[0].id, "c");
+  assert.equal(getTraversal("fifths")[0].id, "c");
+});
+
 test("accidental orders are explicit and reversed by type", () => {
   assert.deepEqual(musicModel.flatOrder, ["B♭", "E♭", "A♭", "D♭", "G♭", "C♭", "F♭"]);
   assert.deepEqual(musicModel.sharpOrder, ["F♯", "C♯", "G♯", "D♯", "A♯", "E♯", "B♯"]);

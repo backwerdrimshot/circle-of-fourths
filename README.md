@@ -8,7 +8,9 @@ An interactive, projector-first classroom board for building and exploring key r
 - fourths/fifths reversal
 - revealable key positions
 - key-signature and relative-minor layers
+- visual staff signatures with separate numerical accidental counts
 - selected-key detail panel
+- two-octave practice-marimba scale preview
 - URL-persisted lesson state
 - copy-link, reset, and print actions
 - deterministic musical model with automated tests

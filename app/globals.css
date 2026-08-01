@@ -152,7 +152,7 @@ h1 {
 
 .board-layout {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(230px, 310px);
+  grid-template-columns: minmax(0, 1fr) minmax(320px, 410px);
   align-items: center;
   gap: clamp(1rem, 3vw, 3rem);
   margin-top: clamp(1rem, 2vh, 2rem);
@@ -201,8 +201,8 @@ h1 {
   left: 50%;
   z-index: 3;
   display: flex;
-  width: clamp(5.2rem, 11vw, 7.2rem);
-  min-height: clamp(4rem, 8vw, 5.3rem);
+  width: clamp(6.2rem, 12vw, 8.2rem);
+  min-height: clamp(4.5rem, 8vw, 5.8rem);
   flex-direction: column;
   align-items: center;
   justify-content: center;
@@ -241,6 +241,79 @@ h1 {
   font-family: Georgia, "Times New Roman", serif;
   font-size: clamp(1.5rem, 3vw, 2.25rem);
   line-height: 1;
+}
+
+.key-card-heading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.28rem;
+  width: 100%;
+}
+
+.key-signature {
+  position: relative;
+  display: inline-block;
+  width: 8.6rem;
+  height: 3rem;
+  flex: 0 0 auto;
+  overflow: hidden;
+}
+
+.key-signature.is-compact {
+  width: 3.65rem;
+  height: 1.55rem;
+}
+
+.staff-lines {
+  position: absolute;
+  inset: 10% 0;
+  background: repeating-linear-gradient(to bottom, currentColor 0 1px, transparent 1px 25%);
+  color: rgba(21, 32, 29, 0.52);
+}
+
+.staff-accidental {
+  --staff-step: 1.02rem;
+  position: absolute;
+  top: var(--staff-top);
+  left: calc(0.35rem + var(--staff-index) * var(--staff-step));
+  z-index: 1;
+  transform: translateY(-52%);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.65rem;
+  line-height: 1;
+}
+
+.is-compact .staff-accidental {
+  --staff-step: 0.43rem;
+  left: calc(0.12rem + var(--staff-index) * var(--staff-step));
+  font-size: 0.92rem;
+}
+
+.signature-summary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3rem;
+  margin-top: 0.18rem;
+}
+
+.accidental-count {
+  display: inline-flex;
+  min-width: 1.75rem;
+  height: 1.5rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.08rem;
+  border: 1px solid rgba(31, 112, 102, 0.26);
+  border-radius: 999px;
+  background: rgba(31, 112, 102, 0.08);
+  color: var(--teal-dark);
+  font-size: 0.68rem;
+}
+
+.accidental-count strong {
+  font-size: 0.74rem;
 }
 
 .signature,
@@ -304,10 +377,28 @@ h1 {
 }
 
 .detail-panel h2 {
-  margin-bottom: 1.2rem;
+  margin-bottom: 0;
   font-family: Georgia, "Times New Roman", serif;
   font-size: clamp(1.75rem, 3vw, 2.5rem);
   font-weight: 500;
+}
+
+.detail-key-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.45rem;
+}
+
+.detail-key-heading .accidental-count {
+  min-width: 2.6rem;
+  height: 2rem;
+  font-size: 0.9rem;
+}
+
+.detail-key-heading .accidental-count strong {
+  font-size: 1rem;
 }
 
 .detail-panel dl {
@@ -342,6 +433,115 @@ h1 {
   line-height: 1.45;
 }
 
+.marimba-section {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--line);
+}
+
+.marimba-heading-row {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.65rem;
+}
+
+.marimba-heading-row h3 {
+  margin: 0;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.15rem;
+  font-weight: 500;
+}
+
+.marimba-legend {
+  display: grid;
+  grid-template-columns: auto auto;
+  gap: 0.12rem 0.28rem;
+  color: var(--muted);
+  font-size: 0.58rem;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.marimba-legend i {
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 2px;
+  background: var(--coral);
+}
+
+.marimba-legend i:last-of-type {
+  background: var(--gold);
+}
+
+.practice-marimba {
+  position: relative;
+  height: 6rem;
+  border: 1px solid #6f4b32;
+  border-radius: 0.65rem;
+  background: linear-gradient(180deg, #6e4833, #3d281d);
+  box-shadow: inset 0 0 0 0.25rem rgba(29, 18, 12, 0.18);
+  padding: 0.32rem;
+}
+
+.natural-bars {
+  display: grid;
+  height: 100%;
+  grid-template-columns: repeat(15, 1fr);
+  gap: 0.12rem;
+}
+
+.mallet-bar {
+  border-radius: 0.18rem;
+  transition: background-color 140ms ease, box-shadow 140ms ease;
+}
+
+.mallet-bar.natural {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  border: 1px solid rgba(74, 38, 22, 0.7);
+  background: linear-gradient(90deg, #a96b43, #c78354 46%, #9a5d3a);
+  color: rgba(255, 255, 255, 0.82);
+  padding-bottom: 0.25rem;
+  font-size: 0.48rem;
+  font-weight: 800;
+}
+
+.accidental-bars {
+  position: absolute;
+  inset: 0.32rem;
+  pointer-events: none;
+}
+
+.mallet-bar.accidental {
+  position: absolute;
+  top: 0;
+  left: var(--bar-left);
+  z-index: 2;
+  width: 4.4%;
+  height: 57%;
+  transform: translateX(-50%);
+  border: 1px solid rgba(26, 15, 10, 0.82);
+  background: linear-gradient(90deg, #3d271e, #674332 48%, #352219);
+  box-shadow: 0 2px 3px rgba(0, 0, 0, 0.28);
+}
+
+.mallet-bar.is-scale-tone {
+  border-color: #8b6822;
+  background: linear-gradient(90deg, #b98726, #e0b956 46%, #a97922);
+  color: #2c210b;
+  box-shadow: inset 0 0 0 1px rgba(255, 245, 186, 0.45), 0 0 0 1px rgba(213, 168, 63, 0.25);
+}
+
+.mallet-bar.is-tonic {
+  border-color: #7e2e23;
+  background: linear-gradient(90deg, #a84235, #d46d59 46%, #96392e);
+  color: white;
+  box-shadow: inset 0 0 0 1px rgba(255, 221, 210, 0.52), 0 0 0 2px rgba(198, 92, 73, 0.23);
+}
+
 footer {
   display: flex;
   justify-content: space-between;
@@ -361,7 +561,7 @@ footer {
   }
 
   .detail-panel {
-    width: min(620px, 100%);
+    width: min(720px, 100%);
     margin-inline: auto;
   }
 }
@@ -400,8 +600,8 @@ footer {
 
   .key-card {
     --radius: 43vw;
-    width: 17vw;
-    min-height: 14vw;
+    width: 20vw;
+    min-height: 16vw;
     border-radius: 0.65rem;
     padding: 0.25rem;
   }
@@ -414,6 +614,20 @@ footer {
   .signature,
   .minor-name {
     font-size: 0.49rem;
+  }
+
+  .key-signature.is-compact {
+    width: 2.7rem;
+    height: 1.2rem;
+  }
+
+  .is-compact .staff-accidental {
+    --staff-step: 0.31rem;
+    font-size: 0.72rem;
+  }
+
+  .signature-summary .signature {
+    display: none;
   }
 
   footer {
@@ -481,5 +695,9 @@ footer {
 
   .detail-panel {
     box-shadow: none;
+  }
+
+  .practice-marimba {
+    height: 1.15in;
   }
 }

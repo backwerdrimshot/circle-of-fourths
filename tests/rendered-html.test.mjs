@@ -22,6 +22,8 @@ test("server-renders the classroom board", async () => {
   assert.match(html, /Start with one key\. Build the relationship\./);
   assert.match(html, /Fourth-first for band classrooms\./);
   assert.match(html, /aria-label="Board controls"/);
+  assert.match(html, /Practice marimba/);
+  assert.match(html, /Two-octave practice marimba with the C major scale highlighted/);
   assert.doesNotMatch(html, /codex-preview|react-loading-skeleton|Your site is taking shape/);
 });
 
@@ -34,4 +36,5 @@ test("server-renders shared lesson state before hydration", async () => {
   assert.match(html, /F♯/);
   assert.match(html, /A minor/);
   assert.match(html, /Poster mode/);
+  assert.match(html, /Two-octave practice marimba with the C major scale highlighted/);
 });

@@ -9,6 +9,106 @@ type Layer = "signatures" | "minors";
 
 const DEFAULT_REVEALED = ["c"];
 
+const STAFF_POSITIONS = {
+  flat: [50, 26, 58, 34, 66, 42, 74],
+  sharp: [18, 42, 66, 34, 58, 26, 50],
+};
+
+const NATURAL_BARS = [
+  ["C4", 0], ["D4", 2], ["E4", 4], ["F4", 5], ["G4", 7], ["A4", 9], ["B4", 11],
+  ["C5", 0], ["D5", 2], ["E5", 4], ["F5", 5], ["G5", 7], ["A5", 9], ["B5", 11],
+  ["C6", 0],
+] as const;
+
+const ACCIDENTAL_BARS = [
+  ["C♯4 / D♭4", 1, 1], ["D♯4 / E♭4", 3, 2], ["F♯4 / G♭4", 6, 4], ["G♯4 / A♭4", 8, 5],
+  ["A♯4 / B♭4", 10, 6], ["C♯5 / D♭5", 1, 8], ["D♯5 / E♭5", 3, 9], ["F♯5 / G♭5", 6, 11],
+  ["G♯5 / A♭5", 8, 12], ["A♯5 / B♭5", 10, 13],
+] as const;
+
+function KeySignature({ type, count, compact = false }: { type: string; count: number; compact?: boolean }) {
+  const accidental = type === "flat" ? "♭" : "♯";
+  const positions = type === "flat" ? STAFF_POSITIONS.flat : STAFF_POSITIONS.sharp;
+
+  return (
+    <span
+      className={`key-signature ${compact ? "is-compact" : ""}`}
+      role="img"
+      aria-label={count === 0 ? "No accidentals" : `${count} ${type}${count === 1 ? "" : "s"}`}
+    >
+      <span className="staff-lines" aria-hidden="true" />
+      {count > 0 &&
+        positions.slice(0, count).map((top, index) => (
+          <span
+            className="staff-accidental"
+            style={{ "--staff-top": `${top}%`, "--staff-index": index } as React.CSSProperties}
+            aria-hidden="true"
+            key={`${type}-${index}`}
+          >
+            {accidental}
+          </span>
+        ))}
+    </span>
+  );
+}
+
+function AccidentalCount({ type, count }: { type: string; count: number }) {
+  return (
+    <span className="accidental-count" aria-label={`${count} ${type === "none" ? "accidentals" : type + (count === 1 ? "" : "s")}`}>
+      <strong>{count}</strong>
+      <span aria-hidden="true">{type === "flat" ? "♭" : type === "sharp" ? "♯" : "—"}</span>
+    </span>
+  );
+}
+
+function PracticeMarimba({ label, tonic, scale }: { label: string; tonic: number; scale: number[] }) {
+  return (
+    <section className="marimba-section" aria-labelledby="marimba-heading">
+      <div className="marimba-heading-row">
+        <div>
+          <p className="eyebrow" id="marimba-heading">Practice marimba</p>
+          <h3>{label} major scale</h3>
+        </div>
+        <span className="marimba-legend"><i /> tonic <i /> scale tone</span>
+      </div>
+      <div className="practice-marimba" role="list" aria-label={`Two-octave practice marimba with the ${label} major scale highlighted`}>
+        <div className="natural-bars">
+          {NATURAL_BARS.map(([name, pitchClass]) => {
+            const isScaleTone = scale.includes(pitchClass);
+            const isTonic = pitchClass === tonic;
+            return (
+              <span
+                key={name}
+                role="listitem"
+                aria-label={`${name}, ${isTonic ? "tonic" : isScaleTone ? "scale tone" : "not in scale"}`}
+                className={`mallet-bar natural ${isScaleTone ? "is-scale-tone" : ""} ${isTonic ? "is-tonic" : ""}`}
+              >
+                <span aria-hidden="true">{name.replace(/\d/, "")}</span>
+              </span>
+            );
+          })}
+        </div>
+        <div className="accidental-bars">
+          {ACCIDENTAL_BARS.map(([name, pitchClass, afterNatural]) => {
+            const isScaleTone = scale.includes(pitchClass);
+            const isTonic = pitchClass === tonic;
+            return (
+              <span
+                key={name}
+                title={name}
+                role="listitem"
+                aria-label={`${name}, ${isTonic ? "tonic" : isScaleTone ? "scale tone" : "not in scale"}`}
+                className={`mallet-bar accidental ${isScaleTone ? "is-scale-tone" : ""} ${isTonic ? "is-tonic" : ""}`}
+                style={{ "--bar-left": `${(afterNatural / NATURAL_BARS.length) * 100}%` } as React.CSSProperties}
+              />
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 export type CircleBoardState = {
   orientation: Orientation;
   mode: BoardMode;
@@ -164,9 +264,17 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
               >
                 {visible ? (
                   <>
-                    <span className="key-name">{key.label}</span>
+                    <span className="key-card-heading">
+                      <span className="key-name">{key.label}</span>
+                      {layers.includes("signatures") && (
+                        <KeySignature type={key.type} count={key.count} compact />
+                      )}
+                    </span>
                     {layers.includes("signatures") && (
-                      <span className="signature">{key.signatureLabel}</span>
+                      <span className="signature-summary">
+                        <AccidentalCount type={key.type} count={key.count} />
+                        <span className="signature">{key.signatureLabel}</span>
+                      </span>
                     )}
                     {layers.includes("minors") && (
                       <span className="minor-name">{key.relativeMinor}</span>
@@ -187,7 +295,11 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
 
         <aside className="detail-panel" aria-live="polite">
           <p className="eyebrow">Selected key</p>
-          <h2>{selected.label} major</h2>
+          <div className="detail-key-heading">
+            <h2>{selected.label} major</h2>
+            <AccidentalCount type={selected.type} count={selected.count} />
+          </div>
+          <KeySignature type={selected.type} count={selected.count} />
           <dl>
             <div>
               <dt>Signature</dt>
@@ -202,6 +314,11 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
               <dd>{selected.relativeMinor}</dd>
             </div>
           </dl>
+          <PracticeMarimba
+            label={selected.label}
+            tonic={selected.pitchClass}
+            scale={selected.scalePitchClasses}
+          />
           <p className="teacher-tip">
             {mode === "build"
               ? "Select a covered position to reveal it as the lesson grows."
