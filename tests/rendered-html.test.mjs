@@ -22,11 +22,10 @@ test("server-renders the classroom board", async () => {
   assert.match(html, /Start with one key\. Build the relationship\./);
   assert.match(html, /Fourth-first for band classrooms\./);
   assert.match(html, /aria-label="Board controls"/);
-  assert.match(html, /Accidental numbers/);
-  assert.match(html, /Keyboards/);
-  assert.match(html, /BEADGCF order/);
-  assert.match(html, /Xylophone/);
-  assert.match(html, /Piano/);
+  assert.match(html, />Focus</);
+  assert.match(html, /Layers <span>2<\/span>/);
+  assert.match(html, />Reveal all</);
+  assert.match(html, />Reset link</);
   assert.match(html, /Teaching board/);
   assert.match(html, />Present</);
   assert.match(html, /style="--angle:0deg"/);
@@ -76,4 +75,16 @@ test("presentation state is server-rendered and shareable", async () => {
   assert.match(html, /class="app-shell is-presenting"/);
   assert.match(html, /Exit presentation/);
   assert.match(html, /Progressive build/);
+});
+
+test("focus mode emphasizes the selected key and its two neighbors", async () => {
+  const response = await render("/?mode=focus&layers=signatures,numbers");
+  assert.equal(response.status, 200);
+  const html = await response.text();
+
+  assert.match(html, /Relationship focus/);
+  assert.match(html, /Focus mode/);
+  assert.match(html, /immediate fourths and fifths relationships/);
+  assert.equal((html.match(/key-orbit-group is-dimmed/g) ?? []).length, 9);
+  assert.match(html, /style="--angle:0deg"/);
 });

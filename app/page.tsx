@@ -21,7 +21,7 @@ export default async function Home({ searchParams }: { searchParams: SearchParam
   const revealed = (first(params.revealed) ?? "c").split(",").filter(Boolean);
   const initialState: CircleBoardState = {
     orientation: first(params.direction) === "fifths" ? "fifths" : "fourths",
-    mode: first(params.mode) === "poster" ? "poster" : "build",
+    mode: first(params.mode) === "poster" ? "poster" : first(params.mode) === "focus" ? "focus" : "build",
     layers,
     revealed,
     instrument: first(params.instrument) === "piano" ? "piano" : "xylophone",

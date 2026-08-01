@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { getTraversal } from "@/lib/music-model.mjs";
 
 type Orientation = "fourths" | "fifths";
-type BoardMode = "build" | "poster";
+type BoardMode = "build" | "poster" | "focus";
 type Layer = "signatures" | "numbers" | "keyboards" | "minors" | "accidental-order";
 type Instrument = "xylophone" | "piano";
 
@@ -158,11 +158,18 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
   const [revealed, setRevealed] = useState<string[]>(initialState.revealed);
   const [instrument, setInstrument] = useState<Instrument>(initialState.instrument);
   const [presenting, setPresenting] = useState(initialState.presenting);
+  const [showLayerPanel, setShowLayerPanel] = useState(false);
   const [selectedId, setSelectedId] = useState("c");
   const [shareStatus, setShareStatus] = useState("Copy lesson link");
 
   const traversal = useMemo(() => getTraversal(orientation), [orientation]);
   const selected = traversal.find((key) => key.id === selectedId) ?? traversal[0];
+  const selectedIndex = traversal.findIndex((key) => key.id === selected.id);
+  const focusIds = new Set([
+    selected.id,
+    traversal[(selectedIndex + traversal.length - 1) % traversal.length].id,
+    traversal[(selectedIndex + 1) % traversal.length].id,
+  ]);
 
   useEffect(() => {
     const params = new URLSearchParams();
@@ -200,6 +207,16 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
     setSelectedId("c");
   }
 
+  function resetToOpenedLink() {
+    setOrientation(initialState.orientation);
+    setMode(initialState.mode);
+    setLayers(initialState.layers);
+    setRevealed(initialState.revealed);
+    setInstrument(initialState.instrument);
+    setPresenting(initialState.presenting);
+    setSelectedId("c");
+  }
+
   async function copyLink() {
     try {
       await navigator.clipboard.writeText(window.location.href);
@@ -230,14 +247,11 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
           <button type="button" className="quiet-button" onClick={() => window.print()}>
             Print
           </button>
-          <button type="button" className="quiet-button present-button" onClick={() => setPresenting(true)}>
-            Present
-          </button>
         </div>
       </header>
 
       <section className="toolbar no-print hide-when-presenting" aria-label="Board controls">
-        <div className="control-group" aria-label="Direction">
+        <div className="control-group compact-group" aria-label="Direction">
           <span className="control-label">Direction</span>
           <button
             type="button"
@@ -254,74 +268,62 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
             Fifths
           </button>
         </div>
-        <div className="control-group" aria-label="Board mode">
-          <span className="control-label">View</span>
+        <div className="control-group compact-group" aria-label="Board mode">
+          <span className="control-label">Teach</span>
           <button type="button" aria-pressed={mode === "build"} onClick={() => setMode("build")}>
             Build
           </button>
           <button type="button" aria-pressed={mode === "poster"} onClick={() => setMode("poster")}>
             Poster
           </button>
-        </div>
-        <div className="control-group layer-controls" aria-label="Visible layers">
-          <span className="control-label">Circle layers</span>
           <button
             type="button"
-            aria-pressed={layers.includes("signatures")}
-            onClick={() => toggleLayer("signatures")}
+            aria-pressed={mode === "focus"}
+            onClick={() => setMode("focus")}
           >
-            Key signatures
-          </button>
-          <button
-            type="button"
-            aria-pressed={layers.includes("numbers")}
-            onClick={() => toggleLayer("numbers")}
-          >
-            Accidental numbers
-          </button>
-          <button
-            type="button"
-            aria-pressed={layers.includes("keyboards")}
-            onClick={() => toggleLayer("keyboards")}
-          >
-            Keyboards
-          </button>
-          <button
-            type="button"
-            aria-pressed={layers.includes("minors")}
-            onClick={() => toggleLayer("minors")}
-          >
-            Relative minors
-          </button>
-          <button
-            type="button"
-            aria-pressed={layers.includes("accidental-order")}
-            onClick={() => toggleLayer("accidental-order")}
-          >
-            BEADGCF order
+            Focus
           </button>
         </div>
-        <div className="control-group instrument-controls" aria-label="Keyboard style">
-          <span className="control-label">Keyboard style</span>
+        <div className="control-group compact-group board-tools" aria-label="Board actions">
+          {mode === "build" && (
+            <>
+              <button type="button" onClick={() => setRevealed(traversal.map((key) => key.id))}>Reveal all</button>
+              <button type="button" onClick={() => setRevealed([])}>Hide all</button>
+            </>
+          )}
           <button
             type="button"
-            aria-pressed={instrument === "xylophone"}
-            onClick={() => setInstrument("xylophone")}
+            className="layers-button"
+            aria-expanded={showLayerPanel}
+            onClick={() => setShowLayerPanel((current) => !current)}
           >
-            Xylophone
+            Layers <span>{layers.length}</span>
           </button>
-          <button
-            type="button"
-            aria-pressed={instrument === "piano"}
-            onClick={() => setInstrument("piano")}
-          >
-            Piano
-          </button>
+          <button type="button" className="present-button" onClick={() => setPresenting(true)}>Present</button>
         </div>
-        <button type="button" className="reset-button" onClick={resetBoard}>
-          Start fresh
-        </button>
+        <div className="control-group compact-group reset-actions">
+          <button type="button" onClick={resetToOpenedLink}>Reset link</button>
+          <button type="button" className="reset-button" onClick={resetBoard}>Start fresh</button>
+        </div>
       </section>
+
+      {showLayerPanel && !presenting && (
+        <section className="layer-panel no-print" aria-label="Layer and display options">
+          <div>
+            <span className="control-label">Information bands</span>
+            <button type="button" aria-pressed={layers.includes("signatures")} onClick={() => toggleLayer("signatures")}>Key signatures</button>
+            <button type="button" aria-pressed={layers.includes("numbers")} onClick={() => toggleLayer("numbers")}>Accidental numbers</button>
+            <button type="button" aria-pressed={layers.includes("minors")} onClick={() => toggleLayer("minors")}>Relative minors</button>
+            <button type="button" aria-pressed={layers.includes("keyboards")} onClick={() => toggleLayer("keyboards")}>Keyboards</button>
+            <button type="button" aria-pressed={layers.includes("accidental-order")} onClick={() => toggleLayer("accidental-order")}>BEADGCF order</button>
+          </div>
+          <div>
+            <span className="control-label">Keyboard style</span>
+            <button type="button" aria-pressed={instrument === "xylophone"} onClick={() => setInstrument("xylophone")}>Xylophone</button>
+            <button type="button" aria-pressed={instrument === "piano"} onClick={() => setInstrument("piano")}>Piano</button>
+          </div>
+        </section>
+      )}
 
       <section className="board-layout">
         <section className="lesson-board" aria-label="Framed circle teaching board">
@@ -330,7 +332,7 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
               <span className="board-kicker">Teaching board</span>
               <strong>Circle of {orientation === "fourths" ? "Fourths" : "Fifths"}</strong>
             </div>
-            <span>{mode === "build" ? "Progressive build" : "Complete poster"}{layers.includes("keyboards") ? ` · ${instrument}` : ""}</span>
+              <span>{mode === "build" ? "Progressive build" : mode === "focus" ? "Relationship focus" : "Complete poster"}{layers.includes("keyboards") ? ` · ${instrument}` : ""}</span>
           </header>
           <div className={`circle-stage ${layers.includes("keyboards") ? "has-keyboards" : ""}`} aria-label={`Circle of ${orientation}`}>
           <div className="direction-note" aria-live="polite">
@@ -340,51 +342,40 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
           <div className="circle-ring" aria-hidden="true" />
           {traversal.map((key, index) => {
             const angle = index * 30;
-            const visible = mode === "poster" || revealed.includes(key.id);
+            const visible = mode === "poster" || mode === "focus" || revealed.includes(key.id);
+            const dimmed = mode === "focus" && !focusIds.has(key.id);
             return (
-              <button
-                type="button"
+              <div
                 key={key.id}
-                className={`key-card ${visible ? "is-visible" : "is-covered"} ${
-                  selectedId === key.id ? "is-selected" : ""
-                } ${layers.includes("keyboards") ? "shows-keyboard" : ""}`}
+                className={`key-orbit-group ${dimmed ? "is-dimmed" : ""}`}
                 style={{ "--angle": `${angle}deg` } as React.CSSProperties}
-                aria-label={
-                  visible
-                    ? `${key.label} major, ${key.signatureLabel}, ${key.relativeMinor}`
-                    : `Reveal key at position ${index + 1}`
-                }
-                aria-pressed={visible}
-                onClick={() => selectKey(key.id)}
               >
-                {visible ? (
-                  <>
-                    <span className="key-information">
-                      <span className="key-card-heading">
-                        <span className="key-name">{key.label}</span>
-                        {layers.includes("signatures") && (
-                          <KeySignature type={key.type} count={key.count} compact />
-                        )}
-                      </span>
-                      {layers.includes("numbers") && (
-                        <span className="signature-summary">
-                          <AccidentalCount type={key.type} count={key.count} />
-                        </span>
-                      )}
-                      {layers.includes("minors") && (
-                        <span className="minor-name">{key.relativeMinor}</span>
-                      )}
-                    </span>
-                    {layers.includes("keyboards") && (
-                      <span className="instrument-tray">
-                        <MiniScaleKeyboard label={key.label} tonic={key.pitchClass} scale={key.scalePitchClasses} instrument={instrument} />
-                      </span>
-                    )}
-                  </>
-                ) : (
-                  <span className="covered-mark">+</span>
+                <button
+                  type="button"
+                  className={`key-card core-node ${visible ? "is-visible" : "is-covered"} ${selectedId === key.id ? "is-selected" : ""}`}
+                  aria-label={visible ? `${key.label} major, ${key.signatureLabel}, ${key.relativeMinor}` : `Reveal key at position ${index + 1}`}
+                  aria-pressed={visible}
+                  onClick={() => selectKey(key.id)}
+                >
+                  {visible ? (
+                    <>
+                      <span className="key-name">{key.label}</span>
+                      {layers.includes("numbers") && <AccidentalCount type={key.type} count={key.count} />}
+                    </>
+                  ) : <span className="covered-mark">+</span>}
+                </button>
+                {visible && (layers.includes("signatures") || layers.includes("minors")) && (
+                  <span className="orbit-layer notation-node" aria-hidden="true">
+                    {layers.includes("signatures") && <KeySignature type={key.type} count={key.count} compact />}
+                    {layers.includes("minors") && <span className="minor-name">{key.relativeMinor}</span>}
+                  </span>
                 )}
-              </button>
+                {visible && layers.includes("keyboards") && (
+                  <span className="orbit-layer keyboard-node">
+                    <MiniScaleKeyboard label={key.label} tonic={key.pitchClass} scale={key.scalePitchClasses} instrument={instrument} />
+                  </span>
+                )}
+              </div>
             );
           })}
           <div className={`circle-center ${layers.includes("accidental-order") ? "shows-order" : ""}`}>
@@ -396,7 +387,7 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
               </>
             ) : (
               <>
-                <span>{mode === "build" ? "Build mode" : "Poster mode"}</span>
+                <span>{mode === "build" ? "Build mode" : mode === "focus" ? "Focus mode" : "Poster mode"}</span>
                 <strong>{selected.label}</strong>
                 <small>{selected.signatureLabel}</small>
               </>
@@ -437,7 +428,9 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
           <p className="teacher-tip">
             {mode === "build"
               ? "Select a covered position to reveal it as the lesson grows."
-              : "Poster mode keeps the complete reference visible."}
+              : mode === "focus"
+                ? "Select a key to emphasize its immediate fourths and fifths relationships."
+                : "Poster mode keeps the complete reference visible."}
           </p>
         </aside>
       </section>

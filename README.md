@@ -4,18 +4,21 @@ An interactive, projector-first classroom board for building and exploring key r
 
 ## Current milestone
 
-- Build and Poster modes
+- Build, Poster, and relationship Focus modes
 - fourths/fifths reversal
 - revealable key positions
 - key-signature and relative-minor layers
 - visual staff signatures with separate numerical accidental counts
+- concentric information bands: key/count core, notation/minor middle ring, and keyboard outer ring
 - selected-key detail panel
 - toggleable one-octave xylophone or piano scale diagrams around all twelve circle positions
 - two-octave selected-scale xylophone/piano detail view
 - toggleable BEADGCF flat order with its reverse sharp order
 - URL-persisted lesson state
-- copy-link, reset, and print actions
+- compact teaching toolbar with a separate layer/display drawer
+- copy-link, opened-link reset, start-fresh reset, and print actions
 - framed teaching-board layout with a shareable Presentation view
+- Backwerd Rhythm Shop palette using warm white, deep brick, forest, and tan roles
 - deterministic musical model with automated tests
 
 ## Local development
