@@ -230,7 +230,11 @@ h1 {
   font-size: 0.72rem;
 }
 
-.poster-ready-panel button {
+.poster-ready-panel button,
+.poster-ready-panel .poster-download {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   min-height: 2.35rem;
   border: 1px solid var(--brick-deep);
   border-radius: 0.55rem;
@@ -240,6 +244,7 @@ h1 {
   padding: 0.45rem 0.7rem;
   font-size: 0.73rem;
   font-weight: 800;
+  text-decoration: none;
 }
 
 .poster-ready-panel .poster-return {
@@ -1813,11 +1818,16 @@ footer {
   }
 
   .is-classroom-poster-layout .notation-node {
-    --radius: 1.86in;
+    --radius: 2.18in;
+    width: 0.82in;
+    min-height: 0.48in;
+    padding: 0.03in;
   }
 
   .is-classroom-poster-layout .keyboard-node {
-    --radius: 2.57in;
+    --radius: 3.12in;
+    width: 0.96in;
+    padding: 0.035in;
   }
 
   .is-classroom-poster-layout .mini-keyboard {
@@ -1879,11 +1889,13 @@ footer {
   }
 
   .poster-size-tabloid .is-classroom-poster-layout .notation-node {
-    --radius: 2.5in;
+    --radius: 3in;
+    width: 0.92in;
   }
 
   .poster-size-tabloid .is-classroom-poster-layout .keyboard-node {
-    --radius: 3.48in;
+    --radius: 4.05in;
+    width: 1.1in;
   }
 
   .poster-size-tabloid .is-classroom-poster-layout .mini-keyboard {

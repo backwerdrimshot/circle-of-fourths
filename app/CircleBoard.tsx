@@ -19,10 +19,10 @@ type QuizRoles = Record<QuizField, FieldRole>;
 const DEFAULT_REVEALED = ["c"];
 const CLASSROOM_POSTER_LAYERS: Layer[] = ["signatures", "numbers", "minors", "keyboards", "accidental-order"];
 
-const POSTER_SIZES: Record<PosterSize, { label: string; detail: string; pageSize: string }> = {
-  letter: { label: "US Letter", detail: "11 × 8.5 in", pageSize: "11in 8.5in" },
-  a4: { label: "A4", detail: "297 × 210 mm", pageSize: "297mm 210mm" },
-  tabloid: { label: "11 × 17", detail: "Classroom wall", pageSize: "17in 11in" },
+const POSTER_SIZES: Record<PosterSize, { label: string; detail: string; pageSize: string; download: string; filename: string }> = {
+  letter: { label: "US Letter", detail: "11 × 8.5 in", pageSize: "11in 8.5in", download: "/posters/circle-of-fourths-letter.pdf", filename: "circle-of-fourths-letter.pdf" },
+  a4: { label: "A4", detail: "297 × 210 mm", pageSize: "297mm 210mm", download: "/posters/circle-of-fourths-a4.pdf", filename: "circle-of-fourths-a4.pdf" },
+  tabloid: { label: "11 × 17", detail: "Classroom wall", pageSize: "17in 11in", download: "/posters/circle-of-fourths-11x17.pdf", filename: "circle-of-fourths-11x17.pdf" },
 };
 
 const QUIZ_FIELDS: { id: QuizField; label: string }[] = [
@@ -408,9 +408,11 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
           <button type="button" className="quiet-button" onClick={copyLink}>
             {shareStatus}
           </button>
-          <button type="button" className="quiet-button" onClick={() => window.print()}>
-            Print current board
-          </button>
+          {!isClassroomPoster && (
+            <button type="button" className="quiet-button" onClick={() => window.print()}>
+              Print current board
+            </button>
+          )}
         </div>
       </header>
 
@@ -480,7 +482,7 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
         <section className="poster-ready-panel no-print" aria-label="Classroom poster ready">
           <div>
             <strong>Standard classroom poster</strong>
-            <span>Choose a paper size, then select the same size in your browser’s print dialog.</span>
+            <span>Choose a size and download the finished PDF. No browser print settings required.</span>
           </div>
           <fieldset className="poster-size-picker" aria-label="Poster paper size">
             <legend>Poster size</legend>
@@ -491,7 +493,13 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
               </button>
             ))}
           </fieldset>
-          <button type="button" onClick={() => window.print()}>Print poster / Save PDF</button>
+          <a
+            className="poster-download"
+            href={POSTER_SIZES[posterSize].download}
+            download={POSTER_SIZES[posterSize].filename}
+          >
+            Download {POSTER_SIZES[posterSize].label} PDF
+          </a>
           <button type="button" className="poster-return" onClick={resetToOpenedLink}>Return to opened board</button>
         </section>
       )}

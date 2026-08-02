@@ -160,7 +160,9 @@ test("poster mode always renders the canonical classroom reference", async () =>
   assert.match(html, /Standard classroom poster/);
   assert.match(html, /Backwerd Rhythm Shop · Classroom Reference/);
   assert.match(html, /C starts at twelve o’clock/);
-  assert.match(html, /Print poster \/ Save PDF/);
+  assert.match(html, /No browser print settings required/);
+  assert.match(html, /href="\/posters\/circle-of-fourths-11x17\.pdf"/);
+  assert.doesNotMatch(html, /Print poster \/ Save PDF/);
   assert.match(html, /Poster paper size/);
   assert.match(html, /US Letter/);
   assert.match(html, /297 × 210 mm/);
