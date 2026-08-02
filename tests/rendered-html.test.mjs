@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFile, stat } from "node:fs/promises";
 import test from "node:test";
 
 async function render(path = "/") {
@@ -213,6 +214,21 @@ test("clean poster routes server-render each supported paper size", async () => 
   assert.match(a4Html, /size: 297mm 210mm/);
   assert.match(tabloidHtml, /poster-size-tabloid/);
   assert.match(tabloidHtml, /size: 17in 11in/);
+});
+
+test("finished poster PDFs are packaged for every supported paper size", async () => {
+  const filenames = [
+    "circle-of-fourths-letter.pdf",
+    "circle-of-fourths-a4.pdf",
+    "circle-of-fourths-11x17.pdf",
+  ];
+
+  for (const filename of filenames) {
+    const path = new URL(`../public/posters/${filename}`, import.meta.url);
+    const [header, details] = await Promise.all([readFile(path).then((contents) => contents.subarray(0, 5).toString("ascii")), stat(path)]);
+    assert.equal(header, "%PDF-");
+    assert.ok(details.size > 200_000, `${filename} should contain the complete poster artwork`);
+  }
 });
 
 test("custom teaching combinations remain editable outside poster mode", async () => {

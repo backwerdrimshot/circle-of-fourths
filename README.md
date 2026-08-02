@@ -19,13 +19,13 @@ An interactive, projector-first classroom board for building and exploring key r
 - Quiz Builder v0.1 with editable presets, scope controls, and Given/Answer/Omitted field roles
 - student worksheet and teacher answer-key previews with shareable URL state
 - print-ready worksheet directions and student identification lines
-- canonical, fourths-first Classroom Poster with every stable reference layer, dedicated masthead, legend, and print layout
-- shareable US Letter, A4, and 11×17 poster-size presets with matching print/PDF page dimensions
+- canonical, fourths-first Classroom Poster with every stable reference layer, dedicated masthead, legend, and print-safe layout
+- direct, finished US Letter, A4, and 11×17 PDF downloads with flattened print-safe colors
 - custom teaching-board printing remains separate from the standard poster and future Praxis assignment authoring
 - toggleable BEADGCF flat order with its reverse sharp order
 - URL-persisted lesson state
 - compact teaching toolbar with a separate layer/display drawer
-- copy-link, opened-link reset, start-fresh reset, and print actions
+- copy-link, opened-link reset, start-fresh reset, board/quiz print actions, and fixed poster downloads
 - framed teaching-board layout with a shareable Presentation view
 - Backwerd Rhythm Shop palette using warm white, deep brick, forest, and tan roles
 - deterministic musical model with automated tests

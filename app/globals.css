@@ -1784,8 +1784,50 @@ footer {
 
   .is-classroom-poster-layout .lesson-board {
     break-inside: avoid;
+    border-color: #c99b61;
+    background: #ffffff;
+    box-shadow: none;
     padding: 0.06in;
     page-break-inside: avoid;
+  }
+
+  .is-classroom-poster-layout .circle-stage::before,
+  .is-classroom-poster-layout .circle-stage::after {
+    border-color: #d9dfd4;
+  }
+
+  .is-classroom-poster-layout .circle-stage::before {
+    background: #f5f1e9;
+  }
+
+  .is-classroom-poster-layout .circle-stage::after {
+    background: transparent;
+    border-color: #eadbd5;
+  }
+
+  .is-classroom-poster-layout .circle-ring {
+    border-color: #edf1e8;
+    box-shadow: inset 0 0 0 1px #d8dfd2, 0 0 0 1px #e2e6de;
+  }
+
+  .is-classroom-poster-layout .key-card.core-node {
+    border-color: #d7d0c5;
+    background: #ffffff;
+  }
+
+  .is-classroom-poster-layout .key-card.core-node.is-selected {
+    border-color: #8b3a3a;
+  }
+
+  .is-classroom-poster-layout .accidental-count {
+    border-color: #a9c8c1;
+    background: #edf4f2;
+  }
+
+  .is-classroom-poster-layout .circle-center {
+    border-color: #b8d0ca;
+    background: #ffffff;
+    box-shadow: none;
   }
 
   .is-classroom-poster-layout .standard-poster-masthead {
@@ -1821,12 +1863,18 @@ footer {
     --radius: 2.18in;
     width: 0.82in;
     min-height: 0.48in;
+    border-color: #d2b48c;
+    background: #ffffff;
+    box-shadow: none;
     padding: 0.03in;
   }
 
   .is-classroom-poster-layout .keyboard-node {
     --radius: 3.12in;
     width: 0.96in;
+    border-color: #cfae92;
+    background: #efe3d0;
+    box-shadow: none;
     padding: 0.035in;
   }
 
@@ -1834,6 +1882,28 @@ footer {
     width: 0.87in;
     height: 0.35in;
     margin-top: 0;
+  }
+
+  .is-classroom-poster-layout .mini-keyboard.is-xylophone {
+    border-color: #65442f;
+    background: #d8c4a3;
+  }
+
+  .is-classroom-poster-layout .mini-bar.natural {
+    border-color: #6b4934;
+    background: #f3ead9;
+    box-shadow: none;
+  }
+
+  .is-classroom-poster-layout .mini-bar.accidental {
+    border-color: #241710;
+    background: #493126;
+  }
+
+  .is-classroom-poster-layout .mini-bar.is-scale-tone {
+    border-color: #3f5e35;
+    background: #6d8e5e;
+    box-shadow: none;
   }
 
   .is-classroom-poster-layout .key-signature {

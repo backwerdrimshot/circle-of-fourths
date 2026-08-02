@@ -11,7 +11,7 @@ export async function generateMetadata(): Promise<Metadata> {
     : new URL("https://circle-of-fourths.tbddrums.chatgpt.site");
   const title = "Circle of Fourths — Classroom Board";
   const description =
-    "Build, reveal, reverse, share, and print the circle of fourths for keyboard and band classrooms.";
+    "Build, reveal, reverse, share, and download the circle of fourths for keyboard and band classrooms.";
   const image = new URL("/og.png", metadataBase).toString();
 
   return {
