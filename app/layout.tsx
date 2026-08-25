@@ -8,7 +8,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const protocol = requestHeaders.get("x-forwarded-proto") ?? "https";
   const metadataBase = host
     ? new URL(`${protocol}://${host}`)
-    : new URL("https://circle-of-fourths.tbddrums.chatgpt.site");
+    : new URL("https://circle-of-fourths.backwerdrhythmshop.com");
   const title = "Circle of Fourths — Classroom Board";
   const description =
     "Build, reveal, reverse, share, and download the circle of fourths for keyboard and band classrooms.";
