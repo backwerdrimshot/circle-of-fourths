@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { getTraversal } from "@/lib/music-model.mjs";
-import { createPosterSvg } from "@/lib/poster-artwork.mjs";
+import { getTeachingTraversal, getScaleOctave } from "@/lib/music-model.mjs";
+import { KeySignature, ScaleKeyboard } from "./MusicVisuals";
+import { createPosterSvg, posterGeometry } from "@/lib/poster-artwork.mjs";
 
 type Orientation = "fourths" | "fifths";
 type BoardMode = "build" | "poster" | "focus" | "quiz";
@@ -16,6 +17,29 @@ type FieldRole = "given" | "answer" | "omitted";
 type QuizPreview = "student" | "answer";
 export type PosterSize = "letter" | "a4" | "tabloid";
 type QuizRoles = Record<QuizField, FieldRole>;
+
+// Use the proven poster gutters for the wide teaching board; the phone layout
+// keeps a touch-sized circle and shows the selected instrument below it.
+const diagram = posterGeometry("letter");
+const diagramArea = { x: 50, y: 140, width: diagram.width - 100, height: diagram.height - 236 };
+function orbitStyle(index: number, band: "core" | "notation" | "keyboard"): React.CSSProperties {
+  type Box = { x: number; y: number; width: number; height: number };
+  const node = diagram.nodes[index] as (typeof diagram.nodes)[number] & Record<typeof band, Box>;
+  const box = node[band];
+  const angle = index * Math.PI / 6;
+  const width = band === "notation" ? 132 : box.width;
+  const height = band === "notation" ? 82 : box.height;
+  // Keep server and browser coordinates identical across math engines.
+  const percent = (value: number) => `${Number(value.toFixed(4))}%`;
+  return {
+    "--card-x": percent((box.x + box.width / 2 - diagramArea.x) / diagramArea.width * 100),
+    "--card-y": percent((box.y + box.height / 2 - diagramArea.y) / diagramArea.height * 100),
+    "--card-width": percent(width / diagramArea.width * 100),
+    "--card-height": percent(height / diagramArea.height * 100),
+    "--mobile-x": percent(50 + Math.sin(angle) * 36),
+    "--mobile-y": percent(50 - Math.cos(angle) * 36),
+  } as React.CSSProperties;
+}
 
 const DEFAULT_REVEALED = ["c"];
 const CLASSROOM_POSTER_LAYERS: Layer[] = ["signatures", "numbers", "minors", "keyboards", "accidental-order"];
@@ -67,151 +91,12 @@ const DEGREE_NAMES: Record<ScaleDegree, string> = {
 
 const SCALE_DEGREES = Object.keys(DEGREE_NAMES).map(Number) as ScaleDegree[];
 
-function getScaleDegree(scale: number[], pitchClass: number) {
-  const index = scale.indexOf(pitchClass);
-  return index === -1 ? null : (index + 1) as ScaleDegree;
-}
-
-const STAFF_POSITIONS = {
-  flat: [50, 26, 58, 34, 66, 42, 74],
-  sharp: [18, 42, 66, 34, 58, 26, 50],
-};
-
-const NATURAL_BARS = [
-  ["C4", 0], ["D4", 2], ["E4", 4], ["F4", 5], ["G4", 7], ["A4", 9], ["B4", 11],
-  ["C5", 0], ["D5", 2], ["E5", 4], ["F5", 5], ["G5", 7], ["A5", 9], ["B5", 11],
-  ["C6", 0],
-] as const;
-
-const ACCIDENTAL_BARS = [
-  ["C♯4 / D♭4", 1, 1], ["D♯4 / E♭4", 3, 2], ["F♯4 / G♭4", 6, 4], ["G♯4 / A♭4", 8, 5],
-  ["A♯4 / B♭4", 10, 6], ["C♯5 / D♭5", 1, 8], ["D♯5 / E♭5", 3, 9], ["F♯5 / G♭5", 6, 11],
-  ["G♯5 / A♭5", 8, 12], ["A♯5 / B♭5", 10, 13],
-] as const;
-
-const MINI_NATURAL_BARS = [
-  ["C", 0], ["D", 2], ["E", 4], ["F", 5], ["G", 7], ["A", 9], ["B", 11], ["C", 0],
-] as const;
-
-const MINI_ACCIDENTAL_BARS = [
-  [1, 1], [3, 2], [6, 4], [8, 5], [10, 6],
-] as const;
-
-function KeySignature({ type, count, compact = false }: { type: string; count: number; compact?: boolean }) {
-  const accidental = type === "flat" ? "♭" : "♯";
-  const positions = type === "flat" ? STAFF_POSITIONS.flat : STAFF_POSITIONS.sharp;
-
-  return (
-    <span
-      className={`key-signature ${compact ? "is-compact" : ""}`}
-      role="img"
-      aria-label={count === 0 ? "No accidentals" : `${count} ${type}${count === 1 ? "" : "s"}`}
-    >
-      <span className="staff-lines" aria-hidden="true" />
-      {count > 0 &&
-        positions.slice(0, count).map((top, index) => (
-          <span
-            className="staff-accidental"
-            style={{ "--staff-top": `${top}%`, "--staff-index": index } as React.CSSProperties}
-            aria-hidden="true"
-            key={`${type}-${index}`}
-          >
-            {accidental}
-          </span>
-        ))}
-    </span>
-  );
-}
-
 function AccidentalCount({ type, count }: { type: string; count: number }) {
   return (
     <span className="accidental-count" aria-label={`${count} ${type === "none" ? "accidentals" : type + (count === 1 ? "" : "s")}`}>
       <strong>{count}</strong>
       <span aria-hidden="true">{type === "flat" ? "♭" : type === "sharp" ? "♯" : "—"}</span>
     </span>
-  );
-}
-
-function MiniScaleKeyboard({ label, scale, instrument, markedDegrees }: { label: string; scale: number[]; instrument: Instrument; markedDegrees: ScaleDegree[] }) {
-  const roleSummary = markedDegrees.map((degree) => `${degree} ${DEGREE_NAMES[degree]}`).join(", ");
-  return (
-    <span className={`mini-keyboard is-${instrument}`} role="img" aria-label={`${label} major scale on a one-octave ${instrument}${roleSummary ? `; marked roles: ${roleSummary}` : ""}`}>
-      <span className="mini-natural-bars" aria-hidden="true">
-        {MINI_NATURAL_BARS.map(([name, pitchClass], index) => {
-          const degree = getScaleDegree(scale, pitchClass);
-          const isMarked = degree !== null && markedDegrees.includes(degree);
-          return <span key={`${name}-${index}`} data-degree={isMarked ? degree : undefined} className={`mini-bar natural ${degree ? "is-scale-tone" : ""} ${isMarked ? "is-role-marked" : ""}`} />;
-        })}
-      </span>
-      <span className="mini-accidental-bars" aria-hidden="true">
-        {MINI_ACCIDENTAL_BARS.map(([pitchClass, afterNatural]) => {
-          const degree = getScaleDegree(scale, pitchClass);
-          const isMarked = degree !== null && markedDegrees.includes(degree);
-          return <span key={pitchClass} data-degree={isMarked ? degree : undefined} className={`mini-bar accidental ${degree ? "is-scale-tone" : ""} ${isMarked ? "is-role-marked" : ""}`} style={{ "--bar-left": `${(afterNatural / MINI_NATURAL_BARS.length) * 100}%` } as React.CSSProperties} />;
-        })}
-      </span>
-    </span>
-  );
-}
-
-function PracticeKeyboard({ label, scale, instrument, markedDegrees }: { label: string; scale: number[]; instrument: Instrument; markedDegrees: ScaleDegree[] }) {
-  return (
-    <section className="marimba-section" aria-labelledby="marimba-heading">
-      <div className="marimba-heading-row">
-        <div>
-          <p className="eyebrow" id="marimba-heading">Practice {instrument}</p>
-          <h3>{label} major scale</h3>
-        </div>
-        <span className={`marimba-legend ${markedDegrees.length ? "shows-roles" : ""}`}>
-          {markedDegrees.length > 0 && <><i className="role-swatch" /> outlined = selected role</>}
-          <i className="scale-swatch" /> lit = scale tone
-        </span>
-      </div>
-      {markedDegrees.length > 0 && (
-        <div className="role-summary" aria-label="Selected scale-degree roles">
-          {markedDegrees.map((degree) => <span key={degree}><strong>{degree}</strong> {DEGREE_NAMES[degree]}</span>)}
-        </div>
-      )}
-      <div className={`practice-marimba is-${instrument}`} role="list" aria-label={`Two-octave practice ${instrument} with the ${label} major scale highlighted`}>
-        <div className="natural-bars">
-          {NATURAL_BARS.map(([name, pitchClass]) => {
-            const isScaleTone = scale.includes(pitchClass);
-            const degree = getScaleDegree(scale, pitchClass);
-            const isMarked = degree !== null && markedDegrees.includes(degree);
-            return (
-              <span
-                key={name}
-                role="listitem"
-                aria-label={`${name}, ${isMarked ? `degree ${degree}, ${DEGREE_NAMES[degree]}` : isScaleTone ? "scale tone" : "not in scale"}`}
-                className={`mallet-bar natural ${isScaleTone ? "is-scale-tone" : ""} ${isMarked ? "is-role-marked" : ""}`}
-              >
-                <span aria-hidden="true">{name.replace(/\d/, "")}</span>
-                {isMarked && <b className="degree-badge" aria-hidden="true">{degree}</b>}
-              </span>
-            );
-          })}
-        </div>
-        <div className="accidental-bars">
-          {ACCIDENTAL_BARS.map(([name, pitchClass, afterNatural]) => {
-            const isScaleTone = scale.includes(pitchClass);
-            const degree = getScaleDegree(scale, pitchClass);
-            const isMarked = degree !== null && markedDegrees.includes(degree);
-            return (
-              <span
-                key={name}
-                title={name}
-                role="listitem"
-                aria-label={`${name}, ${isMarked ? `degree ${degree}, ${DEGREE_NAMES[degree]}` : isScaleTone ? "scale tone" : "not in scale"}`}
-                className={`mallet-bar accidental ${isScaleTone ? "is-scale-tone" : ""} ${isMarked ? "is-role-marked" : ""}`}
-                style={{ "--bar-left": `${(afterNatural / NATURAL_BARS.length) * 100}%` } as React.CSSProperties}
-              >
-                {isMarked && <b className="degree-badge" aria-hidden="true">{degree}</b>}
-              </span>
-            );
-          })}
-        </div>
-      </div>
-    </section>
   );
 }
 
@@ -228,6 +113,9 @@ export type CircleBoardState = {
   quizPreview: QuizPreview;
   posterSize: PosterSize;
   presenting: boolean;
+  selectedId: string;
+  scaleMode: "major" | "minor";
+  spellings: Record<string, string>;
 };
 
 export function CircleBoard({ initialState }: { initialState: CircleBoardState }) {
@@ -244,11 +132,16 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
   const [posterSize, setPosterSize] = useState<PosterSize>(initialState.posterSize);
   const [presenting, setPresenting] = useState(initialState.presenting);
   const [showLayerPanel, setShowLayerPanel] = useState(false);
-  const [selectedId, setSelectedId] = useState("c");
+  const [selectedId, setSelectedId] = useState(initialState.selectedId);
+  const [scaleMode, setScaleMode] = useState(initialState.scaleMode);
+  const [spellings, setSpellings] = useState(initialState.spellings);
+  const [returnState, setReturnState] = useState<CircleBoardState | null>(null);
   const [shareStatus, setShareStatus] = useState("Copy lesson link");
 
-  const traversal = useMemo(() => getTraversal(orientation), [orientation]);
+  const traversal = useMemo(() => getTeachingTraversal(orientation, spellings), [orientation, spellings]);
   const selected = traversal.find((key) => key.id === selectedId) ?? traversal[0];
+  const selectedScale = getScaleOctave(selected, scaleMode);
+  const degreeName = (degree: ScaleDegree) => degree === 7 && scaleMode === "minor" ? "Subtonic" : DEGREE_NAMES[degree];
   const selectedIndex = traversal.findIndex((key) => key.id === selected.id);
   const focusIds = new Set([
     selected.id,
@@ -281,7 +174,10 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
     const params = new URLSearchParams();
     params.set("direction", orientation);
     params.set("mode", mode);
-    if (layers.length) params.set("layers", layers.join(","));
+    params.set("layers", layers.join(","));
+    params.set("key", selectedId);
+    if (scaleMode === "minor") params.set("scale", "minor");
+    if (Object.keys(spellings).length) params.set("spellings", Object.entries(spellings).sort().map(([id, spelling]) => `${id}:${spelling}`).join(","));
     params.set("instrument", instrument);
     if (markedDegrees.length) params.set("degrees", markedDegrees.join(","));
     if (presenting) params.set("present", "1");
@@ -292,8 +188,8 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
       params.set("roles", QUIZ_FIELDS.map(({ id }) => `${id}:${quizRoles[id]}`).join(","));
       params.set("preview", quizPreview);
     }
-    window.history.replaceState(null, "", `${window.location.pathname}?${params}`);
-  }, [instrument, layers, markedDegrees, mode, orientation, posterSize, presenting, quizPreset, quizPreview, quizRoles, quizScope, revealed]);
+    window.history.replaceState(null, "", `/?${params}`);
+  }, [instrument, layers, markedDegrees, mode, orientation, posterSize, presenting, quizPreset, quizPreview, quizRoles, quizScope, revealed, selectedId, scaleMode, spellings]);
 
   function toggleLayer(layer: Layer) {
     setLayers((current) =>
@@ -305,7 +201,7 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
     setSelectedId(id);
     if (mode === "build") {
       setRevealed((current) =>
-        current.includes(id) ? current.filter((keyId) => keyId !== id) : [...current, id],
+        current.includes(id) ? current : [...current, id],
       );
     }
   }
@@ -321,6 +217,10 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
     setQuizPreset(presetId);
     setQuizScope(preset.scope);
     setQuizRoles({ ...preset.roles });
+    if (presetId === "flat-side") {
+      setOrientation("fourths");
+      setSpellings((current) => ({ ...current, db: "db", "gb-fs": "gb", b: "cb" }));
+    }
     setMode("quiz");
   }
 
@@ -335,6 +235,8 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
   }
 
   function loadClassroomPoster() {
+    if (mode === "poster") return;
+    setReturnState({ orientation, mode, layers, revealed, instrument, markedDegrees, quizPreset, quizScope, quizRoles, quizPreview, posterSize, presenting, selectedId, scaleMode, spellings });
     setOrientation("fourths");
     setMode("poster");
     setLayers([...CLASSROOM_POSTER_LAYERS]);
@@ -348,7 +250,7 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
   function resetBoard() {
     setOrientation("fourths");
     setMode("build");
-    setLayers(["signatures", "numbers"]);
+    setLayers(["signatures", "numbers", "keyboards"]);
     setRevealed(DEFAULT_REVEALED);
     setInstrument("xylophone");
     setMarkedDegrees([]);
@@ -359,22 +261,38 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
     setPosterSize("letter");
     setPresenting(false);
     setSelectedId("c");
+    setScaleMode("major");
+    setSpellings({});
+    setShowLayerPanel(false);
+  }
+
+  function applyBoardState(state: CircleBoardState) {
+    setOrientation(state.orientation);
+    setMode(state.mode);
+    setLayers(state.layers);
+    setRevealed(state.revealed);
+    setInstrument(state.instrument);
+    setMarkedDegrees(state.markedDegrees);
+    setQuizPreset(state.quizPreset);
+    setQuizScope(state.quizScope);
+    setQuizRoles(state.quizRoles);
+    setQuizPreview(state.quizPreview);
+    setPosterSize(state.posterSize);
+    setPresenting(state.presenting);
+    setSelectedId(state.selectedId);
+    setScaleMode(state.scaleMode);
+    setSpellings(state.spellings);
+    setShowLayerPanel(false);
   }
 
   function resetToOpenedLink() {
-    setOrientation(initialState.orientation);
-    setMode(initialState.mode);
-    setLayers(initialState.layers);
-    setRevealed(initialState.revealed);
-    setInstrument(initialState.instrument);
-    setMarkedDegrees(initialState.markedDegrees);
-    setQuizPreset(initialState.quizPreset);
-    setQuizScope(initialState.quizScope);
-    setQuizRoles(initialState.quizRoles);
-    setQuizPreview(initialState.quizPreview);
-    setPosterSize(initialState.posterSize);
-    setPresenting(initialState.presenting);
-    setSelectedId("c");
+    if (initialState.mode === "poster") resetBoard();
+    else applyBoardState(initialState);
+  }
+
+  function returnToTeachingBoard() {
+    if (returnState) applyBoardState(returnState);
+    else resetBoard();
   }
 
   async function copyLink() {
@@ -431,7 +349,10 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
           <button
             type="button"
             aria-pressed={orientation === "fifths"}
-            onClick={() => setOrientation("fifths")}
+            onClick={() => {
+              setOrientation("fifths");
+              if (quizPreset === "flat-side") setQuizPreset("custom");
+            }}
           >
             Fifths
           </button>
@@ -460,6 +381,7 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
             <>
               <button type="button" onClick={() => setRevealed(traversal.map((key) => key.id))}>Reveal all</button>
               <button type="button" onClick={() => setRevealed([])}>Hide all</button>
+              <button type="button" disabled={!revealed.includes(selectedId)} onClick={() => setRevealed(current => current.filter(id => id !== selectedId))}>Hide selected</button>
             </>
           )}
           {mode !== "quiz" && (
@@ -503,7 +425,7 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
           >
             Download {POSTER_SIZES[posterSize].label} PDF
           </a>
-          <button type="button" className="poster-return" onClick={resetToOpenedLink}>Return to opened board</button>
+          <button type="button" className="poster-return" onClick={returnToTeachingBoard}>{returnState ? "Return to teaching board" : "Open teaching board"}</button>
         </section>
       )}
 
@@ -524,15 +446,15 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
           </div>
           <div className="note-role-controls">
             <span className="control-label">Note roles</span>
-            <button type="button" className="role-preset" aria-pressed={markedDegrees.length === 1 && markedDegrees[0] === 4} onClick={() => setMarkedDegrees([4])}>
+            {scaleMode === "major" && <><button type="button" className="role-preset" aria-pressed={markedDegrees.length === 1 && markedDegrees[0] === 4} onClick={() => setMarkedDegrees([4])}>
               Flat lesson · 4th
             </button>
             <button type="button" className="role-preset" aria-pressed={markedDegrees.length === 1 && markedDegrees[0] === 7} onClick={() => setMarkedDegrees([7])}>
               Sharp lesson · 7th
-            </button>
+            </button></>}
             {SCALE_DEGREES.map((degree) => (
               <button key={degree} type="button" aria-pressed={markedDegrees.includes(degree)} onClick={() => toggleDegree(degree)}>
-                <strong>{degree}</strong> {DEGREE_NAMES[degree]}
+                <strong>{degree}</strong> {degreeName(degree)}
               </button>
             ))}
             {markedDegrees.length > 0 && <button type="button" className="clear-roles" onClick={() => setMarkedDegrees([])}>Clear roles</button>}
@@ -589,6 +511,25 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
         </section>
       )}
 
+      {!isClassroomPoster && mode !== "quiz" && (
+        <section className="relationship-controls" aria-label="Key relationships">
+          <fieldset className="scale-mode-control">
+            <legend>Explore the scale</legend>
+            <button type="button" aria-pressed={scaleMode === "major"} onClick={() => setScaleMode("major")}>Major</button>
+            <button type="button" aria-pressed={scaleMode === "minor"} onClick={() => setScaleMode("minor")}>Relative minor</button>
+          </fieldset>
+          {selected.spellings.length > 1 && <fieldset className="enharmonic-control">
+            <legend>Enharmonic spelling</legend>
+            {selected.spellings.map(spelling => <button type="button" key={spelling.spellingId} aria-pressed={selected.spellingId === spelling.spellingId} onClick={() => {
+              setSpellings(current => ({ ...current, [selected.id]: spelling.spellingId }));
+              if (quizPreset === "flat-side") setQuizPreset("custom");
+            }}>{spelling.label} major</button>)}
+            <span>Same bars · different note names</span>
+          </fieldset>}
+          <p>{selected.label} major · {selected.relativeMinor}<br /><span>Same signature · different tonic</span></p>
+        </section>
+      )}
+
       <section className={`board-layout ${mode === "quiz" ? "is-quiz-layout" : ""} ${isClassroomPoster ? "is-classroom-poster-layout" : ""}`}>
         <section className="lesson-board" aria-label="Framed circle teaching board">
           {isClassroomPoster ? (
@@ -615,10 +556,12 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
               {quizPreview === "answer" && <strong className="answer-key-stamp">Answer key</strong>}
             </section>
           )}
-          <div className={`circle-stage ${mode !== "quiz" && layers.includes("keyboards") ? "has-keyboards" : ""}`} aria-label={`Circle of ${orientation}`}>
+          <p className="mobile-board-hint">Tap a key to explore its signature and keyboard below.</p>
+          <div className={`circle-stage ${mode !== "quiz" && layers.includes("keyboards") ? "has-keyboards" : ""}`} style={{ aspectRatio: `${diagramArea.width} / ${diagramArea.height}` }} aria-label={`Circle of ${orientation}`}>
           <div className="circle-ring" aria-hidden="true" />
           {traversal.map((key, index) => {
             const angle = index * 30;
+            const keyScale = getScaleOctave(key, mode === "quiz" ? "major" : scaleMode);
             const quizActive = mode === "quiz";
             const inQuizScope = !quizActive || isInQuizScope(key);
             const visible = quizActive || mode === "focus" || revealed.includes(key.id);
@@ -627,17 +570,25 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
             const numberRole = effectiveQuizRole("numbers", key.id);
             const signatureRole = effectiveQuizRole("signatures", key.id);
             const showQuizAnswers = quizPreview === "answer";
+            const quizCoreLabel = [
+              `Quiz position ${index + 1}`,
+              keyNameRole === "omitted" ? null : keyNameRole === "answer" && !showQuizAnswers ? "Blank for major key name" : `${key.label} major`,
+              numberRole === "omitted" ? null : numberRole === "answer" && !showQuizAnswers ? "Blank for accidental count" : key.signatureLabel,
+            ].filter(Boolean).join("; ");
             return (
               <div
                 key={key.id}
                 className={`key-orbit-group ${dimmed ? "is-dimmed" : ""} ${quizActive && !inQuizScope ? "is-out-of-scope" : ""}`}
                 style={{ "--angle": `${angle}deg` } as React.CSSProperties}
+                aria-hidden={quizActive && !inQuizScope ? true : undefined}
               >
                 <button
                   type="button"
                   className={`key-card core-node ${visible ? "is-visible" : "is-covered"} ${!quizActive && selectedId === key.id ? "is-selected" : ""} ${quizActive ? "is-quiz-card" : ""}`}
-                  aria-label={quizActive ? `Quiz position ${index + 1}` : visible ? `${key.label} major, ${key.signatureLabel}, ${key.relativeMinor}` : `Reveal key at position ${index + 1}`}
+                  aria-label={quizActive ? quizCoreLabel : visible ? `${keyScale.label}, ${key.signatureLabel}; ${key.label} major and ${key.relativeMinor}` : `Reveal key at position ${index + 1}`}
                   aria-pressed={visible}
+                  disabled={quizActive && !inQuizScope}
+                  style={orbitStyle(index, "core")}
                   onClick={() => selectKey(key.id)}
                 >
                   {visible ? (
@@ -653,7 +604,7 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
                         </>
                       ) : (
                         <>
-                          <span className="key-name">{key.label}</span>
+                          <span className="key-name">{keyScale.tonic}</span>
                           {layers.includes("numbers") && <AccidentalCount type={key.type} count={key.count} />}
                         </>
                       )}
@@ -661,22 +612,23 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
                   ) : <span className="covered-mark">+</span>}
                 </button>
                 {visible && (quizActive ? signatureRole !== "omitted" : layers.includes("signatures") || layers.includes("minors")) && (
-                  <span className="orbit-layer notation-node" aria-hidden="true">
+                  <span className="orbit-layer notation-node" style={orbitStyle(index, "notation")} aria-hidden={quizActive ? undefined : true}>
                     {quizActive ? (
                       signatureRole === "answer" && !showQuizAnswers
-                        ? <span className="quiz-signature-blank"><span className="staff-lines" /></span>
+                        ? <span className="quiz-signature-blank"><KeySignature type="none" count={0} compact label="Blank key signature staff" /></span>
                         : <span className={signatureRole === "answer" ? "quiz-answer" : ""}><KeySignature type={key.type} count={key.count} compact /></span>
                     ) : (
                       <>
-                        {layers.includes("signatures") && <KeySignature type={key.type} count={key.count} compact />}
-                        {layers.includes("minors") && <span className="minor-name">{key.relativeMinor}</span>}
+                        {layers.includes("signatures") && <><span className="notation-major">{key.label} major</span><KeySignature type={key.type} count={key.count} compact /></>}
+                        {layers.includes("minors") && <span className="minor-name">Relative minor: {key.relativeMinor.replace(/ minor$/, "")}</span>}
                       </>
                     )}
                   </span>
                 )}
                 {visible && !quizActive && layers.includes("keyboards") && (
-                  <span className="orbit-layer keyboard-node">
-                    <MiniScaleKeyboard label={key.label} scale={key.scalePitchClasses} instrument={instrument} markedDegrees={markedDegrees} />
+                  <span className="orbit-layer keyboard-node" style={orbitStyle(index, "keyboard")}>
+                    <span className="keyboard-label">{keyScale.label}</span>
+                    <ScaleKeyboard musicKey={key} scaleMode={scaleMode} instrument={instrument} markedDegrees={markedDegrees} compact />
                   </span>
                 )}
               </div>
@@ -698,8 +650,8 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
             ) : (
               <>
                 <span>{mode === "build" ? "Build mode" : mode === "focus" ? "Focus mode" : "Poster mode"}</span>
-                <strong>{selected.label}</strong>
-                <small>{selected.signatureLabel}</small>
+                <strong>{selectedScale.tonic}</strong>
+                <small>{scaleMode === "minor" ? "Natural minor" : "Major"} · {selected.signatureLabel}</small>
               </>
             )}
           </div>
@@ -710,7 +662,7 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
         {mode !== "quiz" && !isClassroomPoster && <aside className="detail-panel hide-when-presenting" aria-live="polite">
           <p className="eyebrow">Selected key</p>
           <div className="detail-key-heading">
-            <h2>{selected.label} major</h2>
+            <h2>{selectedScale.label}</h2>
             {layers.includes("numbers") && <AccidentalCount type={selected.type} count={selected.count} />}
           </div>
           {layers.includes("signatures") && <KeySignature type={selected.type} count={selected.count} />}
@@ -728,17 +680,23 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
               <dd>{selected.relativeMinor}</dd>
             </div>
           </dl>
+          <p className="relative-explanation">
+            <strong>{selected.label} major and {selected.relativeMinor}</strong> share this key signature.
+            {" "}Their home notes are {selected.label} and {selected.relativeMinor.replace(/ minor$/, "")}.
+            {scaleMode === "minor" && " This is the natural minor scale; its tonic is the major scale’s sixth degree."}
+          </p>
           {layers.includes("keyboards") && (
-            <PracticeKeyboard
-              label={selected.label}
-              scale={selected.scalePitchClasses}
-              instrument={instrument}
-              markedDegrees={markedDegrees}
-            />
+            <section className="scale-detail" aria-label="Selected scale keyboard">
+              <h3>{selectedScale.label} scale</h3>
+              <p className="keyboard-guide">Two octaves of {instrument === "piano" ? "keys" : "bars"} · one octave highlighted</p>
+              <ScaleKeyboard musicKey={selected} scaleMode={scaleMode} instrument={instrument} markedDegrees={markedDegrees} />
+              <p className="keyboard-guide">Green = scale note · dark outline = tonic</p>
+              {markedDegrees.length > 0 && <p className="role-summary">Numbered marks: {markedDegrees.map(degree => `${degree} ${degreeName(degree)}`).join(" · ")}</p>}
+            </section>
           )}
           <p className="teacher-tip">
             {mode === "build"
-              ? "Select a covered position to reveal it as the lesson grows."
+              ? "Select a position to reveal or explore its key. Use Hide selected to cover it again."
               : mode === "focus"
                 ? "Select a key to emphasize its immediate fourths and fifths relationships."
                 : "Poster mode keeps the complete reference visible."}

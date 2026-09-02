@@ -6,14 +6,16 @@ An interactive, projector-first classroom board for building and exploring key r
 
 - Build, Poster, and relationship Focus modes
 - fourths/fifths reversal
-- revealable key positions
+- revealable key positions with separate select and hide actions
 - key-signature and relative-minor layers
-- visual staff signatures with separate numerical accidental counts
+- precise Bravura treble-clef signatures with separate numerical accidental counts
 - concentric information bands: key/count core, notation/minor middle ring, and keyboard outer ring
 - selected-key detail panel
-- toggleable one-octave xylophone or piano scale diagrams around all twelve circle positions
-- two-octave selected-scale xylophone/piano detail view
-- binary lit/unlit scale highlighting with an optional tonic marker
+- two-octave graduated percussion-bar diagrams around all twelve circle positions, with a piano option
+- exactly one tonic-to-tonic octave highlighted, with both tonic bars outlined
+- enharmonic spelling switches for D♭/C♯, G♭/F♯, and C♭/B
+- major/relative natural minor comparison that changes the tonic and scale order while preserving the shared signature
+- a touch-sized phone circle with the selected scale and staff below it
 - independently toggleable scale-degree roles with functional names and shareable state
 - one-tap fourth/flat-lesson and seventh/sharp-lesson role presets
 - Quiz Builder v0.1 with editable presets, scope controls, and Given/Answer/Omitted field roles
@@ -23,12 +25,13 @@ An interactive, projector-first classroom board for building and exploring key r
 - direct, finished US Letter, A4, and 11×17 PDF downloads with flattened print-safe colors
 - custom teaching-board printing remains separate from the standard poster and future Praxis assignment authoring
 - toggleable BEADGCF flat order with its reverse sharp order
-- URL-persisted lesson state
+- URL-persisted lesson state, including selected key, spelling choices, and major/minor view
 - compact teaching toolbar with a separate layer/display drawer
 - copy-link, opened-link reset, start-fresh reset, board/quiz print actions, and fixed poster downloads
 - framed teaching-board layout with a shareable Presentation view
 - Backwerd Rhythm Shop palette using warm white, deep brick, forest, and tan roles
 - deterministic musical model with automated tests
+- return from the poster to the current lesson, or open a fresh teaching board from a direct poster link
 
 ## Local development
 
@@ -56,7 +59,8 @@ preview and its finished downloads. Every diagram shows two octaves of separate,
 graduated percussion bars, with exactly eight highlighted bars tracing one
 tonic-to-tonic major scale. Fifteen written keys share twelve positions, with
 D♭/C♯, G♭/F♯, and C♭/B paired to demonstrate enharmonic spelling. Each spelling
-has its own note sequence and staff labeled with the major key and relative minor.
+has its own staff labeled with the major key and relative minor. Note names appear
+on the highlighted bars, with no repeated note sequences below the instruments.
 The two tonic bars have a thick dark outline. Teaching examples connect C major
 with A minor and explain C♭/B, F♭/E, E♯/F, and B♯/C on the same physical bars.
 The paired signatures sit side by side, allowing larger staves with explicit

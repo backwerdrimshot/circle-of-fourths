@@ -2029,3 +2029,116 @@ footer {
     height: 1.15in;
   }
 }
+/* Shared teaching artwork, sized within the board instead of the viewport. */
+.relationship-controls {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem 1.5rem;
+  margin: 1rem 0;
+  padding: 1rem 1.25rem;
+  border: 1px solid var(--line);
+  border-radius: 1rem;
+  background: var(--panel);
+}
+
+.relationship-controls fieldset { border: 0; padding: 0; margin: 0; }
+.relationship-controls legend { font-size: 0.75rem; font-weight: 800; color: var(--teal-dark); margin-bottom: 0.4rem; }
+.relationship-controls button { margin-right: 0.35rem; min-height: 44px; border: 1px solid var(--line); border-radius: 999px; background: white; color: var(--ink); padding: 0.6rem 0.85rem; font: inherit; font-size: 0.82rem; font-weight: 750; cursor: pointer; }
+.relationship-controls button[aria-pressed="true"] { background: var(--brick-deep); color: white; border-color: var(--brick-deep); }
+.relationship-controls p { margin: 0 0 0 auto; font-weight: 700; }
+.relationship-controls p span, .enharmonic-control > span { display: block; color: var(--muted); font-size: 0.78rem; font-weight: 400; margin-top: 0.3rem; }
+.relative-explanation { margin: 1rem 0; padding: 0.9rem; border-radius: 0.7rem; background: #f2f4ed; line-height: 1.5; }
+.scale-detail { margin-top: 1rem; }
+.scale-detail h3 { font-family: Georgia, serif; font-size: 1.4rem; margin: 0 0 0.3rem; }
+.keyboard-guide { font-size: 0.8rem; color: var(--muted); margin: 0.5rem 0; }
+.mobile-board-hint { display: none; }
+
+.board-layout:not(.is-classroom-poster-layout) { grid-template-columns: minmax(0, 1fr) 320px; }
+.board-layout:not(.is-classroom-poster-layout) .lesson-board { min-width: 0; }
+.circle-stage, .circle-stage.has-keyboards, .is-quiz-layout .circle-stage {
+  container-type: inline-size;
+  width: 100%;
+  margin: 0 auto;
+}
+.circle-stage .key-card.core-node, .circle-stage .orbit-layer {
+  left: var(--card-x);
+  top: var(--card-y);
+  width: var(--card-width);
+  height: var(--card-height);
+  min-height: 0;
+  transform: translate(-50%, -50%);
+  padding: 0.3cqw;
+}
+.circle-stage .key-card.core-node { min-width: 0; min-height: 0; gap: 0.15cqw; border-radius: 0.65cqw; }
+.circle-stage .key-name { font-size: 2.05cqw; }
+.circle-stage .key-quality { font-size: 0.72cqw; line-height: 1; color: var(--muted); }
+.circle-stage .accidental-count { min-width: 0; height: auto; border: 0; background: transparent; font-size: 0.85cqw; line-height: 1; }
+.circle-stage .accidental-count strong { font-size: 0.95cqw; }
+.circle-stage .notation-node { justify-content: center; gap: 0.18cqw; box-shadow: none; }
+.circle-stage .notation-major { font-size: 0.95cqw; font-weight: 700; color: var(--brick-deep); line-height: 1; }
+.circle-stage .notation-node .minor-name { margin: 0; font-size: 0.75cqw; white-space: nowrap; }
+.circle-stage .notation-node .musical-signature-svg { max-height: 65%; width: 100%; }
+.circle-stage .keyboard-node { flex-direction: column; gap: 0.1cqw; background: white; box-shadow: none; }
+.circle-stage .keyboard-label { font-size: 1cqw; font-weight: 700; line-height: 1.1; color: var(--brick-deep); }
+.circle-stage .keyboard-node .music-keyboard-svg { width: 100%; max-height: 83%; }
+.circle-stage .circle-center { top: 48.2%; width: 17%; padding: 0.8cqw; box-shadow: none; }
+.circle-stage .circle-center strong { font-size: 3.5cqw; }
+.circle-stage .circle-center span { font-size: 0.8cqw; }
+.circle-stage .circle-center small { font-size: 0.8cqw; }
+.circle-stage .circle-center.shows-order { width: 18%; }
+.circle-stage .circle-center .accidental-order { font-family: Arial, sans-serif; font-size: 1.7cqw; letter-spacing: 0; }
+.circle-stage .circle-ring { inset: auto; left: 50%; top: 48.2%; width: 23.85%; height: 36.64%; transform: translate(-50%, -50%); border-width: 1.5cqw; box-shadow: none; }
+.circle-stage::before, .circle-stage::after { inset: auto; left: 50%; top: 48.2%; transform: translate(-50%, -50%); background: none; }
+.circle-stage::before { width: 47.7%; height: 53.9%; }
+.circle-stage::after { width: 80.3%; height: 81.4%; }
+.circle-stage .quiz-signature-blank { width: 100%; height: 100%; }
+.detail-panel > .musical-signature-svg { max-width: 260px; }
+.is-presenting .board-layout:not(.is-classroom-poster-layout) { grid-template-columns: minmax(0, 1fr); }
+.is-presenting .circle-stage, .is-presenting .circle-stage.has-keyboards { width: 100%; max-width: calc((100dvh - 130px) * 1.536); }
+.is-presenting .relationship-controls { display: none; }
+
+@media (max-width: 1050px) {
+  .board-layout:not(.is-classroom-poster-layout) { grid-template-columns: minmax(0, 1fr); }
+  .board-layout:not(.is-classroom-poster-layout) .detail-panel { width: 100%; display: grid; grid-template-columns: 1fr 1.4fr; gap: 0.5rem 2rem; align-items: start; }
+  .detail-panel .scale-detail { grid-column: 2; grid-row: 2 / span 5; }
+  .detail-panel .relative-explanation, .detail-panel dl { grid-column: 1; }
+  .detail-panel .teacher-tip { grid-column: 1 / -1; }
+}
+
+@media (max-width: 700px) {
+  .toolbar .control-group { min-width: 0; width: 100%; flex-basis: 100%; flex-wrap: wrap; border-right: 0; padding: 0; }
+  .header-actions { flex-wrap: wrap; }
+  .relationship-controls { gap: 0.75rem; padding: 0.8rem; }
+  .relationship-controls p { width: 100%; margin: 0; font-size: 0.9rem; }
+  .board-layout:not(.is-classroom-poster-layout) .detail-panel { display: block; }
+  .mobile-board-hint { display: block; margin: 0.6rem 0; color: var(--muted); font-size: 0.8rem; }
+  .circle-stage, .circle-stage.has-keyboards, .is-quiz-layout .circle-stage { width: 100%; aspect-ratio: 1 !important; margin: 0; }
+  .circle-stage .notation-node, .circle-stage .keyboard-node { display: none; }
+  .circle-stage .key-card.core-node { left: var(--mobile-x); top: var(--mobile-y); width: 15%; height: 14%; min-width: 44px; min-height: 44px; padding: 0.2rem; border-radius: 0.5rem; gap: 0.08rem; }
+  .circle-stage .key-name { font-size: 1.2rem; }
+  .circle-stage .key-quality { font-size: 0.58rem; }
+  .circle-stage .accidental-count, .circle-stage .accidental-count strong { font-size: 0.65rem; }
+  .circle-stage .circle-center, .circle-stage .circle-center.shows-order { top: 50%; width: 29%; padding: 0.5rem; }
+  .circle-stage .circle-center strong { font-size: 2rem; }
+  .circle-stage .circle-center span, .circle-stage .circle-center small { font-size: 0.6rem; }
+  .circle-stage .circle-center .accidental-order { font-size: 0.75rem; }
+  .circle-stage .circle-ring { top: 50%; width: 72%; height: 72%; border-width: 1.4rem; }
+  .circle-stage::before, .circle-stage::after { display: none; }
+  .is-presenting .circle-stage { max-width: none; }
+  .is-quiz-layout .mobile-board-hint { display: none; }
+  .is-quiz-layout .circle-stage { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.65rem; aspect-ratio: auto !important; }
+  .is-quiz-layout .key-orbit-group { display: flex; flex-direction: column; align-items: center; padding: 0.4rem; gap: 0.4rem; border: 1px solid var(--line); border-radius: 0.6rem; }
+  .is-quiz-layout .key-card.core-node { position: static; transform: none; width: 100%; height: auto; min-height: 60px; }
+  .is-quiz-layout .notation-node { display: flex; position: static; transform: none; width: 100%; height: 75px; }
+  .is-quiz-layout .circle-ring, .is-quiz-layout .circle-center { display: none; }
+}
+
+.is-presenting .board-layout .detail-panel { display: none; }
+
+@media print {
+  .relationship-controls { padding: 0.3rem; margin: 0 0 0.3rem; }
+  .board-layout:not(.is-classroom-poster-layout) { display: block; }
+  .board-layout:not(.is-classroom-poster-layout) .detail-panel { display: none; }
+  .circle-stage, .circle-stage.has-keyboards, .is-quiz-layout .circle-stage { width: 100%; max-width: none; }
+}

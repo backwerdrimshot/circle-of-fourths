@@ -85,6 +85,12 @@ test("the percussion excerpt keeps its two-and-three geography and graduated bar
   const svg = createPosterSvg();
   assert.equal((svg.match(/major scale on a two-octave xylophone/g) ?? []).length, 12);
   assert.ok(svg.includes("Green + note name = scale tone"));
+  const diagrams = [...svg.matchAll(/<g role="img" aria-label="[^"]*major scale on a two-octave xylophone[^"]*">([\s\S]*?)<\/g>/g)];
+  for (const [, diagram] of diagrams) {
+    const labels = [...diagram.matchAll(/<text\b([^>]*)>([^<]*)<\/text>/g)];
+    assert.equal(labels.length, 9, "each instrument has its title and eight bar labels only");
+    assert.ok(labels.slice(1).every(([, attributes]) => attributes.includes('transform="rotate(-90')), "note names stay on their bars");
+  }
 });
 
 test("treble signatures use the conventional written pitches through seven accidentals", () => {
