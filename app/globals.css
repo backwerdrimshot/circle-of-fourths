@@ -493,9 +493,28 @@ h1 {
 
 .board-layout.is-classroom-poster-layout {
   display: block;
-  width: min(1120px, 100%);
+  width: min(1500px, 100%);
   margin-right: auto;
   margin-left: auto;
+}
+
+.is-classroom-poster-layout .lesson-board {
+  padding: 0;
+  overflow: hidden;
+}
+
+.poster-artwork svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.poster-full-size {
+  width: fit-content;
+  color: var(--brick-deep);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-underline-offset: 0.2em;
 }
 
 .poster-reference-legend {

@@ -159,7 +159,7 @@ test("poster mode always renders the canonical classroom reference", async () =>
 
   assert.match(html, /Circle of Fourths/);
   assert.match(html, /Standard classroom poster/);
-  assert.match(html, /Backwerd Rhythm Shop · Classroom Reference/);
+  assert.match(html, /Backwerd Rhythm Shop · Classroom Reference/i);
   assert.match(html, /C starts at twelve o’clock/);
   assert.match(html, /No browser print settings required/);
   assert.match(html, /href="\/posters\/circle-of-fourths-11x17\.pdf"/);
@@ -174,7 +174,7 @@ test("poster mode always renders the canonical classroom reference", async () =>
   assert.match(html, /Key signature · relative minor/);
   assert.match(html, /B E A D G C F/);
   assert.match(html, /Sharps reverse: F C G D A E B/);
-  assert.equal((html.match(/major scale on a one-octave xylophone/g) ?? []).length, 12);
+  assert.equal((html.match(/major scale on a two-octave xylophone/g) ?? []).length, 12);
   assert.doesNotMatch(html, /major scale on a one-octave piano/);
   assert.doesNotMatch(html, /is-role-marked/);
   assert.doesNotMatch(html, /aria-label="Board controls"/);

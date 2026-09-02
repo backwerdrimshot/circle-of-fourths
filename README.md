@@ -48,3 +48,23 @@ pnpm test
 ## Product boundary
 
 This app owns key-relationship visualization, progressive circle construction, and future circle-native quizzes and games. Mallet Board remains the source of truth for physical keyboard geography, ranges, instruments, and scale paths. Praxis may later own teacher accounts, assignments, persistence, and learner evidence.
+
+## Poster artwork
+
+The standard poster uses `lib/poster-artwork.mjs` for both its responsive SVG
+preview and its finished downloads. Every diagram shows two octaves of separate,
+graduated percussion bars, with scale-note labels and a tonic-first note sequence.
+The C5–C7 geometry in `lib/xylophone-two-octaves.json` is a cropped, attributed
+snapshot of the shop’s canonical xylophone specification (the full-instrument
+taper is preserved).
+
+After changing the poster artwork, regenerate all three sizes with:
+
+```bash
+pnpm posters:build
+```
+
+This emits matching SVGs and single-page, lossless 300-dpi RGB PDFs under
+`public/posters/`. The PDFs are deliberately flattened for reliable printing;
+the SVGs retain scalable text and bar shapes. The geometry checks cover every
+card pair and its clearance from the masthead and footer in each paper size.

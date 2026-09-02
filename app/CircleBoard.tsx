@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { getTraversal } from "@/lib/music-model.mjs";
+import { createPosterSvg } from "@/lib/poster-artwork.mjs";
 
 type Orientation = "fourths" | "fifths";
 type BoardMode = "build" | "poster" | "focus" | "quiz";
@@ -255,6 +256,7 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
     traversal[(selectedIndex + 1) % traversal.length].id,
   ]);
   const isClassroomPoster = mode === "poster";
+  const posterArtwork = useMemo(() => isClassroomPoster ? createPosterSvg(posterSize) : "", [isClassroomPoster, posterSize]);
   const activeQuiz = quizPreset === "custom"
     ? { title: "Custom circle activity", directions: "Complete every blank using the musical information provided." }
     : QUIZ_PRESETS[quizPreset];
@@ -483,6 +485,7 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
           <div>
             <strong>Standard classroom poster</strong>
             <span>Choose a size and download the finished PDF. No browser print settings required.</span>
+            <a className="poster-full-size" href={POSTER_SIZES[posterSize].download.replace(/\.pdf$/, ".svg")} target="_blank" rel="noreferrer">Open full-size preview</a>
           </div>
           <fieldset className="poster-size-picker" aria-label="Poster paper size">
             <legend>Poster size</legend>
@@ -589,24 +592,15 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
       <section className={`board-layout ${mode === "quiz" ? "is-quiz-layout" : ""} ${isClassroomPoster ? "is-classroom-poster-layout" : ""}`}>
         <section className="lesson-board" aria-label="Framed circle teaching board">
           {isClassroomPoster ? (
-            <header className="standard-poster-masthead">
-              <div>
-                <span>Backwerd Rhythm Shop · Classroom Reference</span>
-                <h2>Circle of Fourths</h2>
-                <p>Major keys · accidental counts · key signatures · relative minors · xylophone scales</p>
-              </div>
-              <aside>
-                <strong>C starts at twelve o’clock.</strong>
-                <span>Move clockwise through the flat keys—the fourths-first path used in many band rooms.</span>
-              </aside>
-            </header>
-          ) : <header className="board-frame-header">
+            <div className="poster-artwork" dangerouslySetInnerHTML={{ __html: posterArtwork }} />
+          ) : <>
+          <header className="board-frame-header">
             <div>
               <span className="board-kicker">{mode === "quiz" ? "Circle activity" : isClassroomPoster ? "Classroom reference poster" : "Teaching board"}</span>
               <strong>{mode === "quiz" ? activeQuiz.title : `Circle of ${orientation === "fourths" ? "Fourths" : "Fifths"}`}</strong>
             </div>
               <span>{mode === "build" ? "Progressive build" : mode === "focus" ? "Relationship focus" : mode === "quiz" ? (quizPreview === "student" ? "Student worksheet" : "Teacher answer key") : "Complete poster"}{mode !== "quiz" && layers.includes("keyboards") ? ` · ${instrument}` : ""}</span>
-          </header>}
+          </header>
           {mode === "quiz" && (
             <section className="worksheet-meta" aria-label="Worksheet information">
               <div>
@@ -627,7 +621,7 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
             const angle = index * 30;
             const quizActive = mode === "quiz";
             const inQuizScope = !quizActive || isInQuizScope(key);
-            const visible = quizActive || mode === "poster" || mode === "focus" || revealed.includes(key.id);
+            const visible = quizActive || mode === "focus" || revealed.includes(key.id);
             const dimmed = (mode === "focus" && !focusIds.has(key.id)) || (quizActive && !inQuizScope);
             const keyNameRole = effectiveQuizRole("keyName", key.id);
             const numberRole = effectiveQuizRole("numbers", key.id);
@@ -710,21 +704,7 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
             )}
           </div>
           </div>
-          {isClassroomPoster && (
-            <>
-              <div className="poster-reference-legend" aria-label="Poster legend">
-                <span><strong>Core</strong> Major key · accidental count</span>
-                <span><strong>Middle</strong> Key signature · relative minor</span>
-                <span><strong>Outer</strong> Major scale on xylophone</span>
-                <span><strong>Center</strong> Flat and sharp order</span>
-              </div>
-              <footer className="standard-poster-footer">
-                <span>Fourth-first for band classrooms · {POSTER_SIZES[posterSize].label}</span>
-                <strong>BACKWERD RHYTHM SHOP</strong>
-                <span>Flip the relationship—not the facts—to study fifths.</span>
-              </footer>
-            </>
-          )}
+          </>}
         </section>
 
         {mode !== "quiz" && !isClassroomPoster && <aside className="detail-panel hide-when-presenting" aria-live="polite">
