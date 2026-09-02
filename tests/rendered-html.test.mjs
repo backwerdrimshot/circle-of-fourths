@@ -30,6 +30,28 @@ function highlightedMidis(svg) {
     .sort((a, b) => a - b);
 }
 
+function visibleMidis(svg) {
+  return [...svg.matchAll(/data-midi="(\d+)"/g)]
+    .map((match) => Number(match[1]))
+    .sort((a, b) => a - b);
+}
+
+function assertCompactKeyboard(svg) {
+  const midis = visibleMidis(svg);
+  assert.ok(midis.length >= 18 && midis.length <= 20, "about one and a half octaves remain visible");
+  assert.deepEqual(midis, Array.from({ length: midis.length }, (_, index) => midis[0] + index), "every intervening physical semitone remains visible exactly once");
+  assert.ok(midis[0] >= 72 && midis.at(-1) <= 96, "the window stays within the canonical C5–C7 instrument");
+  const naturalPitchClasses = [0, 2, 4, 5, 7, 9, 11];
+  assert.ok(naturalPitchClasses.includes(midis[0] % 12) && naturalPitchClasses.includes(midis.at(-1) % 12), "both ends retain complete natural bars");
+  const highlighted = highlightedMidis(svg);
+  assert.equal(highlighted.length, 8);
+  assert.equal(highlighted.at(-1) - highlighted[0], 12);
+  const tonics = (svg.match(/<rect\b[^>]*data-tonic="true"[^>]*>/g) ?? [])
+    .map((bar) => Number(bar.match(/data-midi="(\d+)"/)[1]))
+    .sort((a, b) => a - b);
+  assert.deepEqual(tonics, [highlighted[0], highlighted.at(-1)], "the starting and ending tonic remain outlined");
+}
+
 test("server-renders the classroom board", async () => {
   const response = await render();
   assert.equal(response.status, 200);
@@ -63,9 +85,10 @@ test("server-renders shared lesson state before hydration", async () => {
   assert.match(html, /A minor/);
   assert.match(html, /Relationship focus/);
   assert.match(html, /B E A D G C F/);
-  assert.match(html, /C major scale on a two-octave piano/);
+  assert.match(html, /C major scale on a compact piano spanning about one and a half octaves/);
   assert.equal(keyboardSvgs(html).length, 13);
   assert.ok(keyboardSvgs(html).every((svg) => svg.includes('data-keyboard-instrument="piano"')));
+  keyboardSvgs(html).forEach(assertCompactKeyboard);
 });
 
 test("circle layers can be shown independently", async () => {
@@ -88,11 +111,14 @@ test("xylophone is the default circle instrument", async () => {
   assert.equal(keyboards.length, 13);
   for (const svg of keyboards) {
     assert.match(svg, /data-keyboard-instrument="xylophone"/);
-    assert.equal((svg.match(/data-midi="/g) ?? []).length, 25);
-    assert.equal(highlightedMidis(svg).length, 8);
-    assert.equal((svg.match(/data-tonic="true"/g) ?? []).length, 2);
+    assertCompactKeyboard(svg);
     assert.doesNotMatch(svg, /data-role-marked="true"/);
   }
+  assert.match(markup(html).replace(/<!--[\s\S]*?-->/g, ""), /About 1½ octaves of bars/);
+  const cKeyboard = keyboards.find((svg) => svg.includes('aria-label="C major scale'));
+  const bKeyboard = keyboards.find((svg) => svg.includes('aria-label="B major scale'));
+  assert.ok(cKeyboard && bKeyboard);
+  assert.notDeepEqual(visibleMidis(cKeyboard), visibleMidis(bKeyboard), "C and B adapt their displayed bounds to their different scale ranges");
   assert.deepEqual(highlightedMidis(keyboards.at(-1)), [72, 74, 76, 77, 79, 81, 83, 84]);
 });
 
@@ -125,12 +151,13 @@ test("shared selected key, spelling, and relative-minor state render before hydr
   const html = markup(await response.text());
 
   assert.match(html, /<h2>A♯ minor<\/h2>/);
-  assert.match(html, /A♯ natural minor scale on a two-octave xylophone/);
+  assert.match(html, /A♯ natural minor scale on a compact xylophone spanning about one and a half octaves/);
   assert.match(html, /C♯ major/);
   assert.match(html, /Subtonic/);
   assert.doesNotMatch(html, /Leading tone/);
   assert.equal((html.match(/key-orbit-group is-dimmed/g) ?? []).length, 9);
   const selectedKeyboard = keyboardSvgs(html).at(-1);
+  keyboardSvgs(html).forEach(assertCompactKeyboard);
   assert.match(selectedKeyboard, /data-scale-mode="minor"/);
   assert.deepEqual(highlightedMidis(selectedKeyboard), [82, 84, 85, 87, 89, 90, 92, 94]);
   for (const note of ["A♯", "B♯", "C♯", "D♯", "E♯", "F♯", "G♯"]) assert.ok(selectedKeyboard.includes(note));
@@ -324,8 +351,11 @@ test("poster mode always renders the canonical classroom reference", async () =>
   assert.match(html, /Staff = major key \+ relative minor/);
   assert.match(html, /B E A D G C F/);
   assert.match(html, /Sharps: F C G D A E B/);
-  assert.equal((html.match(/major scale on a two-octave xylophone/g) ?? []).length, 12);
-  assert.doesNotMatch(html, /major scale on a one-octave piano/);
+  const diagrams = markup(html).match(/<g\b(?=[^>]*role="img")(?=[^>]*aria-label="[^"]*major scale on a xylophone; about one and a half octaves shown)[\s\S]*?<\/g>/g) ?? [];
+  assert.equal(diagrams.length, 12);
+  diagrams.forEach(assertCompactKeyboard);
+  assert.ok(new Set(diagrams.map((diagram) => visibleMidis(diagram).join(","))).size > 1, "poster scales use adapted keyboard windows");
+  assert.doesNotMatch(markup(html), /scale on a two-octave|scale on a compact piano/);
   assert.doesNotMatch(html, /is-role-marked/);
   assert.doesNotMatch(html, /aria-label="Board controls"/);
   assert.doesNotMatch(html, /class="detail-panel/);

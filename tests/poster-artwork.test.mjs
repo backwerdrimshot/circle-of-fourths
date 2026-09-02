@@ -31,7 +31,7 @@ test("every printed scale spells one of each letter and matches its highlighted 
   assert.deepEqual(scaleNoteNames(getTraversal("fourths")[6]), ["G♭", "A♭", "B♭", "C♭", "D♭", "E♭", "F"]);
 });
 
-test("each scale highlights exactly one ascending tonic-to-tonic octave within the two-octave instrument", () => {
+test("each compact keyboard keeps one complete ascending tonic-to-tonic octave", () => {
   for (const key of getPosterPositions().flatMap((position) => position.spellings)) {
     const { notes, midis } = scaleOctave(key);
     assert.equal(notes.length, 8);
@@ -43,10 +43,15 @@ test("each scale highlights exactly one ascending tonic-to-tonic octave within t
   }
   const svg = createPosterSvg();
   assert.equal((svg.match(/data-scale-tone="true"/g) ?? []).length, 12 * 8);
-  assert.equal((svg.match(/data-scale-tone="false"/g) ?? []).length, 12 * 17);
+  assert.ok((svg.match(/data-scale-tone="false"/g) ?? []).length < 12 * 17, "compact views remove unused context bars");
   assert.equal((svg.match(/data-tonic="true"/g) ?? []).length, 12 * 2);
   for (const position of getPosterPositions()) {
     const diagram = svg.match(new RegExp(`<g data-key="${position.id}">([\\s\\S]*?)<\\/g>`))[1];
+    const shownMidis = [...diagram.matchAll(/data-midi="(\d+)"/g)].map((match) => Number(match[1]));
+    const highlightedMidis = [...diagram.matchAll(/data-midi="(\d+)" data-scale-tone="true"/g)].map((match) => Number(match[1]));
+    assert.ok(shownMidis.length >= 18 && shownMidis.length <= 20, `${position.label}: about one and a half octaves shown`);
+    assert.deepEqual(highlightedMidis, scaleOctave(position).midis, `${position.label}: complete highlighted scale retained`);
+    assert.ok([shownMidis[0], shownMidis.at(-1)].every((midi) => !instrument.bars.find((bar) => bar.midi === midi).accidental), `${position.label}: natural bars frame the excerpt`);
     const tonics = [...diagram.matchAll(/data-midi="(\d+)" data-scale-tone="true" data-tonic="true"/g)].map((match) => Number(match[1]));
     assert.equal(tonics.length, 2, `${position.label}: two outlined tonic bars`);
     assert.equal(tonics[1] - tonics[0], 12);
@@ -83,9 +88,10 @@ test("the percussion excerpt keeps its two-and-three geography and graduated bar
   assert.deepEqual(instrument.bars.filter((bar) => bar.accidental).map((bar) => bar.pitchClass), [1, 3, 6, 8, 10, 1, 3, 6, 8, 10]);
   assert.ok(instrument.bars.every((bar, i, bars) => i === 0 || bar.length < bars[i - 1].length));
   const svg = createPosterSvg();
-  assert.equal((svg.match(/major scale on a two-octave xylophone/g) ?? []).length, 12);
+  assert.equal((svg.match(/major scale on a xylophone/g) ?? []).length, 12);
   assert.ok(svg.includes("Green + note name = scale tone"));
-  const diagrams = [...svg.matchAll(/<g role="img" aria-label="[^"]*major scale on a two-octave xylophone[^"]*">([\s\S]*?)<\/g>/g)];
+  assert.ok(svg.includes("About 1½ octaves shown · one octave highlighted"));
+  const diagrams = [...svg.matchAll(/<g role="img" aria-label="[^"]*major scale on a xylophone[^"]*">([\s\S]*?)<\/g>/g)];
   for (const [, diagram] of diagrams) {
     const labels = [...diagram.matchAll(/<text\b([^>]*)>([^<]*)<\/text>/g)];
     assert.equal(labels.length, 9, "each instrument has its title and eight bar labels only");

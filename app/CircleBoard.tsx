@@ -688,7 +688,7 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
           {layers.includes("keyboards") && (
             <section className="scale-detail" aria-label="Selected scale keyboard">
               <h3>{selectedScale.label} scale</h3>
-              <p className="keyboard-guide">Two octaves of {instrument === "piano" ? "keys" : "bars"} · one octave highlighted</p>
+              <p className="keyboard-guide">About 1½ octaves of {instrument === "piano" ? "keys" : "bars"} · one octave highlighted</p>
               <ScaleKeyboard musicKey={selected} scaleMode={scaleMode} instrument={instrument} markedDegrees={markedDegrees} />
               <p className="keyboard-guide">Green = scale note · dark outline = tonic</p>
               {markedDegrees.length > 0 && <p className="role-summary">Numbered marks: {markedDegrees.map(degree => `${degree} ${degreeName(degree)}`).join(" · ")}</p>}

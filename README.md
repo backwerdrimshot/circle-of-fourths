@@ -11,7 +11,7 @@ An interactive, projector-first classroom board for building and exploring key r
 - precise Bravura treble-clef signatures with separate numerical accidental counts
 - concentric information bands: key/count core, notation/minor middle ring, and keyboard outer ring
 - selected-key detail panel
-- two-octave graduated percussion-bar diagrams around all twelve circle positions, with a piano option
+- compact graduated percussion-bar diagrams around all twelve circle positions, with a piano option and ranges of about 1½ octaves that adapt to each scale
 - exactly one tonic-to-tonic octave highlighted, with both tonic bars outlined
 - enharmonic spelling switches for D♭/C♯, G♭/F♯, and C♭/B
 - major/relative natural minor comparison that changes the tonic and scale order while preserving the shared signature
@@ -55,8 +55,8 @@ This app owns key-relationship visualization, progressive circle construction, a
 ## Poster artwork
 
 The standard poster uses `lib/poster-artwork.mjs` for both its responsive SVG
-preview and its finished downloads. Every diagram shows two octaves of separate,
-graduated percussion bars, with exactly eight highlighted bars tracing one
+preview and its finished downloads. Every diagram shows about 1½ octaves of
+separate, graduated percussion bars, with exactly eight highlighted bars tracing one
 tonic-to-tonic major scale. Fifteen written keys share twelve positions, with
 D♭/C♯, G♭/F♯, and C♭/B paired to demonstrate enharmonic spelling. Each spelling
 has its own staff labeled with the major key and relative minor. Note names appear
@@ -65,9 +65,14 @@ The two tonic bars have a thick dark outline. Teaching examples connect C major
 with A minor and explain C♭/B, F♭/E, E♯/F, and B♯/C on the same physical bars.
 The paired signatures sit side by side, allowing larger staves with explicit
 relative-minor labels and clear gutters even on Letter paper.
-The C5–C7 geometry in `lib/xylophone-two-octaves.json` is a cropped, attributed
+The displayed ranges adapt to each scale: 18–20 consecutive chromatic bars keep
+the full highlighted octave and both tonic bars in view, with natural bars at
+both ends. The interactive app uses the same ranges for its xylophone and piano
+diagrams, adjusting them when the selected key or major/relative-minor view changes.
+Every physical semitone within a displayed range remains present.
+The canonical C5–C7 source geometry in `lib/xylophone-two-octaves.json` remains a cropped, attributed
 snapshot of the shop’s canonical xylophone specification (the full-instrument
-taper is preserved).
+taper is preserved); compact diagrams select a window from that source.
 
 Staff symbols use the shop’s pinned Bravura outlines in `lib/notation-glyphs.json`,
 registered to explicit treble-staff pitches. The font license is included in

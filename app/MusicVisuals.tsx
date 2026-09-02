@@ -1,5 +1,5 @@
 import { getScaleOctave, type MusicKey, type ScaleMode } from "@/lib/music-model.mjs";
-import instrument from "@/lib/xylophone-two-octaves.json";
+import { getKeyboardWindow } from "@/lib/keyboard-window.mjs";
 import notation from "@/lib/notation-glyphs.json";
 import "./MusicVisuals.css";
 
@@ -53,27 +53,30 @@ type ToneBar = {
 
 export function ScaleKeyboard({ musicKey, scaleMode = "major", instrument: instrumentName = "xylophone", markedDegrees = [], compact = false }: ScaleKeyboardProps) {
   const octave = getScaleOctave(musicKey, scaleMode);
+  const keyboard = getKeyboardWindow(octave.midis);
+  const horizontalScale = compact ? 236 / keyboard.width : 1;
+  const drawingWidth = keyboard.width * horizontalScale;
   const activeNotes = new Map(octave.midis.map((midi, index) => [midi, { note: octave.notes[index], degree: octave.degrees[index] }]));
   const isPiano = instrumentName === "piano";
-  const bars: ToneBar[] = instrument.bars.map((bar) => {
+  const bars: ToneBar[] = keyboard.bars.map((bar) => {
     if (isPiano) {
-      const width = bar.accidental ? 10 : 16;
-      return { midi: bar.midi, accidental: bar.accidental, x: bar.center + 8 - width / 2, y: 14, width, height: bar.accidental ? 52 : 85 };
+      const width = (bar.accidental ? 10 : 16) * horizontalScale;
+      return { midi: bar.midi, accidental: bar.accidental, x: bar.center * horizontalScale + 8 - width / 2, y: 14, width, height: bar.accidental ? 52 : 85 };
     }
     const height = bar.length * 0.24;
-    return { midi: bar.midi, accidental: bar.accidental, x: bar.center + 8 - bar.width / 2, y: bar.accidental ? 55 - height : 63, width: bar.width, height };
+    return { midi: bar.midi, accidental: bar.accidental, x: (bar.center - bar.width / 2) * horizontalScale + 8, y: bar.accidental ? 55 - height : 63, width: bar.width * horizontalScale, height };
   });
   // Piano accidentals sit in front of white keys. Percussion accidentals remain
   // an entirely separate raised row of equally wide, graduated tone bars.
   const orderedBars = isPiano ? [...bars.filter((bar) => !bar.accidental), ...bars.filter((bar) => bar.accidental)] : bars;
   const roleDescription = markedDegrees.length ? `; numbered gold badges mark scale degrees ${[...new Set(markedDegrees)].sort().join(", ")}` : "";
   const scaleLabel = scaleMode === "minor" ? `${octave.tonic} natural minor` : octave.label;
-  const description = `${scaleLabel} scale on a two-octave ${instrumentName}; eight notes highlighted from ${octave.tonic} to ${octave.tonic}; tonic notes outlined${roleDescription}. Notes: ${octave.notes.join(", ")}.`;
+  const description = `${scaleLabel} scale on a compact ${instrumentName} spanning about one and a half octaves; eight notes highlighted from ${octave.tonic} to ${octave.tonic}; tonic notes outlined${roleDescription}. Notes: ${octave.notes.join(", ")}.`;
 
   return (
-    <svg className={`music-keyboard-svg is-${instrumentName}${compact ? " is-compact" : ""}`} viewBox="0 0 252 118" role="img" aria-label={description} data-scale-mode={scaleMode} data-keyboard-instrument={instrumentName}>
+    <svg className={`music-keyboard-svg is-${instrumentName}${compact ? " is-compact" : ""}`} viewBox={`0 0 ${drawingWidth + 16} 118`} role="img" aria-label={description} data-scale-mode={scaleMode} data-keyboard-instrument={instrumentName}>
       <title>{description}</title>
-      {isPiano && <rect x="4" y="12" width="244" height="89" rx="2" className="music-piano-case" />}
+      {isPiano && <rect x="4" y="12" width={drawingWidth + 8} height="89" rx="2" className="music-piano-case" />}
       {orderedBars.map((bar) => {
         const tone = activeNotes.get(bar.midi);
         const tonic = tone?.degree === 1;
