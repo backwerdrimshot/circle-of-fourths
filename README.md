@@ -53,10 +53,18 @@ This app owns key-relationship visualization, progressive circle construction, a
 
 The standard poster uses `lib/poster-artwork.mjs` for both its responsive SVG
 preview and its finished downloads. Every diagram shows two octaves of separate,
-graduated percussion bars, with scale-note labels and a tonic-first note sequence.
+graduated percussion bars, with exactly eight highlighted bars tracing one
+tonic-to-tonic major scale. Fifteen written keys share twelve positions, with
+D♭/C♯, G♭/F♯, and C♭/B paired to demonstrate enharmonic spelling. Each spelling
+has its own note sequence and staff labeled with the major key and relative minor.
 The C5–C7 geometry in `lib/xylophone-two-octaves.json` is a cropped, attributed
 snapshot of the shop’s canonical xylophone specification (the full-instrument
 taper is preserved).
+
+Staff symbols use the shop’s pinned Bravura outlines in `lib/notation-glyphs.json`,
+registered to explicit treble-staff pitches. The font license is included in
+`public/licenses/bravura-LICENSE.txt`; staff rendering does not depend on text-font
+baselines or fonts installed on the viewer’s device.
 
 After changing the poster artwork, regenerate all three sizes with:
 
