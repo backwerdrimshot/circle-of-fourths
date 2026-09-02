@@ -57,6 +57,10 @@ graduated percussion bars, with exactly eight highlighted bars tracing one
 tonic-to-tonic major scale. Fifteen written keys share twelve positions, with
 D♭/C♯, G♭/F♯, and C♭/B paired to demonstrate enharmonic spelling. Each spelling
 has its own note sequence and staff labeled with the major key and relative minor.
+The two tonic bars have a thick dark outline. Teaching examples connect C major
+with A minor and explain C♭/B, F♭/E, E♯/F, and B♯/C on the same physical bars.
+The paired signatures sit side by side, allowing larger staves with explicit
+relative-minor labels and clear gutters even on Letter paper.
 The C5–C7 geometry in `lib/xylophone-two-octaves.json` is a cropped, attributed
 snapshot of the shop’s canonical xylophone specification (the full-instrument
 taper is preserved).

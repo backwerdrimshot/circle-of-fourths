@@ -170,10 +170,10 @@ test("poster mode always renders the canonical classroom reference", async () =>
   assert.match(html, /Classroom wall/);
   assert.match(html, /poster-size-tabloid/);
   assert.match(html, /size: 17in 11in/);
-  assert.match(html, /Major key · accidental count/);
-  assert.match(html, /Key signature · relative minor/);
+  assert.match(html, /Outline = tonic \(home note\)/);
+  assert.match(html, /Staff = major key \+ relative minor/);
   assert.match(html, /B E A D G C F/);
-  assert.match(html, /Sharps reverse: F C G D A E B/);
+  assert.match(html, /Sharps: F C G D A E B/);
   assert.equal((html.match(/major scale on a two-octave xylophone/g) ?? []).length, 12);
   assert.doesNotMatch(html, /major scale on a one-octave piano/);
   assert.doesNotMatch(html, /is-role-marked/);

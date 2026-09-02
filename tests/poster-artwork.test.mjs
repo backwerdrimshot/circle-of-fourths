@@ -44,6 +44,14 @@ test("each scale highlights exactly one ascending tonic-to-tonic octave within t
   const svg = createPosterSvg();
   assert.equal((svg.match(/data-scale-tone="true"/g) ?? []).length, 12 * 8);
   assert.equal((svg.match(/data-scale-tone="false"/g) ?? []).length, 12 * 17);
+  assert.equal((svg.match(/data-tonic="true"/g) ?? []).length, 12 * 2);
+  for (const position of getPosterPositions()) {
+    const diagram = svg.match(new RegExp(`<g data-key="${position.id}">([\\s\\S]*?)<\\/g>`))[1];
+    const tonics = [...diagram.matchAll(/data-midi="(\d+)" data-scale-tone="true" data-tonic="true"/g)].map((match) => Number(match[1]));
+    assert.equal(tonics.length, 2, `${position.label}: two outlined tonic bars`);
+    assert.equal(tonics[1] - tonics[0], 12);
+    assert.ok(tonics.every((midi) => midi % 12 === position.pitchClass));
+  }
 });
 
 test("fifteen written keys share twelve positions with all three enharmonic pairs", () => {
@@ -109,16 +117,19 @@ test("notation outlines clear the major and relative-minor labels at both staff 
   for (const size of Object.keys(POSTER_PAPERS)) {
     for (const { key, notation } of posterGeometry(size).nodes) {
       const paired = key.spellings.length === 2;
-      for (const spelling of key.spellings) {
-        const { glyphs, space } = keySignatureLayout(spelling, notation, paired);
+      for (const [index, spelling] of key.spellings.entries()) {
+        const columnWidth = paired ? (notation.width - 8) / 2 : notation.width;
+        const column = { ...notation, x: notation.x + index * (columnWidth + 8), width: columnWidth };
+        const { glyphs, space } = keySignatureLayout(spelling, column, paired);
+        assert.equal(space, paired ? 4.4 : 5, `${spelling.label}: enlarged staff spacing`);
         for (const glyph of glyphs) {
           const metric = notationGlyphs.glyphs[glyph.name];
           const top = glyph.y - metric.above * space;
           const bottom = glyph.y + metric.below * space;
-          assert.ok(top >= notation.y + (paired ? 14 : 17), `${spelling.label}: ${glyph.name} major-label clearance`);
-          assert.ok(bottom <= notation.y + (paired ? 40 : 51), `${spelling.label}: ${glyph.name} minor-label clearance`);
-          assert.ok(glyph.x >= notation.x + 8);
-          assert.ok(glyph.x + metric.right * space <= notation.x + notation.width - 8);
+          assert.ok(top >= column.y + 18, `${spelling.label}: ${glyph.name} major-label clearance`);
+          assert.ok(bottom <= column.y + (paired ? 52 : 57), `${spelling.label}: ${glyph.name} minor-label clearance`);
+          assert.ok(glyph.x >= column.x + 8);
+          assert.ok(glyph.x + metric.right * space <= column.x + column.width - 8);
         }
       }
     }
