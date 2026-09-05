@@ -36,6 +36,33 @@ test("server-renders the classroom board", async () => {
   assert.doesNotMatch(html, /codex-preview|react-loading-skeleton|Your site is taking shape/);
 });
 
+/* The footer's route home, asserted on the SERVER-RENDERED html.
+ *
+ * This app shipped with a footer that carried two taglines and no links at all,
+ * so a student who found the board had no way back to the guide for it. The
+ * site's daily link audit checks exactly this, against the deployed page, and
+ * had been failing on this app since 2026-09-02 — the only failing app of the
+ * fifteen. Nothing here could have caught it: a link that is simply absent
+ * passes every check that only looks at the links that are present.
+ *
+ * Asserted on the rendered bytes rather than the component, because that is
+ * what the audit fetches and what a reader with JavaScript disabled receives.
+ * The three URLs are the three the audit requires, spelled the way it matches
+ * them — the shop, the catalog, and this app's own guide. */
+test("the footer routes a visitor back to the shop, the catalog and the guide", async () => {
+  const response = await render();
+  assert.equal(response.status, 200);
+  const html = await response.text();
+
+  assert.match(html, /href="https:\/\/backwerdrhythmshop\.com"/, "no link to the shop");
+  assert.match(html, /href="https:\/\/apps\.backwerdrhythmshop\.com\/"/, "no link to the app catalog");
+  assert.match(
+    html,
+    /href="https:\/\/guides\.backwerdrhythmshop\.com\/circle-of-fourths\/"/,
+    "no link to this app's guide",
+  );
+});
+
 test("server-renders shared lesson state before hydration", async () => {
   const response = await render("/?direction=fifths&mode=focus&layers=minors,keyboards,accidental-order&instrument=piano");
   assert.equal(response.status, 200);
