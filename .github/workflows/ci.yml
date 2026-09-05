@@ -1,0 +1,61 @@
+# Runs this repo's own checks. Nothing did, until now.
+#
+# package.json has defined `lint`, `typecheck` and `test` for this app's whole
+# life. There was no .github directory at all — not a narrow workflow, not a
+# disabled one, none — so all three were things a person could run and nothing
+# ever did. A pull request here showed no checks whatsoever and merged clean.
+#
+# That mattered more here than it would in most of the family, for two reasons.
+#
+# This is the newest app and the only one on vinext, so it is the one whose
+# build is most likely to break under a dependency bump; and its `build` now
+# runs a generator (scripts/capabilities.mjs) whose output ships.
+#
+# And the shop site's guide-build audit reads that generated manifest. Getting
+# it published is what took guide coverage from 14 of 15 to 15 of 15 — so if
+# the generator breaks, the audit does not go red on this app, it goes QUIET
+# about it. An app with no manifest is skipped, not failed. This workflow is
+# what stands between "the audit checks fifteen apps" and "the audit checks
+# fourteen and says fifteen".
+#
+# The step is `pnpm check`, which is the repo's own definition of good rather
+# than a sequence spelled out here. Change what a check means in package.json
+# and this file follows without editing — the alternative is a second copy of
+# the list, which is the failure this whole codebase keeps finding.
+name: Validate
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: check-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    # `pnpm check` builds twice over (typecheck, then test's own build) and
+    # vinext is not fast. Ten minutes is roughly four times the observed run.
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      # No version pinned: the action reads packageManager from package.json,
+      # so the lockfile and CI cannot drift apart.
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Check
+        run: pnpm check

@@ -12,6 +12,7 @@
     "deploy": "WRANGLER_LOG_PATH=.wrangler/wrangler.log vinext deploy",
     "deploy:dry-run": "WRANGLER_LOG_PATH=.wrangler/wrangler.log pnpm build && wrangler deploy --dry-run",
     "cf-typegen": "WRANGLER_LOG_PATH=.wrangler/wrangler.log wrangler types",
+    "check": "pnpm lint && pnpm typecheck && pnpm test",
     "test": "pnpm build && node --test tests/*.test.mjs",
     "lint": "eslint . --ignore-pattern dist --ignore-pattern .next",
     "typecheck": "tsc --noEmit"
