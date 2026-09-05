@@ -49,6 +49,32 @@ test("server-renders the classroom board", async () => {
  * what the audit fetches and what a reader with JavaScript disabled receives.
  * The three URLs are the three the audit requires, spelled the way it matches
  * them — the shop, the catalog, and this app's own guide. */
+/* The served page says which build it is.
+ *
+ * The shop site's daily link audit reads a build identifier out of every app's
+ * HTML — that is how a merged-but-not-deployed app gets caught. This app served
+ * nothing it could read, so the audit reported "1 app(s) serve no build
+ * identifier", and could not tell a stale deploy here from a fresh one. It was
+ * the only one of fifteen in that position; Drum Map's README records having
+ * held it before and why it was worth leaving.
+ *
+ * Asserted on the rendered bytes and against package.json, because a stamp that
+ * agrees with a constant in this file would prove nothing. The shape is the one
+ * that site's reader documents as the one to adopt, and its pattern accepts
+ * either attribute order, so this checks the fact rather than the spelling. */
+test("the served page declares its build, and it is the package version", async () => {
+  const { readFile } = await import("node:fs/promises");
+  const pkg = JSON.parse(await readFile(new URL("../package.json", import.meta.url), "utf8"));
+
+  const response = await render();
+  assert.equal(response.status, 200);
+  const html = await response.text();
+
+  const meta = /<meta[^>]*\bname="build"[^>]*\bcontent="([^"]+)"|<meta[^>]*\bcontent="([^"]+)"[^>]*\bname="build"/i.exec(html);
+  assert.ok(meta, "the page declares no build identifier");
+  assert.equal(meta[1] ?? meta[2], pkg.version, "the declared build is not the package version");
+});
+
 test("the footer routes a visitor back to the shop, the catalog and the guide", async () => {
   const response = await render();
   assert.equal(response.status, 200);
