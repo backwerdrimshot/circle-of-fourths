@@ -769,6 +769,16 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
       <footer className="hide-when-presenting no-print">
         <span>Fourth-first for band classrooms.</span>
         <span>Flip once to see the same relationships as fifths.</span>
+        {/* The route home. Every app in this family carries these three, and the
+            site's daily link audit asserts them against the DEPLOYED page: the
+            shop, the catalog, and this app's own guide. This app shipped without
+            them, so a student who found the board had no way back to the
+            instructions for it, and the audit had been red since 2026-09-02. */}
+        <nav className="site-links" aria-label="Backwerd Rhythm Shop">
+          <a href="https://backwerdrhythmshop.com">Backwerd Rhythm Shop</a>
+          <a href="https://apps.backwerdrhythmshop.com/">All free apps</a>
+          <a href="https://guides.backwerdrhythmshop.com/circle-of-fourths/">App guide</a>
+        </nav>
       </footer>
     </main>
   );
