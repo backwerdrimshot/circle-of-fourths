@@ -1,0 +1,87 @@
+name: Deploy to Cloudflare Workers
+
+# A merge to main publishes — but only a commit that Validate has already passed.
+#
+# This replaces the Cloudflare Workers Git integration, which published this
+# Worker from the dashboard. That arrangement worked; its failure mode was that
+# it was invisible. The build command, the branch it watched and the credentials
+# it used were settings in a web console, and the only trace in the repository
+# was a check whose logs the repository could not read.
+#
+# Here it was worse than invisible, because for this app's whole life the two
+# were not even sequenced. Workers Builds published every merge to main, and
+# Validate — added only in #5 — ran beside it rather than in front of it. A red
+# check did not stop a publish; it just went red next to one that had already
+# happened. Gating is the entire point of having added CI at all.
+#
+# The deploy now lives next to the thing it deploys, and the checkout pins the
+# commit Validate actually checked rather than whatever main has become.
+on:
+  workflow_run:
+    workflows: ["Validate"]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cloudflare-workers-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    # A failed or cancelled run must not publish. A manual dispatch is an
+    # explicit human decision and carries no workflow_run to inspect.
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    # A hung deploy otherwise holds the concurrency group and silently blocks
+    # every later merge from publishing.
+    timeout-minutes: 15
+    environment: cloudflare-workers-production
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          # Deploy the commit Validate checked. On workflow_run the default is
+          # the branch tip, which can already have moved past it.
+          ref: ${{ github.event.workflow_run.head_sha || github.ref }}
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - name: Require Cloudflare credentials
+        # Fail here, naming the missing variable, rather than several minutes
+        # later inside wrangler with an authentication error that reads like a
+        # revoked token. This exact guard has caught a missing secret twice
+        # while this pattern was being rolled out across the family.
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          set -euo pipefail
+          : "${CLOUDFLARE_API_TOKEN:?not set for the cloudflare-workers-production environment}"
+          : "${CLOUDFLARE_ACCOUNT_ID:?not set for the cloudflare-workers-production environment}"
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Check
+        # Re-run the repo's own gate on the exact commit being deployed. The
+        # workflow_run conclusion says Validate passed, and this says it passes
+        # here too — a cheap second opinion before the only irreversible step.
+        run: pnpm check
+      - name: Deploy
+        # `pnpm run deploy`, not `pnpm deploy`: the latter is pnpm's own
+        # built-in command for deploying a workspace package and would not run
+        # this script at all.
+        #
+        # Runs vinext from the lockfile rather than an unpinned npx wrangler, so
+        # the deploy uses the wrangler this repo already pins (4.126.0) and
+        # cannot silently move to whatever major is current on the day it runs.
+        run: pnpm run deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
