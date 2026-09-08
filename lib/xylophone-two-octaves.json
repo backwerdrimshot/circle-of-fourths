@@ -1,0 +1,231 @@
+{
+  "source": {
+    "repository": "backwerd-rhythm-shop-site",
+    "file": "scripts/instruments.mjs",
+    "commit": "054979cd324dff1ec62bcd391dc475bd684f5773",
+    "api": "keyboardLayout(INSTRUMENTS.xylophone, INSTRUMENTS.xylophone.sizes[0])",
+    "specRange": [
+      "C5",
+      "C8"
+    ],
+    "model": "Musser M41",
+    "note": "Cropped from the full three-octave layout; full-range taper is not reapplied to the excerpt."
+  },
+  "range": {
+    "low": "C5",
+    "high": "C7",
+    "fromMidi": 72,
+    "toMidi": 96
+  },
+  "width": 236,
+  "cropOrigin": 0,
+  "maxLength": 170,
+  "accidentalGroups": [
+    2,
+    3,
+    2,
+    3
+  ],
+  "bars": [
+    {
+      "midi": 72,
+      "pitchClass": 0,
+      "center": 6,
+      "width": 12,
+      "length": 170,
+      "accidental": false
+    },
+    {
+      "midi": 73,
+      "pitchClass": 1,
+      "center": 14,
+      "width": 12,
+      "length": 167.4467054263566,
+      "accidental": true
+    },
+    {
+      "midi": 74,
+      "pitchClass": 2,
+      "center": 22,
+      "width": 12,
+      "length": 164.89341085271317,
+      "accidental": false
+    },
+    {
+      "midi": 75,
+      "pitchClass": 3,
+      "center": 30,
+      "width": 12,
+      "length": 162.34011627906978,
+      "accidental": true
+    },
+    {
+      "midi": 76,
+      "pitchClass": 4,
+      "center": 38,
+      "width": 12,
+      "length": 159.78682170542635,
+      "accidental": false
+    },
+    {
+      "midi": 77,
+      "pitchClass": 5,
+      "center": 54,
+      "width": 12,
+      "length": 157.23352713178295,
+      "accidental": false
+    },
+    {
+      "midi": 78,
+      "pitchClass": 6,
+      "center": 62,
+      "width": 12,
+      "length": 154.68023255813952,
+      "accidental": true
+    },
+    {
+      "midi": 79,
+      "pitchClass": 7,
+      "center": 70,
+      "width": 12,
+      "length": 152.12693798449612,
+      "accidental": false
+    },
+    {
+      "midi": 80,
+      "pitchClass": 8,
+      "center": 78,
+      "width": 12,
+      "length": 149.5736434108527,
+      "accidental": true
+    },
+    {
+      "midi": 81,
+      "pitchClass": 9,
+      "center": 86,
+      "width": 12,
+      "length": 147.0203488372093,
+      "accidental": false
+    },
+    {
+      "midi": 82,
+      "pitchClass": 10,
+      "center": 94,
+      "width": 12,
+      "length": 144.4670542635659,
+      "accidental": true
+    },
+    {
+      "midi": 83,
+      "pitchClass": 11,
+      "center": 102,
+      "width": 12,
+      "length": 141.91375968992247,
+      "accidental": false
+    },
+    {
+      "midi": 84,
+      "pitchClass": 0,
+      "center": 118,
+      "width": 12,
+      "length": 139.36046511627907,
+      "accidental": false
+    },
+    {
+      "midi": 85,
+      "pitchClass": 1,
+      "center": 126,
+      "width": 12,
+      "length": 136.80717054263565,
+      "accidental": true
+    },
+    {
+      "midi": 86,
+      "pitchClass": 2,
+      "center": 134,
+      "width": 12,
+      "length": 134.25387596899225,
+      "accidental": false
+    },
+    {
+      "midi": 87,
+      "pitchClass": 3,
+      "center": 142,
+      "width": 12,
+      "length": 131.70058139534882,
+      "accidental": true
+    },
+    {
+      "midi": 88,
+      "pitchClass": 4,
+      "center": 150,
+      "width": 12,
+      "length": 129.14728682170542,
+      "accidental": false
+    },
+    {
+      "midi": 89,
+      "pitchClass": 5,
+      "center": 166,
+      "width": 12,
+      "length": 126.59399224806201,
+      "accidental": false
+    },
+    {
+      "midi": 90,
+      "pitchClass": 6,
+      "center": 174,
+      "width": 12,
+      "length": 124.0406976744186,
+      "accidental": true
+    },
+    {
+      "midi": 91,
+      "pitchClass": 7,
+      "center": 182,
+      "width": 12,
+      "length": 121.48740310077518,
+      "accidental": false
+    },
+    {
+      "midi": 92,
+      "pitchClass": 8,
+      "center": 190,
+      "width": 12,
+      "length": 118.93410852713177,
+      "accidental": true
+    },
+    {
+      "midi": 93,
+      "pitchClass": 9,
+      "center": 198,
+      "width": 12,
+      "length": 116.38081395348837,
+      "accidental": false
+    },
+    {
+      "midi": 94,
+      "pitchClass": 10,
+      "center": 206,
+      "width": 12,
+      "length": 113.82751937984494,
+      "accidental": true
+    },
+    {
+      "midi": 95,
+      "pitchClass": 11,
+      "center": 214,
+      "width": 12,
+      "length": 111.27422480620154,
+      "accidental": false
+    },
+    {
+      "midi": 96,
+      "pitchClass": 0,
+      "center": 230,
+      "width": 12,
+      "length": 108.72093023255812,
+      "accidental": false
+    }
+  ]
+}

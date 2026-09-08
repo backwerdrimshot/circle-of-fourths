@@ -1,0 +1,92 @@
+.musical-signature-svg,
+.music-keyboard-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+  flex: none;
+}
+
+.musical-signature-svg .music-staff-line {
+  stroke: #171717;
+  stroke-width: 0.8;
+}
+
+.musical-signature-svg .music-notation-glyph {
+  fill: #171717;
+  stroke: none;
+}
+
+.music-keyboard-svg .music-tone-bar {
+  fill: #e8dbc8;
+  stroke: #a48e72;
+  stroke-width: 0.7;
+}
+
+.music-keyboard-svg .music-tone-bar.is-scale-tone {
+  fill: #416034;
+  stroke: #416034;
+}
+
+.music-keyboard-svg .music-tone-bar.is-tonic {
+  stroke: #171717;
+  stroke-width: 2.2;
+}
+
+.music-keyboard-svg .music-cord-hole {
+  fill: #a48e72;
+}
+
+.music-keyboard-svg .music-cord-hole.is-active {
+  fill: #c1d0b8;
+}
+
+.music-keyboard-svg .music-bar-note {
+  fill: #fff;
+  font: 700 9.5px Arial, Helvetica, sans-serif;
+  pointer-events: none;
+}
+
+.music-keyboard-svg .music-degree-badge circle {
+  fill: #f3c765;
+  stroke: #79541c;
+  stroke-width: 0.75;
+}
+
+.music-keyboard-svg .music-degree-badge text {
+  fill: #272015;
+  font: 800 6.8px Arial, Helvetica, sans-serif;
+  pointer-events: none;
+}
+
+.music-keyboard-svg .music-piano-case {
+  fill: #171717;
+}
+
+.music-keyboard-svg.is-piano .music-tone-bar.is-natural {
+  fill: #fafaf9;
+  stroke: #777;
+}
+
+.music-keyboard-svg.is-piano .music-tone-bar.is-accidental {
+  fill: #222;
+  stroke: #111;
+}
+
+.music-keyboard-svg.is-piano .music-tone-bar.is-scale-tone {
+  fill: #416034;
+  stroke: #416034;
+}
+
+.music-keyboard-svg.is-piano .music-tone-bar.is-tonic {
+  stroke: #0a0a0a;
+  stroke-width: 2.2;
+}
+
+@media print {
+  .musical-signature-svg,
+  .music-keyboard-svg {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+}

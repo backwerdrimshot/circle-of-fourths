@@ -4,6 +4,9 @@ export function createPosterState(posterSize: PosterSize): CircleBoardState {
   return {
     orientation: "fourths",
     mode: "poster",
+    selectedId: "c",
+    scaleMode: "major",
+    spellings: {},
     layers: ["signatures", "numbers", "minors", "keyboards", "accidental-order"],
     revealed: ["c"],
     instrument: "xylophone",
