@@ -2161,3 +2161,62 @@ footer .site-links a:focus-visible {
   .board-layout:not(.is-classroom-poster-layout) .detail-panel { display: none; }
   .circle-stage, .circle-stage.has-keyboards, .is-quiz-layout .circle-stage { width: 100%; max-width: none; }
 }
+
+/* Teaching view: readable context, a generous selected scale, and touch controls. */
+.key-orbit-group.is-dimmed:not(.is-out-of-scope) > * { opacity: 1; filter: none; }
+.key-orbit-group.is-dimmed:not(.is-out-of-scope) .core-node { background: #fafaf9; box-shadow: none; }
+.circle-stage .core-node.is-selected { outline: 3px solid #416034; outline-offset: 3px; }
+.board-layout:not(.is-classroom-poster-layout):not(.is-quiz-layout) { grid-template-columns: minmax(0, 1fr) minmax(390px, 40%); gap: 1.25rem; }
+.board-layout.is-enlarged-lesson:not(.is-classroom-poster-layout):not(.is-quiz-layout) { grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr); }
+.detail-panel { min-width: 0; }
+.lesson-navigation, .lesson-buttons { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+.lesson-navigation { margin-bottom: 1.25rem; }
+.lesson-navigation button, .lesson-buttons button, .quick-practice > button { font: inherit; font-size: 0.85rem; font-weight: 700; min-height: 44px; padding: 0.6rem 0.75rem; border: 1px solid #777; border-radius: 0.65rem; color: #233b26; background: white; cursor: pointer; }
+.lesson-buttons button[aria-pressed="true"], .lesson-navigation button[aria-pressed="true"] { background: #416034; color: white; }
+.lesson-buttons button:disabled { opacity: 0.55; cursor: default; }
+.detail-panel h3 { margin: 0 0 0.65rem; font: 700 1.45rem Georgia, serif; }
+.key-comparison, .quick-practice { margin-top: 1.4rem; padding-top: 1.2rem; border-top: 1px solid #c6c3b8; }
+.key-comparison p, .quick-practice p { line-height: 1.55; }
+.comparison-heading { font-weight: 750; font-size: 1.15rem; }
+.comparison-staves { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; margin: 0.7rem 0; }
+.comparison-staves > div { min-width: 0; padding: 0.5rem; border: 1px solid #c6c3b8; border-radius: 0.65rem; }
+.comparison-staves strong { font-size: 0.85rem; }
+.lesson-note { color: #4d514a; font-size: 0.8rem; line-height: 1.5; }
+.fixed-keyboard-comparison { margin-top: 1rem; }
+.sound-controls { margin-top: 0.8rem; }
+.sound-settings { display: flex; flex-wrap: wrap; gap: 0.6rem 1.4rem; margin-top: 0.75rem; }
+.sound-settings label { display: grid; grid-template-columns: auto minmax(65px, 1fr) auto; align-items: center; gap: 0.5rem; font-size: 0.8rem; width: 100%; }
+.sound-settings input { width: 100%; min-width: 0; accent-color: #416034; }
+.practice-feedback { min-height: 1.5em; }
+.practice-feedback.is-correct { color: #285228; font-weight: 700; }
+.audio-status:empty { display: none; }
+.is-presenting { align-items: flex-start; padding-top: 4rem; }
+.is-presenting .board-layout:not(.is-classroom-poster-layout):not(.is-quiz-layout) { display: grid; grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr); width: min(1600px, 100%); gap: 1rem; }
+.is-presenting .board-layout:not(.is-classroom-poster-layout):not(.is-quiz-layout) .detail-panel { display: block; }
+.is-presenting .circle-stage, .is-presenting .circle-stage.has-keyboards { max-width: none; }
+.is-presenting .detail-panel > dl, .is-presenting .relative-explanation, .is-presenting .teacher-tip, .is-presenting .key-comparison, .is-presenting .quick-practice { display: none; }
+.is-presenting .detail-panel > .musical-signature-svg { max-width: 300px; }
+@media (min-width: 1051px) { .board-layout:not(.is-classroom-poster-layout):not(.is-quiz-layout) .lesson-board { position: sticky; top: 1rem; } }
+@media (max-width: 1050px) {
+  .board-layout:not(.is-classroom-poster-layout):not(.is-quiz-layout), .board-layout.is-enlarged-lesson:not(.is-classroom-poster-layout):not(.is-quiz-layout), .is-presenting .board-layout:not(.is-classroom-poster-layout):not(.is-quiz-layout) { grid-template-columns: minmax(0, 1fr); }
+  .board-layout:not(.is-classroom-poster-layout) .detail-panel { display: block; }
+}
+@media print {
+  .board-layout:not(.is-classroom-poster-layout):not(.is-quiz-layout) { display: block; }
+  .is-presenting .board-layout:not(.is-classroom-poster-layout):not(.is-quiz-layout) .detail-panel { display: none; }
+}
+
+@media (min-width: 1051px) {
+  .is-presenting .detail-panel { padding: 1rem; }
+  .is-presenting .lesson-navigation { margin-bottom: 0.5rem; }
+  .is-presenting .detail-panel > .musical-signature-svg { height: 65px; width: 170px; margin: 0.25rem 0; }
+  .is-presenting .scale-detail .music-keyboard-svg { height: 240px; width: 100%; }
+  .is-presenting .detail-panel h3 { font-size: 1.2rem; margin-bottom: 0.25rem; }
+  .is-presenting .sound-settings { margin-top: 0.35rem; gap: 0.2rem; }
+  .is-presenting .sound-controls .lesson-note { display: none; }
+}
+
+@media (min-width: 1051px) {
+  .is-presenting .sound-settings { display: none; }
+  .is-presenting .scale-detail { margin-top: 0.5rem; }
+}
