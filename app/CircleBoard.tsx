@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { getTeachingTraversal, getScaleOctave } from "@/lib/music-model.mjs";
 import { KeySignature, ScaleKeyboard } from "./MusicVisuals";
+import { KeyComparison, PlayableScale } from "./LessonTools";
 import { createPosterSvg, posterGeometry } from "@/lib/poster-artwork.mjs";
 
 type Orientation = "fourths" | "fifths";
@@ -116,6 +117,7 @@ export type CircleBoardState = {
   selectedId: string;
   scaleMode: "major" | "minor";
   spellings: Record<string, string>;
+  enlarged?: boolean;
 };
 
 export function CircleBoard({ initialState }: { initialState: CircleBoardState }) {
@@ -137,12 +139,14 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
   const [spellings, setSpellings] = useState(initialState.spellings);
   const [returnState, setReturnState] = useState<CircleBoardState | null>(null);
   const [shareStatus, setShareStatus] = useState("Copy lesson link");
+  const [enlarged, setEnlarged] = useState(initialState.enlarged ?? false);
 
   const traversal = useMemo(() => getTeachingTraversal(orientation, spellings), [orientation, spellings]);
   const selected = traversal.find((key) => key.id === selectedId) ?? traversal[0];
   const selectedScale = getScaleOctave(selected, scaleMode);
   const degreeName = (degree: ScaleDegree) => degree === 7 && scaleMode === "minor" ? "Subtonic" : DEGREE_NAMES[degree];
   const selectedIndex = traversal.findIndex((key) => key.id === selected.id);
+  const nextKey = traversal[(selectedIndex + 1) % traversal.length];
   const focusIds = new Set([
     selected.id,
     traversal[(selectedIndex + traversal.length - 1) % traversal.length].id,
@@ -181,6 +185,7 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
     params.set("instrument", instrument);
     if (markedDegrees.length) params.set("degrees", markedDegrees.join(","));
     if (presenting) params.set("present", "1");
+    if (enlarged) params.set("detail", "1");
     if (mode === "build") params.set("revealed", revealed.join(","));
     if (mode === "quiz") {
       params.set("quiz", quizPreset);
@@ -189,7 +194,7 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
       params.set("preview", quizPreview);
     }
     window.history.replaceState(null, "", `/?${params}`);
-  }, [instrument, layers, markedDegrees, mode, orientation, posterSize, presenting, quizPreset, quizPreview, quizRoles, quizScope, revealed, selectedId, scaleMode, spellings]);
+  }, [instrument, layers, markedDegrees, mode, orientation, posterSize, presenting, quizPreset, quizPreview, quizRoles, quizScope, revealed, selectedId, scaleMode, spellings, enlarged]);
 
   function toggleLayer(layer: Layer) {
     setLayers((current) =>
@@ -236,7 +241,7 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
 
   function loadClassroomPoster() {
     if (mode === "poster") return;
-    setReturnState({ orientation, mode, layers, revealed, instrument, markedDegrees, quizPreset, quizScope, quizRoles, quizPreview, posterSize, presenting, selectedId, scaleMode, spellings });
+    setReturnState({ orientation, mode, layers, revealed, instrument, markedDegrees, quizPreset, quizScope, quizRoles, quizPreview, posterSize, presenting, selectedId, scaleMode, spellings, enlarged });
     setOrientation("fourths");
     setMode("poster");
     setLayers([...CLASSROOM_POSTER_LAYERS]);
@@ -248,6 +253,7 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
   }
 
   function resetBoard() {
+    setEnlarged(false);
     setOrientation("fourths");
     setMode("build");
     setLayers(["signatures", "numbers", "keyboards"]);
@@ -267,6 +273,7 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
   }
 
   function applyBoardState(state: CircleBoardState) {
+    setEnlarged(state.enlarged ?? false);
     setOrientation(state.orientation);
     setMode(state.mode);
     setLayers(state.layers);
@@ -530,7 +537,7 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
         </section>
       )}
 
-      <section className={`board-layout ${mode === "quiz" ? "is-quiz-layout" : ""} ${isClassroomPoster ? "is-classroom-poster-layout" : ""}`}>
+      <section className={`board-layout ${mode === "quiz" ? "is-quiz-layout" : ""} ${isClassroomPoster ? "is-classroom-poster-layout" : ""} ${enlarged ? "is-enlarged-lesson" : ""}`}>
         <section className="lesson-board" aria-label="Framed circle teaching board">
           {isClassroomPoster ? (
             <div className="poster-artwork" dangerouslySetInnerHTML={{ __html: posterArtwork }} />
@@ -590,6 +597,15 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
                   disabled={quizActive && !inQuizScope}
                   style={orbitStyle(index, "core")}
                   onClick={() => selectKey(key.id)}
+                  onKeyDown={(event) => {
+                    if (quizActive || !["ArrowRight", "ArrowLeft", "ArrowUp", "ArrowDown"].includes(event.key)) return;
+                    event.preventDefault();
+                    const step = event.key === "ArrowRight" || event.key === "ArrowDown" ? 1 : -1;
+                    const nextIndex = (index + step + traversal.length) % traversal.length;
+                    selectKey(traversal[nextIndex].id);
+                    const buttons = event.currentTarget.closest(".circle-stage")?.querySelectorAll<HTMLButtonElement>(".core-node");
+                    buttons?.[nextIndex]?.focus();
+                  }}
                 >
                   {visible ? (
                     <>
@@ -659,13 +675,26 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
           </>}
         </section>
 
-        {mode !== "quiz" && !isClassroomPoster && <aside className="detail-panel hide-when-presenting" aria-live="polite">
+        {mode !== "quiz" && !isClassroomPoster && <aside className="detail-panel">
+          <div className="lesson-navigation no-print">
+            <button type="button" onClick={() => selectKey(traversal[(selectedIndex + traversal.length - 1) % traversal.length].id)}>← Previous key</button>
+            <button type="button" onClick={() => selectKey(nextKey.id)}>Next key →</button>
+            <button type="button" aria-pressed={enlarged} onClick={() => setEnlarged(!enlarged)}>{enlarged ? "Restore board size" : "Enlarge lesson"}</button>
+          </div>
+          {presenting && <div className="lesson-buttons" role="group" aria-label="Scale type">
+            <button type="button" aria-pressed={scaleMode === "major"} onClick={() => setScaleMode("major")}>Major</button>
+            <button type="button" aria-pressed={scaleMode === "minor"} onClick={() => setScaleMode("minor")}>Natural minor</button>
+          </div>}
           <p className="eyebrow">Selected key</p>
-          <div className="detail-key-heading">
+          <div className="detail-key-heading" aria-live="polite">
             <h2>{selectedScale.label}</h2>
             {layers.includes("numbers") && <AccidentalCount type={selected.type} count={selected.count} />}
           </div>
           {layers.includes("signatures") && <KeySignature type={selected.type} count={selected.count} />}
+          {layers.includes("keyboards") && (
+            <PlayableScale key={`${selected.spellingId}:${nextKey.spellingId}:${scaleMode}:${instrument}`} musicKey={selected} nextKey={nextKey} scaleMode={scaleMode} instrument={instrument} markedDegrees={markedDegrees} />
+          )}
+          {markedDegrees.length > 0 && layers.includes("keyboards") && <p className="role-summary">Numbered marks: {markedDegrees.map(degree => `${degree} ${degreeName(degree)}`).join(" · ")}</p>}
           <dl>
             <div>
               <dt>Signature</dt>
@@ -685,15 +714,7 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
             {" "}Their home notes are {selected.label} and {selected.relativeMinor.replace(/ minor$/, "")}.
             {scaleMode === "minor" && " This is the natural minor scale; its tonic is the major scale’s sixth degree."}
           </p>
-          {layers.includes("keyboards") && (
-            <section className="scale-detail" aria-label="Selected scale keyboard">
-              <h3>{selectedScale.label} scale</h3>
-              <p className="keyboard-guide">About 1½ octaves of {instrument === "piano" ? "keys" : "bars"} · one octave highlighted</p>
-              <ScaleKeyboard musicKey={selected} scaleMode={scaleMode} instrument={instrument} markedDegrees={markedDegrees} />
-              <p className="keyboard-guide">Green = scale note · dark outline = tonic</p>
-              {markedDegrees.length > 0 && <p className="role-summary">Numbered marks: {markedDegrees.map(degree => `${degree} ${degreeName(degree)}`).join(" · ")}</p>}
-            </section>
-          )}
+          <KeyComparison key={`${selected.spellingId}:${nextKey.spellingId}`} musicKey={selected} nextKey={nextKey} instrument={instrument} showSignatures={layers.includes("signatures")} onExplore={(id) => { setScaleMode("major"); selectKey(id); }} />
           <p className="teacher-tip">
             {mode === "build"
               ? "Select a position to reveal or explore its key. Use Hide selected to cover it again."

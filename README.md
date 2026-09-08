@@ -89,3 +89,17 @@ This emits matching SVGs and single-page, lossless 300-dpi RGB PDFs under
 `public/posters/`. The PDFs are deliberately flattened for reliable printing;
 the SVGs retain scalable text and bar shapes. The geometry checks cover every
 card pair and its clearance from the masthead and footer in each paper size.
+
+## Interactive lesson tools
+
+Focus keeps all key names readable. Enlarge lesson expands the selected scale;
+Present retains next/previous key, major/minor, and playback controls. Arrow
+keys navigate circle positions, and Enter or Space plays a focused bar.
+
+The relationship panel compares neighboring signatures, relative natural minor,
+and all three enharmonic pairs. Its optional keyboard holds two octaves fixed
+while highlighting one scale octave. Brief tonic and changing-note exercises
+provide immediate feedback without accounts or score storage. Audio is quiet
+synthesized teaching sound and stops when the scale changes or tab is hidden.
+
+Teacher materials: [Drive folder](https://drive.google.com/drive/folders/1Fod9w8ojRG8nyVddaVPrkYQFvYkVzpWW).

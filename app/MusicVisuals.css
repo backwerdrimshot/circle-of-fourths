@@ -90,3 +90,13 @@
     -webkit-print-color-adjust: exact;
   }
 }
+
+.musical-signature-svg .music-notation-glyph.is-changed { fill: #165b8c; }
+.music-keyboard-svg .music-tone-bar.is-changed { stroke: #165b8c; stroke-width: 3; }
+.music-keyboard-svg .music-tone-bar.is-playing { fill: #995612; stroke: #171717; stroke-width: 2.5; }
+.music-keyboard-svg.is-playable g[role="button"] { cursor: pointer; }
+.music-keyboard-svg.is-playable g[role="button"]:focus { outline: none; }
+.music-keyboard-svg.is-playable g[role="button"]:focus-visible > rect { stroke: #165b8c; stroke-width: 3; }
+.music-keyboard-svg.is-playable g[role="button"]:hover > rect { stroke-width: 2.5; }
+
+.music-keyboard-svg.is-piano .music-tone-bar.is-playing { fill: #f2bc55; stroke: #744400; stroke-width: 2.5; }
