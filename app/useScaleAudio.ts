@@ -31,6 +31,8 @@ export function useScaleAudio(identity: string, instrument: "xylophone" | "piano
     const request = generation.current;
     setError("");
     try {
+      // iOS: let Web Audio play with the ring/silent switch on (Safari 16.4+; ignored elsewhere).
+      try { (navigator as Navigator & { audioSession?: { type: string } }).audioSession!.type = "playback"; } catch { /* not supported */ }
       if (!context.current) context.current = new AudioContext();
       const audio = context.current;
       await audio.resume();
