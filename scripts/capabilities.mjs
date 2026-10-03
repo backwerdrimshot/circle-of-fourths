@@ -1,15 +1,15 @@
 /* What Circle of Fourths publishes about itself, derived rather than typed.
 
-   THIS ADDS NO PLACE TO EDIT. The version already lives in package.json, and
+   THIS ADDS NO PLACE TO EDIT. The build already lives in lib/build.mjs, and
    nothing else in this repository states it — the app renders no build stamp,
-   so package.json is the single source rather than one of several. A committed
+   so lib/build.mjs is the single source rather than one of several. A committed
    capabilities.json would have made it two, which is the exact shape of the
    problem this file exists to solve: on 2026-09-04 four guide build stamps
    across the shop were found naming builds their apps had moved past, every
    one a hand-kept copy of somebody else's value.
 
-   If this app ever renders its version to the user, that renderer must read
-   package.json too. A second literal is how the drift starts.
+   If this app ever renders its build to the user, that renderer must read
+   lib/build.mjs too. A second literal is how the drift starts.
 
    WHY IT IS WRITTEN INTO public/ RATHER THAN dist/client. This app is deployed
    by the Cloudflare Workers Git integration, configured in the dashboard
@@ -25,29 +25,28 @@
    `v0.15.0` and nothing outside this repository could check that. An
    unverifiable stamp can be wrong for as long as nobody looks by hand, which
    is how Drum Map's was eventually found. */
-import { readFile, writeFile } from "node:fs/promises";
+import { writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { BUILD } from "../lib/build.mjs";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 
-/** The version this app ships, read from the one place that states it. */
+/** The build this app ships, read from the one place that states it. */
 export async function version() {
-  const pkg = JSON.parse(await readFile(join(root, "package.json"), "utf8"));
-  if (!pkg.version) throw new Error("package.json has no version");
-  return pkg.version;
+  if (!/^\d{4}-\d{2}-\d{2}(\.\d+)?$/.test(BUILD)) throw new Error(`lib/build.mjs BUILD is not a date build: ${BUILD}`);
+  return BUILD;
 }
 
-/** Identity, version, and where to reach the app and its guide — no more.
+/** Identity, build, and where to reach the app and its guide — no more.
  *
  * Some siblings' manifests also carry a `privacy` block. This one does not:
  * those fields are a CLAIM, and publishing one that has not been checked
  * against what the app actually does is worse than leaving it out.
  *
- * The guide records this build as `v0.15.0`, with a leading v. The site's
- * comparison strips a leading v from either side, so `0.15.0` here matches.
- * Do not add a v to make them look alike — package.json is the source, and
- * decorating a copy of it is the habit this file is against. */
+ * The guide records this build as a date, exactly as published here. Do not
+ * decorate a copy of it to make two places look alike — lib/build.mjs is the
+ * source, and decorating a copy is the habit this file is against. */
 export const capabilities = (v) => ({
   schemaVersion: "praxis-capabilities/v1",
   app: "circle-of-fourths",

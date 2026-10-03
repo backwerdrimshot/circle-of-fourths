@@ -14,15 +14,16 @@ import { readFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { capabilities, version } from "../scripts/capabilities.mjs";
+import { BUILD } from "../lib/build.mjs";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const read = async (f) => JSON.parse(await readFile(join(root, f), "utf8"));
 
-test("the built manifest carries the version package.json states", async () => {
+test("the built manifest carries the build lib/build.mjs states, as an ISO date", async () => {
   const built = await read("public/capabilities.json");
-  const pkg = await read("package.json");
-  assert.equal(built.version, pkg.version);
+  assert.equal(built.version, BUILD);
   assert.equal(built.version, await version());
+  assert.match(built.version, /^\d{4}-\d{2}-\d{2}(\.\d+)?$/);
 });
 
 test("the manifest has the shape the shop's audit reads", async () => {
