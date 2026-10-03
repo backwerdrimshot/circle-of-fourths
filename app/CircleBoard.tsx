@@ -134,6 +134,9 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
   const [posterSize, setPosterSize] = useState<PosterSize>(initialState.posterSize);
   const [presenting, setPresenting] = useState(initialState.presenting);
   const [showLayerPanel, setShowLayerPanel] = useState(false);
+  // On a phone only the two things you change most (Direction, Teach) show up front; the rest of
+  // the toolbar and the header's share/print buttons sit behind "More". Wider screens show all.
+  const [moreOpen, setMoreOpen] = useState(false);
   const [selectedId, setSelectedId] = useState(initialState.selectedId);
   const [scaleMode, setScaleMode] = useState(initialState.scaleMode);
   const [spellings, setSpellings] = useState(initialState.spellings);
@@ -313,7 +316,7 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
   }
 
   return (
-    <main className={`app-shell ${presenting ? "is-presenting" : ""} ${isClassroomPoster ? `poster-size-${posterSize}` : ""}`}>
+    <main data-more={moreOpen} className={`app-shell ${presenting ? "is-presenting" : ""} ${isClassroomPoster ? `poster-size-${posterSize}` : ""}`}>
       {isClassroomPoster && (
         <style>{`@media print { @page { size: ${POSTER_SIZES[posterSize].pageSize}; margin: 0.35in; } }`}</style>
       )}
@@ -407,6 +410,14 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
           <button type="button" onClick={resetToOpenedLink}>Reset link</button>
           <button type="button" className="reset-button" onClick={resetBoard}>Start fresh</button>
         </div>
+        <button
+          type="button"
+          className="more-toggle"
+          aria-expanded={moreOpen}
+          onClick={() => setMoreOpen((open) => !open)}
+        >
+          {moreOpen ? "Fewer options" : "More options"}
+        </button>
       </section>}
 
       {isClassroomPoster && !presenting && (

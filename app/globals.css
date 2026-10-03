@@ -2245,3 +2245,16 @@ html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
   select,
   textarea { font-size: max(16px, 1em) !important; }
 }
+
+/* Phone: Direction and Teach first, everything else behind "More options", so the circle is not
+   pushed two screens down. Wider screens show every control and hide the toggle. */
+.more-toggle { display: none; }
+@media (max-width: 700px) {
+  .topbar .eyebrow, .topbar .subtitle { display: none; }
+  .topbar h1 { font-size: clamp(1.7rem, 8vw, 2.2rem); }
+  .more-toggle { display: block; width: 100%; min-height: 44px; }
+  .app-shell[data-more="false"] .header-actions,
+  .app-shell[data-more="false"] .toolbar .board-tools,
+  .app-shell[data-more="false"] .toolbar .reset-actions { display: none; }
+}
+
