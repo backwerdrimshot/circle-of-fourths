@@ -2267,11 +2267,19 @@ html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
 }
 @media print { .device-tip { display: none !important; } }
 
-/* Backwerd Rhythm Shop monogram: the way back to the shop from anywhere in the app. */
-.topbar-brand { display: flex; align-items: flex-start; min-width: 0; }
-.brs-home { display: inline-flex; flex: none; align-items: center; justify-content: center; margin-right: 12px; border-radius: 50%; }
-.brs-home img { display: block; width: 34px; height: 34px; border-radius: 50%; box-shadow: 0 0 0 1px var(--line); }
+/* Backwerd Rhythm Shop monogram: the way back to the shop, last item at the top right. */
+.topbar { position: relative; gap: 12px; }
+.topbar > :first-child { margin-right: auto; padding-right: 1.25rem; }
+.topbar .header-actions { flex-wrap: wrap; justify-content: flex-end; }
+.topbar .header-actions button { white-space: nowrap; }
+.brs-home { display: inline-flex; flex: none; align-items: center; justify-content: center; border-radius: 50%; }
+.brs-home img { display: block; width: 28px; height: 28px; border-radius: 50%; box-shadow: 0 0 0 1px var(--line); }
 .brs-home:focus-visible { outline: 3px solid var(--brick-deep); outline-offset: 3px; }
-@media (pointer: coarse) { .brs-home { padding: 5px; margin: -5px 7px -5px -5px; } }
+@media (pointer: coarse) { .brs-home { padding: 8px; margin: -8px; } }
+@media (max-width: 620px) {
+  .topbar { display: block; }
+  .topbar > :first-child { padding-right: 40px; }
+  .brs-home { position: absolute; top: 0; right: 0; }
+}
 @media print { .brs-home { display: none; } }
 .is-presenting .brs-home { display: none; }
