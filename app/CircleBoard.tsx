@@ -348,16 +348,10 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
         </button>
       )}
       <header className="topbar hide-when-presenting no-print">
-        <div className="topbar-brand">
-          <a className="brs-home" href="https://backwerdrhythmshop.com/" aria-label="Backwerd Rhythm Shop home">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/brs-monogram.svg" alt="" width="34" height="34" />
-          </a>
-          <div>
-            <p className="eyebrow">Backwerd Rhythm Shop · classroom prototype</p>
-            <h1>Circle of Fourths</h1>
-            <p className="subtitle">Start with one key. Build the relationship.</p>
-          </div>
+        <div>
+          <p className="eyebrow">Backwerd Rhythm Shop · classroom prototype</p>
+          <h1>Circle of Fourths</h1>
+          <p className="subtitle">Start with one key. Build the relationship.</p>
         </div>
         <div className="header-actions no-print">
           <button type="button" className="quiet-button poster-preset-button" onClick={loadClassroomPoster}>
@@ -372,6 +366,10 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
             </button>
           )}
         </div>
+        <a className="brs-home" href="https://backwerdrhythmshop.com/" aria-label="Backwerd Rhythm Shop home">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/brs-monogram.svg" alt="" width="28" height="28" />
+        </a>
       </header>
 
       {!isClassroomPoster && <section className="toolbar no-print hide-when-presenting" aria-label="Board controls">
