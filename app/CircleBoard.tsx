@@ -137,6 +137,14 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
   // On a phone only the two things you change most (Direction, Teach) show up front; the rest of
   // the toolbar and the header's share/print buttons sit behind "More". Wider screens show all.
   const [moreOpen, setMoreOpen] = useState(false);
+  const [deviceTipDismissed, setDeviceTipDismissed] = useState(true);
+  useEffect(() => {
+    let seen = false;
+    try { seen = window.localStorage.getItem("circle-of-fourths-device-tip") === "1"; } catch { /* storage blocked: show the tip */ }
+    // Reading localStorage needs the browser, so the tip stays hidden until after hydration.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setDeviceTipDismissed(seen);
+  }, []);
   const [selectedId, setSelectedId] = useState(initialState.selectedId);
   const [scaleMode, setScaleMode] = useState(initialState.scaleMode);
   const [spellings, setSpellings] = useState(initialState.spellings);
@@ -319,6 +327,20 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
     <main data-more={moreOpen} className={`app-shell ${presenting ? "is-presenting" : ""} ${isClassroomPoster ? `poster-size-${posterSize}` : ""}`}>
       {isClassroomPoster && (
         <style>{`@media print { @page { size: ${POSTER_SIZES[posterSize].pageSize}; margin: 0.35in; } }`}</style>
+      )}
+      {!deviceTipDismissed && !presenting && (
+        <div className="device-tip no-print" role="note">
+          <span>Circle of Fourths works best on a tablet or computer.</span>
+          <button
+            type="button"
+            onClick={() => {
+              setDeviceTipDismissed(true);
+              try { window.localStorage.setItem("circle-of-fourths-device-tip", "1"); } catch { /* remembered for this visit only */ }
+            }}
+          >
+            Got it
+          </button>
+        </div>
       )}
       {presenting && (
         <button type="button" className="exit-presentation no-print" onClick={() => setPresenting(false)}>
