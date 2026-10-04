@@ -103,3 +103,7 @@ provide immediate feedback without accounts or score storage. Audio is quiet
 synthesized teaching sound and stops when the scale changes or tab is hidden.
 
 Teacher materials: [Drive folder](https://drive.google.com/drive/folders/1Fod9w8ojRG8nyVddaVPrkYQFvYkVzpWW).
+
+## Compact practice workspace
+
+The laptop view keeps the main instrument or exercise and its practice controls together. Help contains the instructions and About contains the app, support, and build information. Long reference material and exercise grids scroll inside their own panels; narrow and zoomed windows retain normal page scrolling.

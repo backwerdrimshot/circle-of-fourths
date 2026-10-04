@@ -1,4 +1,5 @@
 "use client";
+import { WorkspaceActions } from "./WorkspaceInfo";
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { getTeachingTraversal, getScaleOctave } from "@/lib/music-model.mjs";
@@ -383,7 +384,8 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
             {shareStatus}
           </button>
         </div>}
-        <a className="brs-home" href="https://backwerdrhythmshop.com/" aria-label="Backwerd Rhythm Shop home">
+        <WorkspaceActions />
+          <a className="brs-home" href="https://backwerdrhythmshop.com/" aria-label="Backwerd Rhythm Shop home">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/brs-monogram.svg" alt="" width="28" height="28" />
         </a>
@@ -767,6 +769,7 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
             <PlayableScale key={`${selected.spellingId}:${nextKey.spellingId}:${scaleMode}:${instrument}`} musicKey={selected} nextKey={nextKey} scaleMode={scaleMode} instrument={instrument} markedDegrees={markedDegrees} bpm={bpm} onBpmChange={setBpm} dockEl={presenting ? null : dockEl} settingsEl={presenting ? null : soundSlotEl} />
           )}
           {markedDegrees.length > 0 && layers.includes("keyboards") && <p className="role-summary">Numbered marks: {markedDegrees.map(degree => `${degree} ${degreeName(degree)}`).join(" · ")}</p>}
+          <details className="key-context"><summary>Key relationships & teaching notes</summary>
           <dl>
             <div>
               <dt>Signature</dt>
@@ -794,6 +797,7 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
                 ? "Select a key to emphasize its immediate fourths and fifths relationships."
                 : "Poster mode keeps the complete reference visible."}
           </p>
+          </details>
         </aside>}
       </section>
 
