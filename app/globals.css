@@ -2246,19 +2246,6 @@ html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
   textarea { font-size: max(16px, 1em) !important; }
 }
 
-/* Phone: Direction and Teach first, everything else behind "More options", so the circle is not
-   pushed two screens down. Wider screens show every control and hide the toggle. */
-.more-toggle { display: none; }
-@media (max-width: 700px) {
-  .topbar .eyebrow, .topbar .subtitle { display: none; }
-  .topbar h1 { font-size: clamp(1.7rem, 8vw, 2.2rem); }
-  .more-toggle { display: block; width: 100%; min-height: 44px; }
-  .app-shell[data-more="false"] .header-actions,
-  .app-shell[data-more="false"] .toolbar .board-tools,
-  .app-shell[data-more="false"] .toolbar .reset-actions { display: none; }
-}
-
-
 /* Phone-only courtesy note: shown on narrow screens, dismissal remembered per device. */
 .device-tip { display: none; }
 @media (max-width: 700px) {
@@ -2283,3 +2270,115 @@ html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
 }
 @media print { .brs-home { display: none; } }
 .is-presenting .brs-home { display: none; }
+
+
+/* ---- All widths: the working area is on the first screen --------------------------------------
+   HEIGHT is the constraint, not width. Every setting (direction, teach mode, layers, quiz builder,
+   sound, share/print) sits behind one summary toggle that opens a panel floating OVER the page.
+   The first screen is: slim header, the circle board with the selected-key panel, the summary row,
+   and the docked playback bar. Presentation mode keeps its own layout; print never sees any of it. */
+.sr-only-legend { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.control-strip { width: min(1440px, 100%); margin: 0 auto 0.5rem; display: flex; align-items: center; gap: 0.5rem 0.75rem; flex-wrap: wrap; position: relative; }
+.control-strip .toolbar { position: relative; flex: none; width: auto; margin: 0; padding: 0; border: 0; background: none; box-shadow: none; }
+.summary-toggle { display: inline-flex; align-items: center; gap: 0.6rem; min-height: 44px; padding: 0.35rem 0.95rem; border: 1px solid var(--line); border-radius: 999px; background: var(--panel); color: var(--ink); font-size: 0.9rem; font-weight: 800; cursor: pointer; }
+.toolbar .summary-toggle { min-height: 44px; padding: 0.35rem 0.95rem; }
+.summary-toggle[aria-expanded="true"] { border-color: var(--brick-deep); box-shadow: 0 0 0 2px rgba(109, 45, 45, 0.15); }
+.summary-text { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; color: var(--muted); font-size: 0.82rem; font-weight: 650; }
+.summary-chevron { font-size: 0.8rem; }
+.settings-panel { position: absolute; z-index: 40; top: calc(100% + 6px); left: 0; width: min(940px, calc(100vw - 2rem)); max-height: min(72dvh, 680px); overflow-y: auto; display: flex; flex-wrap: wrap; align-items: flex-start; gap: 0.7rem; padding: 0.9rem; border: 1px solid var(--line); border-radius: 1rem; background: var(--panel); box-shadow: 0 22px 60px rgba(73, 53, 39, 0.28); }
+.settings-panel[hidden] { display: none; }
+.settings-panel .control-group:last-of-type { border-right: 0; }
+.settings-panel .sound-slot-group { flex: 1 1 100%; border-right: 0; padding-right: 0; }
+.settings-panel .sound-slot-group:has(.sound-slot:empty) { display: none; }
+.settings-panel .sound-slot { width: 100%; }
+.settings-panel .sound-settings { margin-top: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+.settings-panel .layer-panel, .settings-panel .quiz-builder { flex: 1 1 100%; width: auto; margin: 0; box-shadow: none; }
+.control-strip .present-button { margin-left: auto; min-height: 44px; border: 1px solid var(--line); border-radius: 999px; background: var(--panel); color: var(--ink); padding: 0.35rem 1.1rem; font-size: 0.86rem; font-weight: 800; cursor: pointer; }
+.control-strip .relationship-controls { flex: 1 1 0; min-width: 0; margin: 0; padding: 0; border: 0; background: none; box-shadow: none; gap: 0.35rem 0.9rem; }
+.control-strip .relationship-controls fieldset { display: flex; align-items: center; flex-wrap: wrap; gap: 0.35rem; }
+.control-strip .relationship-controls legend { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.control-strip .relationship-controls button { margin: 0; padding: 0.35rem 0.8rem; }
+.control-strip .relationship-controls .enharmonic-control > span { display: none; }
+.control-strip .relationship-controls > p { margin: 0 0 0 auto; font-size: 0.9rem; }
+.control-strip .relationship-controls > p span, .control-strip .relationship-controls > p br { display: none; }
+.dock-bar { display: none; }
+.is-presenting .control-strip, .is-presenting .dock-bar { display: none; }
+
+@media screen {
+  .dock-bar { position: sticky; bottom: 0; z-index: 20; width: min(1440px, 100%); margin: 0.6rem auto 0; padding: 0.5rem 0.75rem calc(0.5rem + env(safe-area-inset-bottom)); border: 1px solid var(--line); border-bottom: 0; border-radius: 1rem 1rem 0 0; background: var(--panel); box-shadow: 0 -10px 28px rgba(73, 53, 39, 0.14); }
+  .dock-bar:not(:empty) { display: flex; align-items: center; justify-content: center; gap: 0.5rem 1rem; }
+  .dock-bar .transport-buttons { flex-wrap: wrap; align-items: center; justify-content: center; gap: 0.5rem; }
+  .dock-bar .transport-buttons > button { min-height: 44px; }
+  .dock-bar .play-primary { background: var(--teal-dark); border-color: var(--teal-dark); color: white; padding-inline: 1.2rem; }
+  .tempo-stepper { display: inline-flex; align-items: center; gap: 0.25rem; margin-left: 0.75rem; padding-left: 0.9rem; border-left: 1px solid var(--line); }
+  .tempo-stepper output { min-width: 4.6rem; text-align: center; font-weight: 800; font-size: 0.85rem; }
+  .tempo-stepper button { min-width: 44px; padding-inline: 0.5rem; font-size: 1.15rem; line-height: 1; }
+  .app-shell:not(.is-presenting) { padding-bottom: 0; }
+  .app-shell:not(.is-presenting) footer { padding-bottom: 0.9rem; }
+}
+
+@media screen and (min-width: 621px) {
+  .app-shell:not(.is-presenting) { padding-top: 0.5rem; }
+  .topbar { align-items: center; margin-bottom: 0.4rem; }
+  .topbar-title { display: flex; align-items: baseline; flex-wrap: wrap; gap: 0 1rem; }
+  .topbar .eyebrow { display: none; }
+  .topbar h1 { font-size: clamp(1.5rem, 2.2vw, 2rem); margin: 0; }
+  .topbar .subtitle { margin: 0; font-size: 0.9rem; }
+  .topbar > :first-child { padding-right: 0; }
+}
+
+/* The board flexes to the height that is left: circle width follows (viewport height - chrome). */
+@media screen and (min-width: 701px) {
+  .app-shell:not(.is-presenting) { --stage-h: calc(100dvh - 218px); }
+  .app-shell:not(.is-presenting) .board-layout { margin-top: 0; gap: 0.9rem; }
+  .app-shell:not(.is-presenting) .lesson-board { padding: 0.5rem 0.75rem 0.75rem; border-radius: 1.1rem; }
+  .app-shell:not(.is-presenting) .board-frame-header { padding: 0 0.35rem 0.35rem; }
+  .app-shell:not(.is-presenting) .board-frame-header strong { font-size: 1.1rem; }
+  .app-shell:not(.is-presenting) .circle-stage,
+  .app-shell:not(.is-presenting) .circle-stage.has-keyboards { width: min(100%, calc(var(--stage-h) * 1.53)); margin-top: 0.3rem; }
+  .app-shell:not(.is-presenting) .is-quiz-layout .circle-stage { width: min(100%, calc(var(--stage-h) * 1.53)); }
+  .app-shell:not(.is-presenting) .worksheet-meta { margin-block: 0.3rem; padding-block: 0.3rem; }
+  .app-shell:not(.is-presenting) .worksheet-meta p { display: none; }
+  .app-shell:not(.is-presenting) .detail-panel { padding: 0.8rem 1rem; border-radius: 1.1rem; }
+  .app-shell:not(.is-presenting) .detail-panel > .eyebrow { display: none; }
+  .app-shell:not(.is-presenting) .lesson-navigation { margin-bottom: 0.5rem; }
+  .app-shell:not(.is-presenting) .detail-panel h2 { font-size: 1.7rem; }
+  .app-shell:not(.is-presenting) .scale-detail { margin-top: 0.4rem; }
+  .app-shell:not(.is-presenting) .scale-detail > h3 { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; margin: 0; }
+  .app-shell:not(.is-presenting) .keyboard-guide { margin: 0.25rem 0; font-size: 0.74rem; }
+}
+@media screen and (min-width: 1051px) {
+  .app-shell:not(.is-presenting) .lesson-board { top: 0.5rem; }
+  .app-shell:not(.is-presenting) .board-layout:not(.is-classroom-poster-layout):not(.is-quiz-layout):not(.is-enlarged-lesson) { grid-template-columns: minmax(0, 1fr) minmax(380px, 34%); }
+}
+/* Tablet portrait / narrow: circle above, key panel below; share the height roughly half and half. */
+@media screen and (min-width: 701px) and (max-width: 1050px) {
+  .app-shell:not(.is-presenting) { --stage-h: calc((100dvh - 218px) * 0.56); }
+  .control-strip .relationship-controls > p { display: none; }
+  /* Key panel under the board: nav, heading and signature on the left, the keyboard beside them. */
+  .app-shell:not(.is-presenting) .board-layout:not(.is-classroom-poster-layout):not(.is-quiz-layout) .detail-panel { display: grid; grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr); grid-auto-rows: min-content; column-gap: 1.25rem; align-items: start; }
+  .app-shell:not(.is-presenting) .detail-panel > * { grid-column: 1 / -1; }
+  .app-shell:not(.is-presenting) .detail-panel > .lesson-navigation,
+  .app-shell:not(.is-presenting) .detail-panel > .detail-key-heading,
+  .app-shell:not(.is-presenting) .detail-panel > .musical-signature-svg { grid-column: 1; }
+  .app-shell:not(.is-presenting) .detail-panel > .scale-detail { grid-column: 2; grid-row: 1 / span 12; margin-top: 0; }
+}
+@media screen and (max-width: 700px) {
+  .topbar .eyebrow, .topbar .subtitle { display: none; }
+  .topbar h1 { font-size: clamp(1.7rem, 8vw, 2.2rem); }
+  .control-strip { gap: 0.4rem; }
+  .control-strip .toolbar { flex: 1 1 100%; }
+  .summary-toggle { width: 100%; justify-content: space-between; }
+  .control-strip .relationship-controls { flex-wrap: nowrap; }
+  .control-strip .relationship-controls fieldset { flex-wrap: nowrap; }
+  .control-strip .relationship-controls button { padding: 0.35rem 0.6rem; font-size: 0.78rem; }
+  .control-strip .present-button { padding-inline: 0.8rem; }
+  .summary-text { font-size: 0.78rem; }
+  .control-strip .relationship-controls > p { display: none; }
+  .dock-bar .transport-buttons > button { padding-inline: 0.6rem; font-size: 0.8rem; }
+  .tempo-stepper { margin-left: 0; padding-left: 0; border-left: 0; }
+  .settings-panel { width: calc(100vw - 2rem); }
+}
+@media print {
+  .control-strip, .dock-bar { display: none !important; }
+}

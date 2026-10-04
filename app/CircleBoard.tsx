@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { getTeachingTraversal, getScaleOctave } from "@/lib/music-model.mjs";
 import { KeySignature, ScaleKeyboard } from "./MusicVisuals";
 import { KeyComparison, PlayableScale } from "./LessonTools";
@@ -134,9 +134,33 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
   const [posterSize, setPosterSize] = useState<PosterSize>(initialState.posterSize);
   const [presenting, setPresenting] = useState(initialState.presenting);
   const [showLayerPanel, setShowLayerPanel] = useState(false);
-  // On a phone only the two things you change most (Direction, Teach) show up front; the rest of
-  // the toolbar and the header's share/print buttons sit behind "More". Wider screens show all.
+  // Every setting (direction, teach mode, layers, quiz builder, sound, share/print) sits behind one
+  // summary toggle that opens a panel floating over the page, so the board gets the first screen.
   const [moreOpen, setMoreOpen] = useState(false);
+  const settingsRef = useRef<HTMLElement>(null);
+  const settingsToggleRef = useRef<HTMLButtonElement>(null);
+  // The docked play bar and the Settings panel's sound slot are real elements the selected-key
+  // lesson draws into (see PlayableScale), so keep them in state to re-render once they mount.
+  const [dockEl, setDockEl] = useState<HTMLElement | null>(null);
+  const [soundSlotEl, setSoundSlotEl] = useState<HTMLElement | null>(null);
+  const [bpm, setBpm] = useState(90);
+  useEffect(() => {
+    if (!moreOpen) return;
+    function onKey(event: KeyboardEvent) {
+      if (event.key !== "Escape") return;
+      setMoreOpen(false);
+      settingsToggleRef.current?.focus();
+    }
+    function onPointer(event: PointerEvent) {
+      if (settingsRef.current && event.target instanceof Node && !settingsRef.current.contains(event.target)) setMoreOpen(false);
+    }
+    document.addEventListener("keydown", onKey);
+    document.addEventListener("pointerdown", onPointer);
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.removeEventListener("pointerdown", onPointer);
+    };
+  }, [moreOpen]);
   const [deviceTipDismissed, setDeviceTipDismissed] = useState(true);
   useEffect(() => {
     let seen = false;
@@ -348,31 +372,37 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
         </button>
       )}
       <header className="topbar hide-when-presenting no-print">
-        <div>
+        <div className="topbar-title">
           <p className="eyebrow">Backwerd Rhythm Shop · classroom prototype</p>
           <h1>Circle of Fourths</h1>
           <p className="subtitle">Start with one key. Build the relationship.</p>
         </div>
-        <div className="header-actions no-print">
-          <button type="button" className="quiet-button poster-preset-button" onClick={loadClassroomPoster}>
-            Standard poster
-          </button>
+        {isClassroomPoster && <div className="header-actions no-print">
           <button type="button" className="quiet-button" onClick={copyLink}>
             {shareStatus}
           </button>
-          {!isClassroomPoster && (
-            <button type="button" className="quiet-button" onClick={() => window.print()}>
-              Print current board
-            </button>
-          )}
-        </div>
+        </div>}
         <a className="brs-home" href="https://backwerdrhythmshop.com/" aria-label="Backwerd Rhythm Shop home">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/brs-monogram.svg" alt="" width="28" height="28" />
         </a>
       </header>
 
-      {!isClassroomPoster && <section className="toolbar no-print hide-when-presenting" aria-label="Board controls">
+      {!isClassroomPoster && <div className="control-strip no-print hide-when-presenting">
+      <section className="toolbar settings-bar" aria-label="Board controls" ref={settingsRef}>
+        <button
+          ref={settingsToggleRef}
+          type="button"
+          className="summary-toggle"
+          aria-expanded={moreOpen}
+          aria-controls="board-settings"
+          onClick={() => setMoreOpen((open) => !open)}
+        >
+          <span className="summary-label">{moreOpen ? "Close" : "Settings"}</span>
+          <span className="summary-text">{orientation === "fourths" ? "Fourths" : "Fifths"} · {mode === "build" ? "Build" : mode === "focus" ? "Focus" : "Quiz"}{mode === "quiz" ? "" : ` · ${layers.length} layer${layers.length === 1 ? "" : "s"}`}</span>
+          <span className="summary-chevron" aria-hidden="true">{moreOpen ? "▴" : "▾"}</span>
+        </button>
+        <div id="board-settings" className="settings-panel" hidden={!moreOpen}>
         <div className="control-group compact-group" aria-label="Direction">
           <span className="control-label">Direction</span>
           <button
@@ -430,49 +460,18 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
               Layers <span>{layers.length}</span>
             </button>
           )}
-          <button type="button" className="present-button" onClick={() => setPresenting(true)}>Present</button>
         </div>
         <div className="control-group compact-group reset-actions">
           <button type="button" onClick={resetToOpenedLink}>Reset link</button>
           <button type="button" className="reset-button" onClick={resetBoard}>Start fresh</button>
         </div>
-        <button
-          type="button"
-          className="more-toggle"
-          aria-expanded={moreOpen}
-          onClick={() => setMoreOpen((open) => !open)}
-        >
-          {moreOpen ? "Fewer options" : "More options"}
-        </button>
-      </section>}
-
-      {isClassroomPoster && !presenting && (
-        <section className="poster-ready-panel no-print" aria-label="Classroom poster ready">
-          <div>
-            <strong>Standard classroom poster</strong>
-            <span>Choose a size and download the finished PDF. No browser print settings required.</span>
-            <a className="poster-full-size" href={POSTER_SIZES[posterSize].download.replace(/\.pdf$/, ".svg")} target="_blank" rel="noreferrer">Open full-size preview</a>
-          </div>
-          <fieldset className="poster-size-picker" aria-label="Poster paper size">
-            <legend>Poster size</legend>
-            {(Object.keys(POSTER_SIZES) as PosterSize[]).map((size) => (
-              <button key={size} type="button" aria-pressed={posterSize === size} onClick={() => setPosterSize(size)}>
-                <strong>{POSTER_SIZES[size].label}</strong>
-                <span>{POSTER_SIZES[size].detail}</span>
-              </button>
-            ))}
-          </fieldset>
-          <a
-            className="poster-download"
-            href={POSTER_SIZES[posterSize].download}
-            download={POSTER_SIZES[posterSize].filename}
-          >
-            Download {POSTER_SIZES[posterSize].label} PDF
-          </a>
-          <button type="button" className="poster-return" onClick={returnToTeachingBoard}>{returnState ? "Return to teaching board" : "Open teaching board"}</button>
-        </section>
-      )}
-
+        <div className="control-group compact-group share-actions" aria-label="Share and print">
+          <button type="button" onClick={copyLink}>{shareStatus}</button>
+          <button type="button" onClick={() => window.print()}>Print current board</button>
+        </div>
+        <div className="control-group compact-group sound-slot-group" aria-label="Sound">
+          <div className="sound-slot" ref={setSoundSlotEl} />
+        </div>
       {showLayerPanel && mode !== "quiz" && !presenting && (
         <section className="layer-panel no-print" aria-label="Layer and display options">
           <div>
@@ -555,6 +554,8 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
         </section>
       )}
 
+        </div>
+      </section>
       {!isClassroomPoster && mode !== "quiz" && (
         <section className="relationship-controls" aria-label="Key relationships">
           <fieldset className="scale-mode-control">
@@ -571,6 +572,36 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
             <span>Same bars · different note names</span>
           </fieldset>}
           <p>{selected.label} major · {selected.relativeMinor}<br /><span>Same signature · different tonic</span></p>
+        </section>
+      )}
+
+      <button type="button" className="present-button" onClick={() => setPresenting(true)}>Present</button>
+      </div>}
+
+      {isClassroomPoster && !presenting && (
+        <section className="poster-ready-panel no-print" aria-label="Classroom poster ready">
+          <div>
+            <strong>Standard classroom poster</strong>
+            <span>Choose a size and download the finished PDF. No browser print settings required.</span>
+            <a className="poster-full-size" href={POSTER_SIZES[posterSize].download.replace(/\.pdf$/, ".svg")} target="_blank" rel="noreferrer">Open full-size preview</a>
+          </div>
+          <fieldset className="poster-size-picker" aria-label="Poster paper size">
+            <legend>Poster size</legend>
+            {(Object.keys(POSTER_SIZES) as PosterSize[]).map((size) => (
+              <button key={size} type="button" aria-pressed={posterSize === size} onClick={() => setPosterSize(size)}>
+                <strong>{POSTER_SIZES[size].label}</strong>
+                <span>{POSTER_SIZES[size].detail}</span>
+              </button>
+            ))}
+          </fieldset>
+          <a
+            className="poster-download"
+            href={POSTER_SIZES[posterSize].download}
+            download={POSTER_SIZES[posterSize].filename}
+          >
+            Download {POSTER_SIZES[posterSize].label} PDF
+          </a>
+          <button type="button" className="poster-return" onClick={returnToTeachingBoard}>{returnState ? "Return to teaching board" : "Open teaching board"}</button>
         </section>
       )}
 
@@ -729,7 +760,7 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
           </div>
           {layers.includes("signatures") && <KeySignature type={selected.type} count={selected.count} />}
           {layers.includes("keyboards") && (
-            <PlayableScale key={`${selected.spellingId}:${nextKey.spellingId}:${scaleMode}:${instrument}`} musicKey={selected} nextKey={nextKey} scaleMode={scaleMode} instrument={instrument} markedDegrees={markedDegrees} />
+            <PlayableScale key={`${selected.spellingId}:${nextKey.spellingId}:${scaleMode}:${instrument}`} musicKey={selected} nextKey={nextKey} scaleMode={scaleMode} instrument={instrument} markedDegrees={markedDegrees} bpm={bpm} onBpmChange={setBpm} dockEl={presenting ? null : dockEl} settingsEl={presenting ? null : soundSlotEl} />
           )}
           {markedDegrees.length > 0 && layers.includes("keyboards") && <p className="role-summary">Numbered marks: {markedDegrees.map(degree => `${degree} ${degreeName(degree)}`).join(" · ")}</p>}
           <dl>
@@ -761,6 +792,8 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
           </p>
         </aside>}
       </section>
+
+      {!isClassroomPoster && mode !== "quiz" && !presenting && <div className="dock-bar no-print" ref={setDockEl} role="region" aria-label="Playback" />}
 
       <footer className="hide-when-presenting no-print">
         <span>Fourth-first for band classrooms.</span>
