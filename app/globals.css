@@ -2382,3 +2382,37 @@ html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
 @media print {
   .control-strip, .dock-bar { display: none !important; }
 }
+
+/* ---- Footer, identical to Stick Lab's (SiteFooter.tsx): centered lines, button-style links,
+   social icons, copyright, build stamp, and the support-message panel. App tokens only. ---- */
+footer.foot { display: block; text-align: center; margin-top: 1rem; color: var(--muted); font-size: 0.78rem; line-height: 1.5; }
+footer.foot .shop-link { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+footer.foot .shop-link:hover, footer.foot .shop-link:focus-visible { color: var(--ink); }
+.foot-links { display: flex; justify-content: center; gap: 10px; margin-top: 12px; flex-wrap: wrap; }
+.foot-btn { display: inline-flex; align-items: center; gap: 6px; text-decoration: none; border: 1px solid var(--line); background: var(--paper); color: var(--muted); padding: 7px 14px; border-radius: 10px; font-size: 12px; font-weight: 600; transition: 0.12s; }
+.foot-btn:hover, .foot-btn:focus-visible { border-color: var(--teal-dark); color: var(--ink); }
+.foot-btn:focus-visible { outline: 3px solid var(--brick-deep); outline-offset: 2px; }
+.foot-btn.foot-ico { padding: 8px; border-radius: 50%; gap: 0; line-height: 0; }
+.foot-btn.foot-ico svg { width: 16px; height: 16px; display: block; }
+@media (pointer: coarse) { .foot-btn { min-height: 44px; } .foot-btn.foot-ico { min-width: 44px; justify-content: center; } }
+footer.foot .foot-copy { margin-top: 12px; }
+footer.foot .build-stamp { margin-top: 8px; opacity: 0.55; font-size: 11px; }
+.support-dialog { width: min(560px, calc(100vw - 32px)); border: 1px solid var(--line); border-radius: 1rem; padding: 20px; background: var(--panel); color: var(--ink); box-shadow: var(--shadow); text-align: left; }
+.support-dialog::backdrop { background: rgba(0, 0, 0, 0.65); }
+.support-dialog h2 { margin: 0 0 8px; font-size: 1.05rem; }
+.support-dialog .support-dialog-lede, .support-dialog .support-dialog-hint { margin: 0 0 12px; color: var(--muted); font-size: 0.85rem; }
+.support-dialog .support-dialog-hint { margin: 12px 0 0; }
+.support-dialog .support-dialog-label { display: block; font-size: 0.78rem; font-weight: 700; }
+.support-dialog textarea { display: block; width: 100%; margin-top: 6px; padding: 10px; border: 1px solid var(--line); border-radius: 10px; background: var(--paper); color: var(--ink); font: inherit; font-size: 0.85rem; resize: vertical; }
+.support-dialog textarea:focus-visible { outline: 3px solid var(--brick-deep); outline-offset: 3px; }
+.support-dialog .support-dialog-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+.support-dialog .foot-btn { cursor: pointer; font-family: inherit; }
+@media print { footer.foot, .support-dialog { display: none !important; } }
+
+/* Settings panel: quiet Guide / More apps row at the bottom, so help is reachable from the first screen. */
+.panel-help-links { flex: 1 1 100%; display: flex; flex-wrap: wrap; gap: 0 1.25rem; margin-top: 0.1rem; padding-top: 0.3rem; border-top: 1px solid var(--line); }
+.panel-help-links a { display: inline-flex; align-items: center; min-height: 36px; color: var(--muted); font-size: 0.82rem; font-weight: 650; text-decoration: underline; text-underline-offset: 3px; }
+.panel-help-links a:hover { color: var(--ink); }
+.panel-help-links a:focus-visible { outline: 3px solid var(--brick-deep); outline-offset: 2px; border-radius: 4px; }
+@media (pointer: coarse) { .panel-help-links a { min-height: 44px; } }
+@media print { .panel-help-links { display: none; } }
