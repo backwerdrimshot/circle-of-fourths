@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { getTeachingTraversal, getScaleOctave } from "@/lib/music-model.mjs";
 import { KeySignature, ScaleKeyboard } from "./MusicVisuals";
+import SiteFooter from "./SiteFooter";
 import { KeyComparison, PlayableScale } from "./LessonTools";
 import { createPosterSvg, posterGeometry } from "@/lib/poster-artwork.mjs";
 
@@ -553,7 +554,10 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
           </div>
         </section>
       )}
-
+        <nav className="panel-help-links no-print" aria-label="Help and more apps">
+          <a href="https://guides.backwerdrhythmshop.com/circle-of-fourths/">Guide</a>
+          <a href="https://apps.backwerdrhythmshop.com/">More apps</a>
+        </nav>
         </div>
       </section>
       {!isClassroomPoster && mode !== "quiz" && (
@@ -795,20 +799,7 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
 
       {!isClassroomPoster && mode !== "quiz" && !presenting && <div className="dock-bar no-print" ref={setDockEl} role="region" aria-label="Playback" />}
 
-      <footer className="hide-when-presenting no-print">
-        <span>Fourth-first for band classrooms.</span>
-        <span>Flip once to see the same relationships as fifths.</span>
-        {/* The route home. Every app in this family carries these three, and the
-            site's daily link audit asserts them against the DEPLOYED page: the
-            shop, the catalog, and this app's own guide. This app shipped without
-            them, so a student who found the board had no way back to the
-            instructions for it, and the audit had been red since 2026-09-02. */}
-        <nav className="site-links" aria-label="Backwerd Rhythm Shop">
-          <a href="https://backwerdrhythmshop.com">Backwerd Rhythm Shop</a>
-          <a href="https://apps.backwerdrhythmshop.com/">All free apps</a>
-          <a href="https://guides.backwerdrhythmshop.com/circle-of-fourths/">App guide</a>
-        </nav>
-      </footer>
+      <SiteFooter />
     </main>
   );
 }
