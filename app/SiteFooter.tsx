@@ -1,4 +1,5 @@
 "use client";
+import WorkspaceInfo from "./WorkspaceInfo";
 
 import { useRef, useState } from "react";
 import { BUILD } from "@/lib/build.mjs";
@@ -57,7 +58,7 @@ export default function SiteFooter() {
   }
 
   return (
-    <footer className="foot hide-when-presenting no-print">
+    <WorkspaceInfo name="Circle of Fourths" guide="https://guides.backwerdrhythmshop.com/circle-of-fourths/"><footer className="foot hide-when-presenting no-print">
       {APP} · a free practice tool by{" "}
       <a className="shop-link" href="https://backwerdrhythmshop.com">Backwerd Rhythm Shop</a>
       <br />
@@ -90,6 +91,6 @@ export default function SiteFooter() {
         </div>
         <p className="support-dialog-hint">Nothing opens? This device has no email app set up. Use &ldquo;Copy details&rdquo; and paste into the email service you use.</p>
       </dialog>
-    </footer>
+    </footer></WorkspaceInfo>
   );
 }
