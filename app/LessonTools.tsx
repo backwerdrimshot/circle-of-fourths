@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { createPortal } from "react-dom";
 import { getScaleOctave, type TeachingKey, type ScaleMode } from "@/lib/music-model.mjs";
 import { compareKeys, notePitchClass } from "@/lib/lesson-model.mjs";
 import { KeySignature, ScaleKeyboard } from "./MusicVisuals";
@@ -56,10 +57,21 @@ export function KeyComparison({ musicKey, nextKey, instrument, onExplore, showSi
   </section>;
 }
 
-export function PlayableScale({ musicKey, nextKey, scaleMode, instrument, markedDegrees }: Omit<Props, "onExplore"> & { markedDegrees: number[] }) {
+type PlayableProps = Omit<Props, "onExplore"> & {
+  markedDegrees: number[];
+  /* The tempo lives in the board so it survives moving to the next key (this component is keyed per key). */
+  bpm: number;
+  onBpmChange: (bpm: number) => void;
+  /* When set, the transport (play/stop + tempo stepper) is drawn in the board's docked bar and the
+     tempo/volume sliders in its Settings panel; otherwise everything stays inline (presenting, SSR). */
+  dockEl?: HTMLElement | null;
+  settingsEl?: HTMLElement | null;
+};
+
+export function PlayableScale({ musicKey, nextKey, scaleMode, instrument, markedDegrees, bpm, onBpmChange, dockEl, settingsEl }: PlayableProps) {
   const scale = getScaleOctave(musicKey, scaleMode);
   const audio = useScaleAudio(`${musicKey.spellingId}:${scaleMode}:${instrument}`, instrument);
-  const [bpm, setBpm] = useState(90);
+  const setBpm = onBpmChange;
   const [exercise, setExercise] = useState<"off" | "tonic" | "change">("off");
   const [feedback, setFeedback] = useState("");
   const [solved, setSolved] = useState(false);
@@ -76,21 +88,28 @@ export function PlayableScale({ musicKey, nextKey, scaleMode, instrument, marked
     }
   }
   function setPractice(next: typeof exercise) { audio.stop(); setExercise(next); setSolved(false); setShowAnswer(false); setFeedback(""); }
+  const transport = <div className="lesson-buttons transport-buttons" role="group" aria-label="Play this scale">
+    <button type="button" className="play-primary" onClick={() => void audio.play(scale.midis, bpm)}>Play ascending</button>
+    <button type="button" onClick={() => void audio.play([...scale.midis].reverse(), bpm)}>Play descending</button>
+    <button type="button" onClick={audio.stop} disabled={!audio.playing}>Stop</button>
+    {dockEl && <div className="tempo-stepper" role="group" aria-label="Tempo">
+      <button type="button" aria-label="Slower, 5 BPM" disabled={bpm <= 40} onClick={() => { audio.stop(); setBpm(Math.max(40, bpm - 5)); }}>−</button>
+      <output aria-live="polite">{bpm} BPM</output>
+      <button type="button" aria-label="Faster, 5 BPM" disabled={bpm >= 180} onClick={() => { audio.stop(); setBpm(Math.min(180, bpm + 5)); }}>+</button>
+    </div>}
+  </div>;
+  const soundSettings = <div className="sound-settings">
+    <label>Tempo <input type="range" min="40" max="180" step="5" value={bpm} onChange={(e) => { audio.stop(); setBpm(Number(e.target.value)); }} /> <output>{bpm} BPM</output></label>
+    <label>Volume <input type="range" min="0" max="0.7" step="0.05" value={audio.volume} onChange={(e) => { audio.stop(); audio.setVolume(Number(e.target.value)); }} /> <output>{Math.round(audio.volume * 100)}%</output></label>
+  </div>;
   return <section className="scale-detail" aria-label="Selected scale keyboard">
     <h3>{scale.label} scale</h3>
     <p className="keyboard-guide">About 1½ octaves of {instrument === "piano" ? "keys" : "bars"} · one octave highlighted</p>
     <ScaleKeyboard musicKey={musicKey} scaleMode={scaleMode} instrument={instrument} markedDegrees={markedDegrees} playingMidi={audio.playingMidi} onPlay={chooseBar} concealScale={exercise === "tonic" && !solved && !showAnswer} />
     <p className="keyboard-guide">{exercise === "tonic" && !solved && !showAnswer ? "Scale markings hidden. Tap a bar to find the tonic." : "Green = scale note · dark outline = tonic"}</p>
     <div className="sound-controls no-print" aria-label="Scale playback">
-      <div className="lesson-buttons">
-        <button type="button" onClick={() => void audio.play(scale.midis, bpm)}>Play ascending</button>
-        <button type="button" onClick={() => void audio.play([...scale.midis].reverse(), bpm)}>Play descending</button>
-        <button type="button" onClick={audio.stop} disabled={!audio.playing}>Stop</button>
-      </div>
-      <div className="sound-settings">
-        <label>Tempo <input type="range" min="40" max="180" step="5" value={bpm} onChange={(e) => { audio.stop(); setBpm(Number(e.target.value)); }} /> <output>{bpm} BPM</output></label>
-        <label>Volume <input type="range" min="0" max="0.7" step="0.05" value={audio.volume} onChange={(e) => { audio.stop(); audio.setVolume(Number(e.target.value)); }} /> <output>{Math.round(audio.volume * 100)}%</output></label>
-      </div>
+      {dockEl ? createPortal(transport, dockEl) : transport}
+      {settingsEl ? createPortal(soundSettings, settingsEl) : soundSettings}
       <p className="lesson-note">Tap a bar, or Tab to a bar and press Enter. Sound uses synthesized teaching tones.</p>
       <p role="status" className="audio-status">{audio.error || (audio.playing ? "Playing" : "")}</p>
     </div>
