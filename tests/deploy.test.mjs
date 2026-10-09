@@ -50,8 +50,16 @@ test("a failed or unchecked commit cannot publish", () => {
   const deploy = read(DEPLOY);
   assert.match(
     deploy,
-    /if: github\.event_name == 'workflow_dispatch' \|\| github\.event\.workflow_run\.conclusion == 'success'/,
+    /if: >-\s+github\.event_name == 'workflow_dispatch' \|\|\s+\(github\.event\.workflow_run\.conclusion == 'success' &&/,
     "a failed or cancelled check run could publish",
+  );
+  /* Only a push to main in this repository may publish: a fork pull request
+     from a branch named main also passes the `branches` filter. */
+  assert.match(deploy, /github\.event\.workflow_run\.event == 'push'/, "a pull request's check run could publish");
+  assert.match(
+    deploy,
+    /github\.event\.workflow_run\.head_repository\.full_name == github\.repository/,
+    "a fork's check run could publish",
   );
   /* And it must deploy the commit that was checked, not whatever main became
      while the deploy was queued. */
