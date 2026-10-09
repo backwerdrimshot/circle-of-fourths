@@ -9,12 +9,9 @@
   // workers.dev subdomain, which a token scoped to this one Worker cannot read.
   "workers_dev": false,
   "preview_urls": false,
-  "routes": [
-    {
-      "pattern": "circle-of-fourths.backwerdrhythmshop.com",
-      "custom_domain": true
-    }
-  ],
+  // The custom domain circle-of-fourths.backwerdrhythmshop.com is attached in
+  // the Cloudflare dashboard, not here: declaring it makes every deploy edit
+  // the zone, which a token scoped to this one Worker is not allowed to do.
   "assets": {
     "directory": "dist/client",
     "binding": "ASSETS",
