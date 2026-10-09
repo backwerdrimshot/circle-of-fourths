@@ -4,8 +4,11 @@
   "main": "vinext/server/app-router-entry",
   "compatibility_date": "2026-08-25",
   "compatibility_flags": ["nodejs_compat"],
-  "workers_dev": true,
-  "preview_urls": true,
+  // Served only on circle-of-fourths.backwerdrhythmshop.com.
+  // Keeping workers.dev off also means a deploy never reads the account-wide
+  // workers.dev subdomain, which a token scoped to this one Worker cannot read.
+  "workers_dev": false,
+  "preview_urls": false,
   "routes": [
     {
       "pattern": "circle-of-fourths.backwerdrhythmshop.com",
