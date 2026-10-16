@@ -2397,17 +2397,7 @@ footer.foot .shop-link:hover, footer.foot .shop-link:focus-visible { color: var(
 @media (pointer: coarse) { .foot-btn { min-height: 44px; } .foot-btn.foot-ico { min-width: 44px; justify-content: center; } }
 footer.foot .foot-copy { margin-top: 12px; }
 footer.foot .build-stamp { margin-top: 8px; opacity: 0.55; font-size: 11px; }
-.support-dialog { width: min(560px, calc(100vw - 32px)); border: 1px solid var(--line); border-radius: 1rem; padding: 20px; background: var(--panel); color: var(--ink); box-shadow: var(--shadow); text-align: left; }
-.support-dialog::backdrop { background: rgba(0, 0, 0, 0.65); }
-.support-dialog h2 { margin: 0 0 8px; font-size: 1.05rem; }
-.support-dialog .support-dialog-lede, .support-dialog .support-dialog-hint { margin: 0 0 12px; color: var(--muted); font-size: 0.85rem; }
-.support-dialog .support-dialog-hint { margin: 12px 0 0; }
-.support-dialog .support-dialog-label { display: block; font-size: 0.78rem; font-weight: 700; }
-.support-dialog textarea { display: block; width: 100%; margin-top: 6px; padding: 10px; border: 1px solid var(--line); border-radius: 10px; background: var(--paper); color: var(--ink); font: inherit; font-size: 0.85rem; resize: vertical; }
-.support-dialog textarea:focus-visible { outline: 3px solid var(--brick-deep); outline-offset: 3px; }
-.support-dialog .support-dialog-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
-.support-dialog .foot-btn { cursor: pointer; font-family: inherit; }
-@media print { footer.foot, .support-dialog { display: none !important; } }
+@media print { footer.foot { display: none !important; } }
 
 /* Settings panel: quiet Guide / More apps row at the bottom, so help is reachable from the first screen. */
 .panel-help-links { flex: 1 1 100%; display: flex; flex-wrap: wrap; gap: 0 1.25rem; margin-top: 0.1rem; padding-top: 0.3rem; border-top: 1px solid var(--line); }

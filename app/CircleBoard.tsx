@@ -5,6 +5,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { getTeachingTraversal, getScaleOctave } from "@/lib/music-model.mjs";
 import { KeySignature, ScaleKeyboard } from "./MusicVisuals";
 import SiteFooter from "./SiteFooter";
+import SupportLink from "./SupportLink";
 import { KeyComparison, PlayableScale } from "./LessonTools";
 import { createPosterSvg, posterGeometry } from "@/lib/poster-artwork.mjs";
 
@@ -558,6 +559,8 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
       )}
         <nav className="panel-help-links no-print" aria-label="Help and more apps">
           <a href="https://guides.backwerdrhythmshop.com/circle-of-fourths/">Guide</a>
+          <SupportLink kind="support">Report a problem</SupportLink>
+          <SupportLink kind="feedback">Request a feature</SupportLink>
           <a href="https://apps.backwerdrhythmshop.com/">More apps</a>
         </nav>
         </div>
