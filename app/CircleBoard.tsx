@@ -6,6 +6,7 @@ import { getTeachingTraversal, getScaleOctave } from "@/lib/music-model.mjs";
 import { KeySignature, ScaleKeyboard } from "./MusicVisuals";
 import SiteFooter from "./SiteFooter";
 import SupportLink from "./SupportLink";
+import { emailHref } from "@/lib/support-links.mjs";
 import { KeyComparison, PlayableScale } from "./LessonTools";
 import { createPosterSvg, posterGeometry } from "@/lib/poster-artwork.mjs";
 
@@ -561,6 +562,8 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
           <a href="https://guides.backwerdrhythmshop.com/circle-of-fourths/">Guide</a>
           <SupportLink kind="support">Report a problem</SupportLink>
           <SupportLink kind="feedback">Request a feature</SupportLink>
+          <a href={emailHref("support")}>Email support</a>
+          <a href={emailHref("feedback")}>Email feedback</a>
           <a href="https://apps.backwerdrhythmshop.com/">More apps</a>
         </nav>
         </div>

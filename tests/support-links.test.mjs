@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { APP_NAME, FALLBACK_MAILTO, SHOP_FORMS, hasForm, requestBase, requestHref } from '../lib/support-links.mjs';
+import { APP_NAME, FALLBACK_MAILTO, SHOP_EMAIL, SHOP_FORMS, emailHref, hasForm, requestBase, requestHref } from '../lib/support-links.mjs';
 
 const SETUP = 'https://circle.example/?direction=fifths&key=C · build 2026-10-04.3';
 
@@ -58,4 +58,20 @@ test('a form that is not a Google Forms address, or names a bad entry field, fal
   assert.equal(requestHref('support', SETUP, badEntry), FALLBACK_MAILTO.support);
 
   assert.match(FALLBACK_MAILTO.feedback, /^mailto:feedback@backwerdrhythmshop\.com\?subject=/);
+});
+
+test('the email links name the shop addresses, with the app and the topic in the subject', () => {
+  assert.deepEqual(SHOP_EMAIL, { support: 'support@backwerdrhythmshop.com', feedback: 'feedback@backwerdrhythmshop.com' });
+
+  const support = new URL(emailHref('support'));
+  assert.equal(support.protocol, 'mailto:');
+  assert.equal(support.pathname, 'support@backwerdrhythmshop.com');
+  assert.equal(support.searchParams.get('subject'), 'Circle of Fourths — problem report');
+
+  const feedback = new URL(emailHref('feedback'));
+  assert.equal(feedback.protocol, 'mailto:');
+  assert.equal(feedback.pathname, 'feedback@backwerdrhythmshop.com');
+  assert.equal(feedback.searchParams.get('subject'), 'Circle of Fourths — feature request');
+
+  assert.equal(FALLBACK_MAILTO.support, emailHref('support'), 'the fallback is the same plain email');
 });

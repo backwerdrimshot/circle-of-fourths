@@ -102,6 +102,16 @@ test("the footer routes a visitor back to the shop, the catalog and the guide", 
   );
 });
 
+/* The email links are plain mailto anchors in the server-rendered page, so they
+   work with no JavaScript and exist whatever the forms are set to. */
+test("the footer and settings panel carry the two plain email links", async () => {
+  const response = await render();
+  const html = await response.text();
+  const subject = (topic) => encodeURIComponent(`Circle of Fourths — ${topic}`);
+  assert.match(html, new RegExp(`<a[^>]*href="mailto:support@backwerdrhythmshop\\.com\\?subject=${subject("problem report")}"[^>]*>Email support</a>`));
+  assert.match(html, new RegExp(`<a[^>]*href="mailto:feedback@backwerdrhythmshop\\.com\\?subject=${subject("feature request")}"[^>]*>Email feedback</a>`));
+});
+
 test("server-renders shared lesson state before hydration", async () => {
   const response = await render("/?direction=fifths&mode=focus&layers=minors,keyboards,accidental-order&instrument=piano");
   assert.equal(response.status, 200);
