@@ -106,4 +106,4 @@ Teacher materials: [Drive folder](https://drive.google.com/drive/folders/1Fod9w8
 
 ## Compact practice workspace
 
-The laptop view keeps the main instrument or exercise and its practice controls together. Help contains the instructions and About contains the app, support, and build information. Long reference material and exercise grids scroll inside their own panels; narrow and zoomed windows retain normal page scrolling.
+The laptop view keeps the main instrument or exercise and its practice controls together. Help contains the instructions and the guide, Feedback holds the request forms and email links, and About contains the app, build, and more apps. Long reference material and exercise grids scroll inside their own panels; narrow and zoomed windows retain normal page scrolling.
