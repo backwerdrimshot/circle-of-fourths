@@ -381,9 +381,8 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
       <header className="topbar hide-when-presenting no-print">
         <div className="topbar-title">
           <p className="eyebrow">Backwerd Rhythm Shop · classroom prototype</p>
-          {/* A full load to the start page, as the title always was: a client route would keep this board's state mounted. */}
-          {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
-          <h1><a href="/">Circle of Fourths</a></h1>
+          {/* The title goes to the page it is on: no reload, so the board keeps its URL state. */}
+          <h1><a href="#top" onClick={(event) => { event.preventDefault(); window.scrollTo({ top: 0 }); }}>Circle of Fourths</a></h1>
           <p className="subtitle">Start with one key. Build the relationship.</p>
         </div>
         {isClassroomPoster && <div className="header-actions no-print">

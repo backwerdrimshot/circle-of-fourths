@@ -461,6 +461,13 @@ test("custom teaching combinations remain editable outside poster mode", async (
 
 /* The shop's header, footer and About, asserted on the server-rendered bytes: the dialogs ship in the same
    HTML, so a reader with JavaScript off gets the same actions, forms, email links and About links. */
+/* The title goes to the page it is on, by a fragment, so the board's URL state survives the click. */
+test("the title links to the current page, not to the root", async () => {
+  const html = await (await render()).text();
+  assert.match(html, /<h1><a href="#top"[^>]*>Circle of Fourths<\/a><\/h1>/);
+  assert.doesNotMatch(html, /<h1><a href="\/"/);
+});
+
 test("the header carries Help, Feedback and About, with the monogram last", async () => {
   const html = await (await render()).text();
   const nav = html.match(/<nav class="workspace-actions"[\s\S]*?<\/nav>/)?.[0] ?? "";
