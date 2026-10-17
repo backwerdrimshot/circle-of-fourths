@@ -102,14 +102,16 @@ test("the footer routes a visitor back to the shop, the catalog and the guide", 
   );
 });
 
-/* The email links are plain mailto anchors in the server-rendered page, so they
-   work with no JavaScript and exist whatever the forms are set to. */
-test("the footer and the Feedback dialog carry the two plain email links", async () => {
+/* The email links are plain mailto anchors in the Feedback dialog of the server-rendered page, so they work
+   with no JavaScript and exist whatever the forms are set to. */
+test("the Feedback dialog carries the two plain email links", async () => {
   const response = await render();
   const html = await response.text();
+  const feedback = html.match(/<dialog id="workspace-feedback"[\s\S]*?<\/dialog>/)?.[0] ?? "";
+  assert.ok(feedback, "the page has no Feedback dialog");
   const subject = (topic) => encodeURIComponent(`Circle of Fourths — ${topic}`);
-  assert.match(html, new RegExp(`<a[^>]*href="mailto:support@backwerdrhythmshop\\.com\\?subject=${subject("problem report")}"[^>]*>Email support</a>`));
-  assert.match(html, new RegExp(`<a[^>]*href="mailto:feedback@backwerdrhythmshop\\.com\\?subject=${subject("feature request")}"[^>]*>Email feedback</a>`));
+  assert.match(feedback, new RegExp(`<a[^>]*href="mailto:support@backwerdrhythmshop\\.com\\?subject=${subject("problem report")}"[^>]*>Email support</a>`));
+  assert.match(feedback, new RegExp(`<a[^>]*href="mailto:feedback@backwerdrhythmshop\\.com\\?subject=${subject("feature request")}"[^>]*>Email feedback</a>`));
 });
 
 test("server-renders shared lesson state before hydration", async () => {
@@ -477,14 +479,13 @@ test("the header carries Help, Feedback and About, with the monogram last", asyn
   assert.ok(html.indexOf('class="workspace-actions"') < html.indexOf('class="brs-home"'), "the monogram must come after the actions");
 });
 
-test("the footer carries the two forms and the two email links", async () => {
+test("the footer carries the two forms, and no email links", async () => {
   const html = await (await render()).text();
   const footer = html.match(/<footer class="foot[\s\S]*?<\/footer>/)?.[0] ?? "";
   assert.ok(footer, "the page has no footer");
   assert.match(footer, /<a[^>]*href="https:\/\/docs\.google\.com\/forms\/[^"]*"[^>]*>Report a problem<\/a>/);
   assert.match(footer, /<a[^>]*href="https:\/\/docs\.google\.com\/forms\/[^"]*"[^>]*>Request a feature<\/a>/);
-  assert.match(footer, /<a[^>]*href="mailto:support@backwerdrhythmshop\.com\?subject=[^"]*"[^>]*>Email support<\/a>/);
-  assert.match(footer, /<a[^>]*href="mailto:feedback@backwerdrhythmshop\.com\?subject=[^"]*"[^>]*>Email feedback<\/a>/);
+  assert.doesNotMatch(footer, /mailto:/, "the footer must not carry the email links");
 });
 
 test("About carries More apps and the copyright, and no support links", async () => {

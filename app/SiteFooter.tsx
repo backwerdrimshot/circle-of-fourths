@@ -7,9 +7,9 @@ import SupportLink from "./SupportLink";
 import { emailHref } from "@/lib/support-links.mjs";
 
 /* The shared Backwerd Rhythm Shop footer, in the standard order: the social links, Report a problem, Request
-   a feature, Email support, Email feedback, Guide, All free apps, the copyright and the build stamp. The two
-   request links open the shop's forms in a new tab, pre-filled with the app and the page; without a form they
-   fall back to the shop's email address (lib/support-links.mjs). Help, Feedback and About sit beside it. */
+   a feature, Guide, All free apps, the copyright and the build stamp. The two request links open the shop's
+   forms in a new tab, pre-filled with the app and the page; without a form they fall back to the shop's email
+   address (lib/support-links.mjs). The email links are in the Feedback dialog, beside the forms. */
 
 const APP = "Circle of Fourths";
 const GUIDE = "https://guides.backwerdrhythmshop.com/circle-of-fourths/";
@@ -86,8 +86,6 @@ export default function SiteFooter() {
       <nav className="foot-links" aria-label="Circle of Fourths support and more">
         <SupportLink kind="support">Report a problem</SupportLink>
         <SupportLink kind="feedback">Request a feature</SupportLink>
-        <a href={emailHref("support")}>Email support</a>
-        <a href={emailHref("feedback")}>Email feedback</a>
         <a href={GUIDE}>Guide</a>
         <a href="https://apps.backwerdrhythmshop.com/">All free apps</a>
       </nav>
