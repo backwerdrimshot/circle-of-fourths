@@ -462,6 +462,17 @@ h1 {
   color: white;
 }
 
+.quiz-builder .copy-worksheet {
+  flex-basis: 100%;
+}
+
+.quiz-builder .worksheet-status {
+  flex-basis: 100%;
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.72rem;
+}
+
 .field-role-editor {
   display: grid !important;
 }
