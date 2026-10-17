@@ -1,7 +1,18 @@
-import { mkdir, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { deflateSync } from "node:zlib";
-import sharp from "sharp";
 import { createPosterSvg, POSTER_PAPERS } from "../lib/poster-artwork.mjs";
+
+// librsvg finds faces through fontconfig and cannot read WOFF2, so the brand
+// faces are rendered from TTF copies of public/fonts. A fresh cache keeps a
+// stale system cache from substituting another face. Set before sharp loads.
+const fontDir = fileURLToPath(new URL("./poster-fonts/", import.meta.url));
+const fontTemp = await mkdtemp(join(tmpdir(), "poster-fonts-"));
+await writeFile(join(fontTemp, "fonts.conf"), `<?xml version="1.0"?><!DOCTYPE fontconfig SYSTEM "fonts.dtd"><fontconfig><dir>${fontDir}</dir><include ignore_missing="yes">${process.env.FONTCONFIG_FILE ?? "/etc/fonts/fonts.conf"}</include><cachedir>${join(fontTemp, "cache")}</cachedir></fontconfig>`);
+process.env.FONTCONFIG_FILE = join(fontTemp, "fonts.conf");
+const { default: sharp } = await import("sharp");
 
 // Lossless 300-dpi RGB artwork, flattened once for predictable classroom printing.
 // The SVG beside each PDF is the identical artwork used by the app preview.
