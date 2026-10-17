@@ -7,6 +7,7 @@ import { KeySignature, ScaleKeyboard } from "./MusicVisuals";
 import SiteFooter from "./SiteFooter";
 import { KeyComparison, PlayableScale } from "./LessonTools";
 import { createPosterSvg, posterGeometry } from "@/lib/poster-artwork.mjs";
+import { worksheetLink } from "@/lib/lesson-model.mjs";
 
 type Orientation = "fourths" | "fifths";
 type BoardMode = "build" | "poster" | "focus" | "quiz";
@@ -181,6 +182,7 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
   const [spellings, setSpellings] = useState(initialState.spellings);
   const [returnState, setReturnState] = useState<CircleBoardState | null>(null);
   const [shareStatus, setShareStatus] = useState("Copy lesson link");
+  const [worksheetStatus, setWorksheetStatus] = useState("");
   const [enlarged, setEnlarged] = useState(initialState.enlarged ?? false);
 
   const traversal = useMemo(() => getTeachingTraversal(orientation, spellings), [orientation, spellings]);
@@ -352,6 +354,17 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
       setShareStatus("Copy from address bar");
     }
     window.setTimeout(() => setShareStatus("Copy lesson link"), 1800);
+  }
+
+  // A teacher may be looking at the answer key, but the link they send always opens the student worksheet.
+  async function copyWorksheetLink() {
+    try {
+      await navigator.clipboard.writeText(worksheetLink(window.location.href));
+      setWorksheetStatus("Copied — opens the student worksheet");
+    } catch {
+      setWorksheetStatus("Couldn’t copy. Switch to Student, then copy the address bar.");
+    }
+    window.setTimeout(() => setWorksheetStatus(""), 4000);
   }
 
   return (
@@ -558,6 +571,8 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
               <button type="button" aria-pressed={quizPreview === "student"} onClick={() => setQuizPreview("student")}>Student</button>
               <button type="button" aria-pressed={quizPreview === "answer"} onClick={() => setQuizPreview("answer")}>Answer key</button>
               <button type="button" className="print-quiz" onClick={() => window.print()}>Print / Save PDF</button>
+              <button type="button" className="copy-worksheet" onClick={copyWorksheetLink}>Copy worksheet link</button>
+              <p className="worksheet-status" role="status">{worksheetStatus}</p>
             </fieldset>
           </div>
         </section>

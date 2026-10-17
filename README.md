@@ -79,6 +79,18 @@ registered to explicit treble-staff pitches. The font license is included in
 `public/licenses/bravura-LICENSE.txt`; staff rendering does not depend on text-font
 baselines or fonts installed on the viewer’s device.
 
+The poster carries the BRS monogram at top right and prints in the brand faces:
+Big Shoulders Display for the title and key names, Barlow Condensed for labels and
+Atkinson Hyperlegible for everything else. The monogram is
+`public/brs-monogram.svg`, nested from `lib/brs-monogram.json`; a test keeps the two
+equal. The preview loads the faces from `public/fonts/` (licenses in
+`public/licenses/`). The PDF generator renders through librsvg, which cannot read
+WOFF2, so it uses TTF copies in `scripts/poster-fonts/` through a private
+fontconfig. Those copies are the same Latin subsets, converted with fontTools; the
+Big Shoulders copy has its family name corrected from "Big Shoulders Display Thin"
+(left by the upstream instancer) so it matches. ♭, ♯ and ½ are not in the Latin
+subsets and fall back to a system face.
+
 After changing the poster artwork, regenerate all three sizes with:
 
 ```bash

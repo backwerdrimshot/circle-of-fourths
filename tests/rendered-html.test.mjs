@@ -284,6 +284,8 @@ test("quiz mode renders the accidental-count worksheet preset", async () => {
   assert.match(html, /Write the number and type of accidentals/);
   assert.equal((html.match(/quiz-count-blank/g) ?? []).length, 12);
   assert.match(html, /Name <i><\/i>/);
+  assert.match(html, /Copy worksheet link/);
+  assert.match(html, /class="worksheet-status" role="status"/);
 });
 
 test("quiz answer preview reveals answers from the same configuration", async () => {

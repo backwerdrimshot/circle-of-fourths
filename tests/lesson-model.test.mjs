@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { getTeachingTraversal, getKeySpellings } from '../lib/music-model.mjs';
-import { compareKeys, notePitchClass } from '../lib/lesson-model.mjs';
+import { compareKeys, notePitchClass, worksheetLink } from '../lib/lesson-model.mjs';
 
 test('each neighboring circle position changes exactly one physical scale pitch', () => {
   for (const orientation of ['fourths', 'fifths']) {
@@ -31,4 +31,15 @@ test('enharmonic comparisons preserve all pitches while changing seven written n
   assert.equal(notePitchClass('B♯'), 0);
   assert.equal(notePitchClass('E♯'), 5);
   assert.equal(notePitchClass('F♭'), 4);
+});
+test('worksheet links keep the quiz setup but always open the student copy', () => {
+  const link = new URL(worksheetLink('https://example.test/?direction=fifths&mode=quiz&key=d&quiz=custom&scope=sharps&roles=keyName:answer,numbers:given,signatures:omitted&preview=answer&present=1&detail=1'));
+  assert.equal(link.searchParams.get('preview'), 'student');
+  assert.equal(link.searchParams.get('mode'), 'quiz');
+  assert.equal(link.searchParams.get('quiz'), 'custom');
+  assert.equal(link.searchParams.get('scope'), 'sharps');
+  assert.equal(link.searchParams.get('roles'), 'keyName:answer,numbers:given,signatures:omitted');
+  assert.equal(link.searchParams.get('direction'), 'fifths');
+  assert.equal(link.searchParams.has('present'), false);
+  assert.equal(link.searchParams.has('detail'), false);
 });

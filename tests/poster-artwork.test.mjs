@@ -147,3 +147,20 @@ test("notation outlines clear the major and relative-minor labels at both staff 
     }
   }
 });
+
+test("poster carries the BRS monogram and prints in the brand faces", async () => {
+  const { readFile, access } = await import("node:fs/promises");
+  const { monogramMarkup } = await import("../lib/brs-monogram.mjs");
+  const monogram = JSON.parse(await readFile(new URL("../lib/brs-monogram.json", import.meta.url), "utf8"));
+  assert.equal(monogram.markup, monogramMarkup(await readFile(new URL("../public/brs-monogram.svg", import.meta.url), "utf8")), "monogram copy matches public/brs-monogram.svg");
+  for (const size of Object.keys(POSTER_PAPERS)) {
+    const svg = createPosterSvg(size);
+    assert.equal((svg.match(/data-mark="brs-monogram"/g) ?? []).length, 1, `${size}: one monogram`);
+    assert.ok(!/Georgia|font-family="Arial/.test(svg), `${size}: no older faces`);
+  }
+  const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
+  for (const [, file] of css.matchAll(/url\("\/fonts\/([^"]+)\.woff2"\)/g)) {
+    await access(new URL(`../public/fonts/${file}.woff2`, import.meta.url));
+    await access(new URL(`../scripts/poster-fonts/${file}.ttf`, import.meta.url));
+  }
+});

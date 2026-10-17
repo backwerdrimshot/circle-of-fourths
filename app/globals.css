@@ -1,3 +1,9 @@
+/* Brand faces for the classroom poster preview; the PDFs render the same faces. */
+@font-face { font-family: "Big Shoulders Display"; font-weight: 800; font-display: swap; src: url("/fonts/big-shoulders-display-800-latin.woff2") format("woff2"); }
+@font-face { font-family: "Barlow Condensed"; font-weight: 700; font-display: swap; src: url("/fonts/barlow-condensed-700-latin.woff2") format("woff2"); }
+@font-face { font-family: "Atkinson Hyperlegible"; font-weight: 400; font-display: swap; src: url("/fonts/atkinson-hyperlegible-400-latin.woff2") format("woff2"); }
+@font-face { font-family: "Atkinson Hyperlegible"; font-weight: 700; font-display: swap; src: url("/fonts/atkinson-hyperlegible-700-latin.woff2") format("woff2"); }
+
 :root {
   --ink: #171717;
   --muted: #655f59;
@@ -460,6 +466,17 @@ h1 {
   border-color: var(--brick-deep);
   background: var(--brick-deep);
   color: white;
+}
+
+.quiz-builder .copy-worksheet {
+  flex-basis: 100%;
+}
+
+.quiz-builder .worksheet-status {
+  flex-basis: 100%;
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.72rem;
 }
 
 .field-role-editor {
