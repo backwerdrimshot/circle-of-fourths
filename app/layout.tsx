@@ -16,6 +16,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
   return {
     metadataBase,
+    icons: { icon: "/brs-monogram.svg" },
     title,
     description,
     openGraph: {
