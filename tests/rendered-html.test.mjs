@@ -86,20 +86,25 @@ test("server-renders the classroom board", async () => {
  *
  * Asserted on the rendered bytes rather than the component, because that is
  * what the audit fetches and what a reader with JavaScript disabled receives.
- * The three URLs are the three the audit requires, spelled the way it matches
- * them — the shop, the catalog, and this app's own guide. */
-test("the footer routes a visitor back to the shop, the catalog and the guide", async () => {
+ * The audit requires three URLs: the shop, the catalog, and this app's own
+ * guide. The footer follows the shop standard, so it carries the catalog and
+ * the guide; the way back to the shop is the monogram in the header. */
+test("the footer routes a visitor to the catalog and the guide, and the header returns to the shop", async () => {
   const response = await render();
   assert.equal(response.status, 200);
   const html = await response.text();
+  const footer = html.match(/<footer class="foot[\s\S]*?<\/footer>/)?.[0] ?? "";
+  assert.ok(footer, "the page has no footer");
 
-  assert.match(html, /href="https:\/\/backwerdrhythmshop\.com"/, "no link to the shop");
-  assert.match(html, /href="https:\/\/apps\.backwerdrhythmshop\.com\/"/, "no link to the app catalog");
+  assert.match(footer, /href="https:\/\/apps\.backwerdrhythmshop\.com\/"/, "no link to the app catalog");
   assert.match(
-    html,
+    footer,
     /href="https:\/\/guides\.backwerdrhythmshop\.com\/circle-of-fourths\/"/,
     "no link to this app's guide",
   );
+  assert.doesNotMatch(footer, /href="https:\/\/backwerdrhythmshop\.com\/?"/, "the footer repeats the shop link");
+  const monogram = html.match(/<a class="brs-home"[^>]*>/)?.[0] ?? "";
+  assert.match(monogram, /href="https:\/\/backwerdrhythmshop\.com\/"/, "the header has no link back to the shop");
 });
 
 /* The email links are plain mailto anchors in the Feedback dialog of the server-rendered page, so they work
