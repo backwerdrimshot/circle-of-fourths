@@ -2297,8 +2297,8 @@ html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
 .sr-only-legend { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .control-strip { width: min(1440px, 100%); margin: 0 auto 0.5rem; display: flex; align-items: center; gap: 0.5rem 0.75rem; flex-wrap: wrap; position: relative; }
 .control-strip .toolbar { position: relative; flex: none; width: auto; margin: 0; padding: 0; border: 0; background: none; box-shadow: none; }
-.summary-toggle { display: inline-flex; align-items: center; gap: 0.6rem; min-height: 44px; padding: 0.35rem 0.95rem; border: 1px solid var(--line); border-radius: 999px; background: var(--panel); color: var(--ink); font-size: 0.9rem; font-weight: 800; cursor: pointer; }
-.toolbar .summary-toggle { min-height: 44px; padding: 0.35rem 0.95rem; }
+.summary-toggle { display: inline-flex; align-items: center; gap: 0.6rem; min-height: 48px; padding: 0.35rem 0.95rem; border: 1px solid var(--line); border-radius: 999px; background: var(--panel); color: var(--ink); font-size: 0.9rem; font-weight: 800; cursor: pointer; }
+.toolbar .summary-toggle { min-height: 48px; padding: 0.35rem 0.95rem; }
 .summary-toggle[aria-expanded="true"] { border-color: var(--brick-deep); box-shadow: 0 0 0 2px rgba(109, 45, 45, 0.15); }
 .summary-text { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; color: var(--muted); font-size: 0.82rem; font-weight: 650; }
 .summary-chevron { font-size: 0.8rem; }
@@ -2414,17 +2414,7 @@ footer.foot .shop-link:hover, footer.foot .shop-link:focus-visible { color: var(
 @media (pointer: coarse) { .foot-btn { min-height: 44px; } .foot-btn.foot-ico { min-width: 44px; justify-content: center; } }
 footer.foot .foot-copy { margin-top: 12px; }
 footer.foot .build-stamp { margin-top: 8px; opacity: 0.55; font-size: 11px; }
-.support-dialog { width: min(560px, calc(100vw - 32px)); border: 1px solid var(--line); border-radius: 1rem; padding: 20px; background: var(--panel); color: var(--ink); box-shadow: var(--shadow); text-align: left; }
-.support-dialog::backdrop { background: rgba(0, 0, 0, 0.65); }
-.support-dialog h2 { margin: 0 0 8px; font-size: 1.05rem; }
-.support-dialog .support-dialog-lede, .support-dialog .support-dialog-hint { margin: 0 0 12px; color: var(--muted); font-size: 0.85rem; }
-.support-dialog .support-dialog-hint { margin: 12px 0 0; }
-.support-dialog .support-dialog-label { display: block; font-size: 0.78rem; font-weight: 700; }
-.support-dialog textarea { display: block; width: 100%; margin-top: 6px; padding: 10px; border: 1px solid var(--line); border-radius: 10px; background: var(--paper); color: var(--ink); font: inherit; font-size: 0.85rem; resize: vertical; }
-.support-dialog textarea:focus-visible { outline: 3px solid var(--brick-deep); outline-offset: 3px; }
-.support-dialog .support-dialog-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
-.support-dialog .foot-btn { cursor: pointer; font-family: inherit; }
-@media print { footer.foot, .support-dialog { display: none !important; } }
+@media print { footer.foot { display: none !important; } }
 
 /* Settings panel: quiet Guide / More apps row at the bottom, so help is reachable from the first screen. */
 .panel-help-links { flex: 1 1 100%; display: flex; flex-wrap: wrap; gap: 0 1.25rem; margin-top: 0.1rem; padding-top: 0.3rem; border-top: 1px solid var(--line); }
@@ -2439,7 +2429,7 @@ footer.foot .build-stamp { margin-top: 8px; opacity: 0.55; font-size: 11px; }
 .workspace-actions button,.workspace-dialog-heading button { min-height:44px; padding:8px 14px; border:1px solid var(--line,var(--ink,#171717)); border-radius:8px; background:var(--card,var(--panel,var(--white,#fff))); color:var(--text,var(--ink,#171717)); font:600 1rem var(--body,system-ui); cursor:pointer; }
 .workspace-actions button:focus-visible,.workspace-dialog :focus-visible { outline:3px solid var(--accent,var(--forest,#416034)); outline-offset:3px; }
 header .brs-home { margin-left:4px; }
-.workspace-dialog { box-sizing:border-box; width:min(720px,calc(100% - 32px)); max-height:calc(100dvh - 32px); padding:22px; overflow:auto; overscroll-behavior:contain; border:2px solid var(--line,var(--ink,#171717)); border-radius:14px; background:var(--card,var(--panel,var(--white,#fff))); color:var(--text,var(--ink,#171717)); font:1rem/1.5 var(--body,system-ui); }
+.workspace-dialog { box-sizing:border-box; margin:auto; width:min(720px,calc(100% - 32px)); max-height:calc(100dvh - 32px); padding:22px; overflow:auto; overscroll-behavior:contain; border:2px solid var(--line,var(--ink,#171717)); border-radius:14px; background:var(--card,var(--panel,var(--white,#fff))); color:var(--text,var(--ink,#171717)); font:1rem/1.5 var(--body,system-ui); }
 .workspace-dialog::backdrop { background:rgba(0,0,0,.5); }
 .workspace-dialog-heading { display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:18px; }
 .workspace-dialog-heading h2 { margin:0; padding:0; border:0; font-size:1.5rem; color:inherit; }
@@ -2450,7 +2440,7 @@ dialog.workspace-dialog footer { width:100%; max-width:none; margin:0; padding:0
 .workspace-dialog .kb-hint { display:block; }
 .workspace-dialog .cols { display:grid; grid-template-columns:1fr; gap:14px; }
 .workspace-dialog .panel { margin-bottom:12px; }
-@media(max-width:700px) { .workspace-actions {gap:4px;} .workspace-actions button {padding-inline:8px;font-size:.88rem;} .workspace-dialog {padding:16px;} }
+@media(max-width:700px) { .workspace-dialog {padding:16px;} }
 @media print { .workspace-actions,.workspace-dialog {display:none;} }
 
 .workspace-dialog footer{display:flex;flex-direction:column;align-items:stretch;gap:18px;min-height:0;background:transparent}
@@ -2461,3 +2451,63 @@ dialog.workspace-dialog footer { width:100%; max-width:none; margin:0; padding:0
 
 /* Laptop practice workspace; smaller and zoomed windows keep the scrolling layout. */
 @media (min-width:1000px) and (min-height:560px){.app-shell:not(.is-presenting){--stage-h:calc(100dvh - 234px)}.app-shell:not(.is-presenting) .board-layout:not(.is-classroom-poster-layout){grid-template-columns:minmax(0,1fr) minmax(350px,35%);height:calc(100dvh - 182px);min-height:0;align-items:stretch}.app-shell:not(.is-presenting) .board-layout.is-quiz-layout{grid-template-columns:minmax(0,1fr) 350px}.app-shell:not(.is-presenting) .lesson-board{position:static;min-height:0}.app-shell:not(.is-presenting) .detail-panel{display:block;min-height:0;overflow:auto;overscroll-behavior:contain}.app-shell:not(.is-presenting) .detail-panel>.musical-signature-svg{height:60px;width:180px}.app-shell:not(.is-presenting) .scale-detail .music-keyboard-svg{max-height:180px}.key-context{margin-top:12px;border-top:1px solid var(--line)}.key-context>summary{min-height:44px;padding:10px 0;font-weight:700;cursor:pointer}.dock-bar:not(:empty){position:static;margin-top:8px}}
+
+/* Shop layout standard (2026-10-16): the header, footer and dialogs match the other shop apps, and the
+   settings sit in a 340px column beside the board from 1700px. Below 1700px the Settings bar stays. */
+.topbar h1 a { color: inherit; text-decoration: none; }
+.topbar h1 a:focus-visible { outline: 3px solid var(--brick-deep); outline-offset: 3px; }
+.brs-home { padding: 8px; margin: -8px; }
+header .brs-home { margin: -8px -8px -8px -4px; }
+.workspace-actions button { display: inline-flex; align-items: center; gap: 6px; font-family: inherit; font-size: 1rem; font-weight: 600; }
+.workspace-actions svg { flex: none; width: 18px; height: 18px; }
+/* Below 600px the icons carry the actions. Each name stays, visually hidden, for screen readers. */
+@media (max-width: 599px) {
+  .workspace-actions button { position: relative; min-width: 44px; justify-content: center; padding-inline: 8px; }
+  .workspace-actions button span { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; border: 0; }
+}
+/* On a phone the title, the three actions and the monogram share one row. The name gives way first. */
+@media (max-width: 620px) {
+  .topbar { display: flex; align-items: center; gap: 8px; }
+  .topbar > :first-child { padding-right: 0; min-width: 0; }
+  .topbar h1 { font-size: clamp(1.2rem, 6vw, 1.7rem); }
+  .brs-home { position: static; }
+}
+.dialog-link { display: inline-flex; align-items: center; min-height: 44px; padding: 8px 14px; border: 1px solid var(--line); border-radius: 8px; background: var(--panel); color: var(--ink); font-weight: 700; text-decoration: none; }
+.dialog-link:hover, .dialog-link:focus-visible { border-color: var(--teal-dark); }
+.feedback-options { display: flex; flex-wrap: wrap; gap: 10px; margin: 14px 0 8px; }
+.workspace-dialog .about-links { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 14px; }
+.workspace-dialog .about-copyright { margin: 0; color: var(--muted); font-size: 0.9rem; }
+.workspace-dialog .build-stamp { margin: 0 0 12px; color: var(--muted); font-size: 0.8rem; }
+
+footer.foot { display: grid; grid-template-columns: minmax(0, 1fr); justify-items: center; gap: 12px; width: min(1440px, 100%); margin: 1.5rem auto 0; text-align: center; color: var(--muted); font-size: 0.8rem; line-height: 1.5; }
+footer.foot .foot-social, footer.foot .foot-links { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px 18px; margin: 0; }
+footer.foot .foot-social a { display: inline-flex; align-items: center; justify-content: center; min-width: 44px; min-height: 44px; color: var(--ink); }
+footer.foot .foot-social svg { display: block; }
+footer.foot .foot-links a { display: inline-flex; align-items: center; min-height: 44px; color: var(--muted); font-size: 0.86rem; font-weight: 650; text-decoration: underline; text-underline-offset: 3px; }
+footer.foot .foot-social a:hover, footer.foot .foot-links a:hover, footer.foot .foot-copy a:hover { color: var(--ink); }
+footer.foot .foot-copy { margin: 0; }
+footer.foot .foot-copy a { display: inline-block; padding: 15px 0; margin: -15px 0; color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+footer.foot .build-stamp { margin: 0; opacity: 0.7; font-size: 11px; }
+
+.control-actions { display: flex; flex: 1 1 0; align-items: center; gap: 0.5rem 0.75rem; min-width: 0; }
+@media (max-width: 700px) { .control-actions { flex: 1 1 100%; } }
+
+@media (min-width: 1700px) {
+  .app-shell.has-settings-column { display: grid; grid-template-columns: minmax(0, 1fr) 340px; column-gap: 18px; align-items: start; max-width: 1760px; margin-inline: auto; }
+  .app-shell.has-settings-column > .device-tip { grid-column: 1 / -1; grid-row: 1; }
+  .app-shell.has-settings-column > .topbar { grid-column: 1 / -1; grid-row: 2; width: auto; margin-inline: 0; }
+  .app-shell.has-settings-column > .control-strip { display: contents; }
+  .app-shell.has-settings-column > .control-strip > .control-actions { grid-column: 1; grid-row: 3; width: auto; }
+  .app-shell.has-settings-column > .control-strip > .toolbar.settings-bar { grid-column: 2; grid-row: 3 / span 3; position: sticky; top: 1rem; width: auto; max-height: calc(100dvh - 2rem); overflow-y: auto; flex: none; margin: 0; padding: 0.7rem; border: 1px solid var(--line); border-radius: 1.25rem; background: rgba(250, 250, 249, 0.94); box-shadow: 0 8px 28px rgba(73, 53, 39, 0.07); }
+  .app-shell.has-settings-column .summary-toggle { display: none; }
+  .app-shell.has-settings-column .settings-panel { position: static; display: flex; flex-direction: column; flex-wrap: nowrap; align-items: stretch; gap: 0.6rem; width: auto; max-height: none; overflow: visible; padding: 0; border: 0; background: none; box-shadow: none; }
+  .app-shell.has-settings-column .settings-panel[hidden] { display: flex; }
+  .app-shell.has-settings-column .settings-panel .control-group { width: 100%; flex-basis: 100%; flex-wrap: wrap; border-right: 0; padding: 0; }
+  .app-shell.has-settings-column > .board-layout { grid-column: 1; grid-row: 4; width: auto; margin-inline: 0; }
+  .app-shell.has-settings-column > .dock-bar { grid-column: 1; grid-row: 5; width: auto; margin: 0.6rem 0 0; }
+  .app-shell.has-settings-column > footer.foot { grid-column: 1 / -1; grid-row: 6; width: auto; margin: 1.5rem 0 0; }
+}
+/* The Settings chevron turns over while the panel is open. */
+.summary-chevron svg { display: block; width: 16px; height: 16px; transition: transform 0.15s ease; }
+.summary-toggle[aria-expanded="true"] .summary-chevron svg { transform: rotate(180deg); }
+@media (prefers-reduced-motion: reduce) { .summary-chevron svg { transition: none; } }

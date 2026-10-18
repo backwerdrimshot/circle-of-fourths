@@ -102,6 +102,18 @@ test("the footer routes a visitor back to the shop, the catalog and the guide", 
   );
 });
 
+/* The email links are plain mailto anchors in the Feedback dialog of the server-rendered page, so they work
+   with no JavaScript and exist whatever the forms are set to. */
+test("the Feedback dialog carries the two plain email links", async () => {
+  const response = await render();
+  const html = await response.text();
+  const feedback = html.match(/<dialog id="workspace-feedback"[\s\S]*?<\/dialog>/)?.[0] ?? "";
+  assert.ok(feedback, "the page has no Feedback dialog");
+  const subject = (topic) => encodeURIComponent(`Circle of Fourths — ${topic}`);
+  assert.match(feedback, new RegExp(`<a[^>]*href="mailto:support@backwerdrhythmshop\\.com\\?subject=${subject("problem report")}"[^>]*>Email support</a>`));
+  assert.match(feedback, new RegExp(`<a[^>]*href="mailto:feedback@backwerdrhythmshop\\.com\\?subject=${subject("feature request")}"[^>]*>Email feedback</a>`));
+});
+
 test("server-renders shared lesson state before hydration", async () => {
   const response = await render("/?direction=fifths&mode=focus&layers=minors,keyboards,accidental-order&instrument=piano");
   assert.equal(response.status, 200);
@@ -449,4 +461,40 @@ test("custom teaching combinations remain editable outside poster mode", async (
   assert.doesNotMatch(html, /Classroom reference poster/);
   assert.doesNotMatch(html, /poster-reference-legend/);
   assert.match(html, /class="detail-panel/);
+});
+
+/* The shop's header, footer and About, asserted on the server-rendered bytes: the dialogs ship in the same
+   HTML, so a reader with JavaScript off gets the same actions, forms, email links and About links. */
+/* The title goes to the page it is on, by a fragment, so the board's URL state survives the click. */
+test("the title links to the current page, not to the root", async () => {
+  const html = await (await render()).text();
+  assert.match(html, /<h1><a href="#top"[^>]*>Circle of Fourths<\/a><\/h1>/);
+  assert.doesNotMatch(html, /<h1><a href="\/"/);
+});
+
+test("the header carries Help, Feedback and About, with the monogram last", async () => {
+  const html = await (await render()).text();
+  const nav = html.match(/<nav class="workspace-actions"[\s\S]*?<\/nav>/)?.[0] ?? "";
+  for (const action of ["Help", "Feedback", "About"]) {
+    assert.match(nav, new RegExp(`aria-label="${action}"`), `the header has no ${action} action`);
+  }
+  assert.ok(html.indexOf('class="workspace-actions"') < html.indexOf('class="brs-home"'), "the monogram must come after the actions");
+});
+
+test("the footer carries the two forms, and no email links", async () => {
+  const html = await (await render()).text();
+  const footer = html.match(/<footer class="foot[\s\S]*?<\/footer>/)?.[0] ?? "";
+  assert.ok(footer, "the page has no footer");
+  assert.match(footer, /<a[^>]*href="https:\/\/docs\.google\.com\/forms\/[^"]*"[^>]*>Report a problem<\/a>/);
+  assert.match(footer, /<a[^>]*href="https:\/\/docs\.google\.com\/forms\/[^"]*"[^>]*>Request a feature<\/a>/);
+  assert.doesNotMatch(footer, /mailto:/, "the footer must not carry the email links");
+});
+
+test("About carries More apps and the copyright, and no support links", async () => {
+  const html = await (await render()).text();
+  const about = html.match(/<dialog id="workspace-about"[\s\S]*?<\/dialog>/)?.[0] ?? "";
+  assert.ok(about, "the page has no About dialog");
+  assert.match(about, /<a[^>]*href="https:\/\/apps\.backwerdrhythmshop\.com\/"[^>]*>More apps<\/a>/);
+  assert.match(about, /All rights reserved\./);
+  assert.doesNotMatch(about, /Report a problem|Email support|docs\.google\.com/);
 });

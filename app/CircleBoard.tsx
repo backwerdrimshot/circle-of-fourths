@@ -123,6 +123,11 @@ export type CircleBoardState = {
   enlarged?: boolean;
 };
 
+/* The Settings bar's chevron. It turns over while the panel is open. */
+function ChevronIcon() {
+  return <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg>;
+}
+
 export function CircleBoard({ initialState }: { initialState: CircleBoardState }) {
   const [orientation, setOrientation] = useState<Orientation>(initialState.orientation);
   const [mode, setMode] = useState<BoardMode>(initialState.mode);
@@ -363,7 +368,7 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
   }
 
   return (
-    <main data-more={moreOpen} className={`app-shell ${presenting ? "is-presenting" : ""} ${isClassroomPoster ? `poster-size-${posterSize}` : ""}`}>
+    <main data-more={moreOpen} className={`app-shell ${presenting ? "is-presenting" : ""} ${isClassroomPoster ? `poster-size-${posterSize}` : ""} ${!isClassroomPoster && !presenting ? "has-settings-column" : ""}`}>
       {isClassroomPoster && (
         <style>{`@media print { @page { size: ${POSTER_SIZES[posterSize].pageSize}; margin: 0.35in; } }`}</style>
       )}
@@ -389,7 +394,8 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
       <header className="topbar hide-when-presenting no-print">
         <div className="topbar-title">
           <p className="eyebrow">Backwerd Rhythm Shop · classroom prototype</p>
-          <h1>Circle of Fourths</h1>
+          {/* The title goes to the page it is on: no reload, so the board keeps its URL state. */}
+          <h1><a href="#top" onClick={(event) => { event.preventDefault(); window.scrollTo({ top: 0 }); }}>Circle of Fourths</a></h1>
           <p className="subtitle">Start with one key. Build the relationship.</p>
         </div>
         {isClassroomPoster && <div className="header-actions no-print">
@@ -414,9 +420,9 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
           aria-controls="board-settings"
           onClick={() => setMoreOpen((open) => !open)}
         >
-          <span className="summary-label">{moreOpen ? "Close" : "Settings"}</span>
+          <span className="summary-label">Settings</span>
           <span className="summary-text">{orientation === "fourths" ? "Fourths" : "Fifths"} · {mode === "build" ? "Build" : mode === "focus" ? "Focus" : "Quiz"}{mode === "quiz" ? "" : ` · ${layers.length} layer${layers.length === 1 ? "" : "s"}`}</span>
-          <span className="summary-chevron" aria-hidden="true">{moreOpen ? "▴" : "▾"}</span>
+          <span className="summary-chevron" aria-hidden="true"><ChevronIcon /></span>
         </button>
         <div id="board-settings" className="settings-panel" hidden={!moreOpen}>
         <div className="control-group compact-group" aria-label="Direction">
@@ -577,6 +583,7 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
         </nav>
         </div>
       </section>
+      <div className="control-actions">
       {!isClassroomPoster && mode !== "quiz" && (
         <section className="relationship-controls" aria-label="Key relationships">
           <fieldset className="scale-mode-control">
@@ -597,6 +604,7 @@ export function CircleBoard({ initialState }: { initialState: CircleBoardState }
       )}
 
       <button type="button" className="present-button" onClick={() => setPresenting(true)}>Present</button>
+      </div>
       </div>}
 
       {isClassroomPoster && !presenting && (
