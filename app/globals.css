@@ -2484,9 +2484,8 @@ footer.foot .foot-social, footer.foot .foot-links { display: flex; flex-wrap: wr
 footer.foot .foot-social a { display: inline-flex; align-items: center; justify-content: center; min-width: 44px; min-height: 44px; color: var(--ink); }
 footer.foot .foot-social svg { display: block; }
 footer.foot .foot-links a { display: inline-flex; align-items: center; min-height: 44px; color: var(--muted); font-size: 0.86rem; font-weight: 650; text-decoration: underline; text-underline-offset: 3px; }
-footer.foot .foot-social a:hover, footer.foot .foot-links a:hover, footer.foot .foot-copy a:hover { color: var(--ink); }
+footer.foot .foot-social a:hover, footer.foot .foot-links a:hover { color: var(--ink); }
 footer.foot .foot-copy { margin: 0; }
-footer.foot .foot-copy a { display: inline-block; padding: 15px 0; margin: -15px 0; color: inherit; text-decoration: underline; text-underline-offset: 2px; }
 footer.foot .build-stamp { margin: 0; opacity: 0.7; font-size: 11px; }
 
 .control-actions { display: flex; flex: 1 1 0; align-items: center; gap: 0.5rem 0.75rem; min-width: 0; }

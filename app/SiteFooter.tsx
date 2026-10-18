@@ -89,7 +89,7 @@ export default function SiteFooter() {
         <a href={GUIDE}>Guide</a>
         <a href="https://apps.backwerdrhythmshop.com/">All free apps</a>
       </nav>
-      <p className="foot-copy">© 2026 Backwerd Rimshot, LLC. All rights reserved. · <a href="https://backwerdrhythmshop.com">Backwerd Rhythm Shop</a></p>
+      <p className="foot-copy">© 2026 Backwerd Rimshot, LLC. All rights reserved.</p>
       <p className="build-stamp">Build {BUILD}</p>
     </footer>
   </>;
