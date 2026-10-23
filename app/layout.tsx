@@ -41,7 +41,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>{children}  {/* Prepared only: this local module has collection disabled. */}
+        <script type="module" src="/brs-page-count.js" defer />
+      </body>
     </html>
   );
 }
