@@ -1,7 +1,10 @@
 // Inert module: importing it performs no collection and writes no storage.
 // An accepted host/path config must be passed by reviewed application code.
 export function createMeasurementClient(config, platform = window) {
-  const endpoint = "https://backwerdrhythmshop.com/__brs/measurement";
+  // BRS guide/site hosts share this Worker; opt into its same-origin route to preserve CSP.
+  // Standalone app copies retain the reviewed default until their own route is implemented.
+  const endpoint = (config?.sameOriginCollector === true ? platform.location.origin :
+    "https://backwerdrhythmshop.com") + "/__brs/measurement";
   const version = "brs-measurement-v1";
   const allowed = () => config?.enabled === true && config?.operationalApproved === true &&
     config.origin === platform.location.origin && config.path === platform.location.pathname &&
@@ -30,30 +33,34 @@ export function createMeasurementClient(config, platform = window) {
     return send("page_open", platform.crypto.randomUUID());
   };
   function activate(slot) {
-    if (!permitted() || slot.started) return;
+    if (!permitted() || !slot.ready || slot.started) return;
     slot.started = true;
     if (!slot.renderSent) { slot.renderSent = true; send("sponsor_render", slot.id, { placement_id: slot.placement, consent: version }); }
     const event = type => send(type, slot.id, { placement_id: slot.placement, consent: version });
     const reset = () => { if (slot.timer !== null) platform.clearTimeout(slot.timer); slot.timer = null; };
     slot.reset = reset;
+    const qualifies = () => slot.started && slot.ready && permitted() && !slot.viewed &&
+      slot.ratio >= .5 && platform.document.visibilityState === "visible";
     slot.check = () => {
-      reset();
-      if (permitted() && !slot.viewed && slot.ratio >= .5 && platform.document.visibilityState === "visible") {
-        slot.timer = platform.setTimeout(() => {
-          slot.timer = null;
-          if (permitted() && slot.ratio >= .5 && platform.document.visibilityState === "visible" && !slot.viewed) {
-            slot.viewed = true; event("sponsor_viewable");
-          }
-        }, 1000);
-      }
+      if (!qualifies()) { reset(); return; }
+      // Crossing another qualifying threshold must not restart the same second.
+      if (slot.timer !== null) return;
+      slot.timer = platform.setTimeout(() => {
+        slot.timer = null;
+        if (qualifies()) { slot.viewed = true; event("sponsor_viewable"); }
+      }, 1000);
     };
     slot.click = e => { if (e.isTrusted && permitted() && !slot.clicked) { slot.clicked = true; event("sponsor_click"); } };
     slot.element.addEventListener("click", slot.click);
     platform.document.addEventListener("visibilitychange", slot.check);
     try {
       slot.observer = new platform.IntersectionObserver(entries => {
-        slot.ratio = entries.find(e => e.target === slot.element)?.intersectionRatio ?? 0;
-        slot.check();
+        // Preserve intervening exits, and finish with the latest observed ratio.
+        for (const entry of entries) {
+          if (entry.target !== slot.element) continue;
+          slot.ratio = entry.intersectionRatio;
+          slot.check();
+        }
       }, { threshold: [0, .5, 1] });
       slot.observer.observe(slot.element);
       if (!slot.measurementReported) { slot.measurementReported = true; event("sponsor_measurable"); }
@@ -79,11 +86,15 @@ export function createMeasurementClient(config, platform = window) {
       if (!allowed() || config.mode === "student-protective" || !config.sponsorApproved ||
           !config.placements?.includes(placement)) return;
       const existing = slots.get(placement);
-      if (existing) { if (existing.element !== element) { pause(existing); existing.element = element; activate(existing); } return; }
+      if (existing) { if (existing.element !== element) { pause(existing); existing.element = element; } existing.ready = true; activate(existing); return; }
       const slot = { element, placement, id: platform.crypto.randomUUID(),
-        timer: null, ratio: 0, started: false, viewed: false, clicked: false,
+        timer: null, ratio: 0, ready: true, started: false, viewed: false, clicked: false,
         measurementReported: false };
       slots.set(placement, slot); activate(slot);
+    },
+    sponsorUnavailable(placement) {
+      const slot = slots.get(placement);
+      if (slot) { slot.ready = false; pause(slot); }
     },
     destroy() { destroyed = true; consent = false; for (const slot of slots.values()) pause(slot); },
   });
