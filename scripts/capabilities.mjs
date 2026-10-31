@@ -11,11 +11,13 @@
    If this app ever renders its build to the user, that renderer must read
    lib/build.mjs too. A second literal is how the drift starts.
 
-   WHY IT IS WRITTEN INTO public/ RATHER THAN dist/client. This app is deployed
+   WHY IT IS WRITTEN INTO public/ RATHER THAN dist/client. This app was deployed
    by the Cloudflare Workers Git integration, configured in the dashboard
-   rather than in this repository — so which directory is served is not a fact
-   this repo states, and a file written into a guessed output path could answer
-   404 in production while every check here stayed green. Vite copies public/
+   rather than in this repository — so which directory was served was not a fact
+   this repo stated, and a file written into a guessed output path could answer
+   404 in production while every check here stayed green. It is now deployed by
+   hand with `pnpm release` (scripts/release.mjs), which reads this file back
+   from the live origin. Vite copies public/
    into the client output wherever that output goes. The generated file is
    gitignored: derived, not committed.
 

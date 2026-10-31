@@ -10,6 +10,7 @@
     "build": "node scripts/capabilities.mjs && WRANGLER_LOG_PATH=.wrangler/wrangler.log vinext build",
     "start": "WRANGLER_LOG_PATH=.wrangler/wrangler.log wrangler dev",
     "deploy": "WRANGLER_LOG_PATH=.wrangler/wrangler.log vinext deploy",
+    "release": "node scripts/release.mjs",
     "deploy:dry-run": "WRANGLER_LOG_PATH=.wrangler/wrangler.log pnpm build && wrangler deploy --dry-run",
     "cf-typegen": "WRANGLER_LOG_PATH=.wrangler/wrangler.log wrangler types",
     "check": "pnpm lint && pnpm typecheck && pnpm test",

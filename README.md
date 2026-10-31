@@ -48,6 +48,34 @@ Run the complete verification suite with:
 pnpm test
 ```
 
+`pnpm check` runs lint, typecheck and the tests (which build first).
+
+## Deploying
+
+Deploys are by hand. GitHub Actions does not run for this account (the minutes
+ran out on 2026-09-30), so no workflow starts: **a merge to `main` publishes
+nothing**, and a pull request shows no checks.
+
+Publish with `pnpm release`, from a clean checkout of `main`, with
+`CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` set in the environment (or
+after a Wrangler login). Credentials are never kept in the repository.
+`scripts/release.mjs` does four things in order and stops at the first failure:
+
+1. Refuses unless the tree has nothing uncommitted and `HEAD` is exactly the
+   `origin/main` it has just fetched. `DEPLOY_ANYWAY=1` skips this guard, loudly.
+2. Runs `pnpm check`.
+3. Runs `pnpm run deploy` (not `pnpm deploy`, which is pnpm's own built-in
+   command and publishes nothing), which runs `vinext deploy`.
+4. Reads the live site back: `/capabilities.json` and the footer build stamp at
+   <https://circle-of-fourths.backwerdrhythmshop.com/> must both show the build
+   in `lib/build.mjs`. It retries for about two minutes before reporting failure.
+
+`pnpm deploy:dry-run` builds and runs a Wrangler dry run without publishing.
+
+Every change that ships needs a new build in `lib/build.mjs` (an ISO date, with
+`.2`, `.3` for a later build the same day); `public/capabilities.json` is
+generated from it at build time.
+
 ## Product boundary
 
 This app owns key-relationship visualization, progressive circle construction, and future circle-native quizzes and games. Mallet Board remains the source of truth for physical keyboard geography, ranges, instruments, and scale paths. Praxis may later own teacher accounts, assignments, persistence, and learner evidence.

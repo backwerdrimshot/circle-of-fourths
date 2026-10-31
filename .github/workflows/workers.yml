@@ -1,5 +1,10 @@
 name: Deploy to Cloudflare Workers
 
+# NOT RUN: GitHub Actions minutes for this account ran out on 2026-09-30 and
+# are not coming back, so this workflow never starts and a merge publishes
+# nothing. Deploys are by hand: `pnpm release` (scripts/release.mjs). It is kept,
+# not deleted, only because tests/deploy.test.mjs still pins its contents.
+#
 # A merge to main publishes — but only a commit that Validate has already passed.
 #
 # This replaces the Cloudflare Workers Git integration, which published this
