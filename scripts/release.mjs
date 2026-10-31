@@ -11,8 +11,9 @@
  * deployed on that day shipped without a new build id because nothing in the
  * repository made a deploy carry one.
  *
- * So the guarantees of the retired workflow (.github/workflows/workers.yml)
- * move here, in the order it applied them:
+ * So the guarantees of the deploy workflow (.github/workflows/workers.yml,
+ * which never ran again and was removed on 2026-10-31) move here, in the order
+ * it applied them:
  *
  *   1. The tree is exactly origin/main, fetched just now, with nothing
  *      uncommitted. The workflow deployed the commit its check validated; a

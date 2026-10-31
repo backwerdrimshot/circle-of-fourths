@@ -58,6 +58,8 @@ and are not coming back), so no workflow starts and a pull request shows no chec
 only if the test gate passes.** The owner decided on 2026-10-31 to keep automatic
 deploys on merge. Keep repair PRs in draft until review, because merging deploys
 them.
+The old GitHub Actions deploy workflow (`workers.yml`) never ran again and was
+removed on 2026-10-31.
 
 **How a merge publishes.** The `circle-of-fourths` Worker is connected to this
 repository in **Workers Builds** (set up 2026-10-31): production branch **`main`**,
