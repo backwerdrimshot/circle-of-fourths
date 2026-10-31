@@ -55,6 +55,8 @@ pnpm test
 Deploys are by hand. GitHub Actions does not run for this account (the minutes
 ran out on 2026-09-30), so no workflow starts: **a merge to `main` publishes
 nothing**, and a pull request shows no checks.
+The old GitHub Actions deploy workflow (`workers.yml`) never ran again and was
+removed on 2026-10-31.
 
 Publish with `pnpm release`, from a clean checkout of `main`, with
 `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` set in the environment (or
