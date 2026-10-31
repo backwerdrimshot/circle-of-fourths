@@ -55,6 +55,7 @@ const FEEDBACK = <>
     <a className="dialog-link" href={emailHref("support")}>Email support</a>
     <a className="dialog-link" href={emailHref("feedback")}>Email feedback</a>
   </div>
+  <p className="feedback-note">The forms are for teachers and adults. Students, please tell your teacher instead.</p>
 </>;
 
 /* About: the build, More apps and the guide, then the copyright. The support links live in the footer. */
@@ -89,6 +90,7 @@ export default function SiteFooter() {
         <a href={GUIDE}>Guide</a>
         <a href="https://apps.backwerdrhythmshop.com/">All free apps</a>
       </nav>
+      <p className="foot-note">The problem and feature forms are for teachers and adults. Students, please tell your teacher instead.</p>
       <p className="foot-copy">© 2026 Backwerd Rimshot, LLC. All rights reserved.</p>
       <p className="build-stamp">Build {BUILD}</p>
     </footer>
