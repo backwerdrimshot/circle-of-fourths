@@ -1,101 +1,53 @@
-/* The deploy must stay gated on the check, and the two must stay connected.
+/* The by-hand release path must stay what the README documents.
  *
- * workers.yml fires on `workflow_run` for a workflow named "Validate". That is
- * a match on a STRING, not a reference — so renaming ci.yml's `name:` does not
- * break the deploy loudly, it detaches it. The trigger simply stops matching
- * anything, no run is created, no check goes red, and merges quietly stop
- * publishing. Nothing else in this repository can see that: ci.yml is still
- * valid and still green, and workers.yml is still valid and merely never runs.
+ * This file used to pin .github/workflows/workers.yml: that its `workflow_run`
+ * trigger named the same workflow as ci.yml, that a failed check could not
+ * publish, and that its deploy step and credential guard were intact. GitHub
+ * Actions minutes ran out on 2026-09-30 and are not coming back, so that
+ * workflow never ran, and the owner had it removed on 2026-10-31. Every
+ * assertion that inspected it went with it.
  *
- * That failure has a history in this family. The shop site spent an hour in
- * exactly this state on 2026-08-22 — a real content change merged, nothing
- * published for eight minutes, no deployment recorded — which is why its own
- * tests pin the same shape. This is the cheaper version of that lesson.
- *
- * Deliberately asserts the two names AGAINST EACH OTHER rather than both
- * against the literal "Validate": the point is that they agree, and pinning the
- * literal would mean a deliberate rename has to be made in three places instead
- * of two, which is how a guard earns a reputation for being in the way. */
+ * What remains true, and what a reader would otherwise find out only by
+ * running a deploy: `pnpm release` exists, `scripts/release.mjs` still exports
+ * the pieces the README describes, and the commands the README tells a person
+ * to run are still defined in package.json. tests/release.test.mjs covers the
+ * guard, the live match and the step order; this file covers the documentation
+ * agreeing with the scripts. These tests never deploy anything. */
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import * as release from "../scripts/release.mjs";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const read = (file) => readFileSync(join(root, file), "utf8");
+const { scripts } = JSON.parse(read("package.json"));
+const readme = read("README.md");
 
-const CI = ".github/workflows/ci.yml";
-const DEPLOY = ".github/workflows/workers.yml";
-
-/** The `name:` a workflow declares, which is what workflow_run matches on. */
-function workflowName(file) {
-  const match = /^name: (.+)$/m.exec(read(file));
-  assert.ok(match, `${file} declares no name`);
-  return match[1].trim();
-}
-
-test("the deploy waits for the workflow the check actually declares", () => {
-  const deploy = read(DEPLOY);
-  const triggered = /workflows: \["([^"]+)"\]/.exec(deploy);
-  assert.ok(triggered, "workers.yml does not trigger on a named workflow");
-  assert.equal(
-    triggered[1],
-    workflowName(CI),
-    "workers.yml waits for a workflow name ci.yml no longer declares, so merges would stop publishing silently",
-  );
+test("the release script exists and exports what the README describes", () => {
+  assert.ok(existsSync(join(root, "scripts/release.mjs")), "scripts/release.mjs is missing");
+  assert.equal(typeof release.refusal, "function", "the main/clean-tree guard is no longer exported");
+  assert.equal(typeof release.liveMatches, "function", "the live-origin check is no longer exported");
+  assert.equal(typeof release.stampPattern, "function", "the footer-stamp matcher is no longer exported");
+  assert.match(release.ORIGIN, /^https:\/\/circle-of-fourths\./, "the origin the release reads back changed");
 });
 
-test("a failed or unchecked commit cannot publish", () => {
-  const deploy = read(DEPLOY);
-  assert.match(
-    deploy,
-    /if: >-\s+github\.event_name == 'workflow_dispatch' \|\|\s+\(github\.event\.workflow_run\.conclusion == 'success' &&/,
-    "a failed or cancelled check run could publish",
-  );
-  /* Only a push to main in this repository may publish: a fork pull request
-     from a branch named main also passes the `branches` filter. */
-  assert.match(deploy, /github\.event\.workflow_run\.event == 'push'/, "a pull request's check run could publish");
-  assert.match(
-    deploy,
-    /github\.event\.workflow_run\.head_repository\.full_name == github\.repository/,
-    "a fork's check run could publish",
-  );
-  /* And it must deploy the commit that was checked, not whatever main became
-     while the deploy was queued. */
-  assert.match(
-    deploy,
-    /ref: \$\{\{ github\.event\.workflow_run\.head_sha \|\| github\.ref \}\}/,
-    "the deploy no longer pins the commit the check validated",
-  );
-  assert.match(deploy, /branches: \[main\]/, "only main publishes");
-  assert.match(deploy, /workflow_dispatch:/, "the manual path must remain for when the check is down");
+test("every deploy command the README names is defined in package.json", () => {
+  for (const name of ["release", "deploy", "deploy:dry-run", "check"]) {
+    assert.ok(scripts[name], `package.json defines no ${name} script, but the README's Deploying section relies on it`);
+    assert.ok(
+      readme.includes(`pnpm ${name === "deploy" ? "run deploy" : name}`),
+      `the README no longer mentions \`pnpm ${name}\``,
+    );
+  }
+  assert.ok(readme.includes("DEPLOY_ANYWAY=1"), "the README no longer documents the DEPLOY_ANYWAY escape hatch");
+  assert.match(read("scripts/release.mjs"), /DEPLOY_ANYWAY/, "the release script no longer honors DEPLOY_ANYWAY");
 });
 
 /* `pnpm deploy` is pnpm's own built-in command for deploying a workspace
    package. It is not this repo's deploy script, it exits successfully, and it
-   publishes nothing — a deploy that reports success and ships nothing is the
-   worst of the shapes this codebase keeps finding. */
-test("the deploy step runs the script and not pnpm's built-in", () => {
-  assert.match(
-    read(DEPLOY),
-    /run: pnpm run deploy$/m,
-    "must be `pnpm run deploy`; bare `pnpm deploy` is pnpm's own command and would publish nothing",
-  );
-  const { scripts } = JSON.parse(read("package.json"));
-  assert.ok(scripts.deploy, "package.json defines no deploy script for the workflow to run");
-});
-
-/* The guard that fails in ten seconds naming the missing variable, instead of
-   several minutes later as a wrangler auth error that reads like a bad token. */
-test("a missing credential fails early and says which one", () => {
-  const deploy = read(DEPLOY);
-  for (const name of ["CLOUDFLARE_API_TOKEN", "CLOUDFLARE_ACCOUNT_ID"]) {
-    assert.match(
-      deploy,
-      new RegExp(`: "\\$\\{${name}:\\?[^"]+}"`),
-      `${name} is not checked before the deploy that needs it`,
-    );
-  }
-  assert.match(deploy, /environment: cloudflare-workers-production/, "the deploy must name its environment");
+   publishes nothing. The README tells people to use `pnpm run deploy`. */
+test("the README warns off pnpm's built-in deploy", () => {
+  assert.match(readme, /`pnpm run deploy` \(not `pnpm deploy`/, "the README no longer says `pnpm run deploy`, not `pnpm deploy`");
 });
