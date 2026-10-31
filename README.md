@@ -52,13 +52,33 @@ pnpm test
 
 ## Deploying
 
-Deploys are by hand. GitHub Actions does not run for this account (the minutes
-ran out on 2026-09-30), so no workflow starts: **a merge to `main` publishes
-nothing**, and a pull request shows no checks.
+GitHub Actions does not run for this account (the minutes ran out on 2026-09-30
+and are not coming back), so no workflow starts and a pull request shows no checks.
+**A merge to `main` publishes automatically through Cloudflare Workers Builds, and
+only if the test gate passes.** The owner decided on 2026-10-31 to keep automatic
+deploys on merge. Keep repair PRs in draft until review, because merging deploys
+them.
 
-Publish with `pnpm release`, from a clean checkout of `main`, with
-`CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` set in the environment (or
-after a Wrangler login). Credentials are never kept in the repository.
+**How a merge publishes.** The `circle-of-fourths` Worker is connected to this
+repository in **Workers Builds** (set up 2026-10-31): production branch **`main`**,
+non-production branch builds **off**, root `/`, build command `pnpm check` (the gate,
+so a red suite fails the build and publishes nothing), and deploy command
+`pnpm run deploy`, which runs `vinext deploy`. Those settings live in the Cloudflare
+dashboard, not in this repository, so this paragraph is their record: change both
+together. Builds and deployments are listed under the Worker in the dashboard. The
+first Cloudflare build installs dependencies with Cloudflare's own Node and pnpm,
+which the old workflows pinned (Node 22), so if a build fails at install the fix is
+a `NODE_VERSION` build variable in the dashboard.
+
+**Run `pnpm check` yourself before merging.** The build runs it again after the
+merge, and a red suite publishes nothing, but a failed build after a merge is too
+late to be a review.
+
+**Hand release** is the fallback, for example when a Cloudflare build is failing and
+the owner approves a release. Publish with `pnpm release`, from a clean checkout of
+`main`, with `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` set in the
+environment (or after a Wrangler login). Credentials are never kept in the
+repository.
 `scripts/release.mjs` does four things in order and stops at the first failure:
 
 1. Refuses unless the tree has nothing uncommitted and `HEAD` is exactly the
