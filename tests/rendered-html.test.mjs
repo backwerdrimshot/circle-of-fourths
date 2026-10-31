@@ -103,6 +103,7 @@ test("the footer routes a visitor to the catalog and the guide, and the header r
     "no link to this app's guide",
   );
   assert.doesNotMatch(footer, /href="https:\/\/backwerdrhythmshop\.com\/?"/, "the footer repeats the shop link");
+  assert.ok(footer.includes("The problem and feature forms are for teachers and adults. Students, please tell your teacher instead."), "the footer does not say who the forms are for");
   const monogram = html.match(/<a class="brs-home"[^>]*>/)?.[0] ?? "";
   assert.match(monogram, /href="https:\/\/backwerdrhythmshop\.com\/"/, "the header has no link back to the shop");
 });
@@ -117,6 +118,7 @@ test("the Feedback dialog carries the two plain email links", async () => {
   const subject = (topic) => encodeURIComponent(`Circle of Fourths — ${topic}`);
   assert.match(feedback, new RegExp(`<a[^>]*href="mailto:support@backwerdrhythmshop\\.com\\?subject=${subject("problem report")}"[^>]*>Email support</a>`));
   assert.match(feedback, new RegExp(`<a[^>]*href="mailto:feedback@backwerdrhythmshop\\.com\\?subject=${subject("feature request")}"[^>]*>Email feedback</a>`));
+  assert.ok(feedback.includes("The forms are for teachers and adults. Students, please tell your teacher instead."), "the Feedback dialog does not say who the forms are for");
 });
 
 test("server-renders shared lesson state before hydration", async () => {
